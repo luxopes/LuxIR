@@ -1,0 +1,16 @@
+{
+  "complete": true,
+  "binary_sha256": {
+    "build/luxir": "cfa92a61e11df38dfa8397428a6375ba370d2742246f3851635d2a4b23c93adb",
+    "build/performance/compact/stage2": "cfa92a61e11df38dfa8397428a6375ba370d2742246f3851635d2a4b23c93adb",
+    "build/performance/compact/stage3": "cfa92a61e11df38dfa8397428a6375ba370d2742246f3851635d2a4b23c93adb"
+  },
+  "generations_identical": true,
+  "direct_selfhost_stages": [
+    2,
+    3
+  ],
+  "frontend": "Unmodified LSL 0.9.1",
+  "source_sha256": "89429e0d56df6c8cf4021787136149a0768de92a12f292530f64c683bac9a989",
+  "ir_before_after_identical": true
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "build/readability/raw/backend",
+    "-o",
+    "/dev/null",
+    "build/readability/frontend.lir"
+  ],
+  "returncode": 0,
+  "wall_seconds": 1.6750823550100904,
+  "child_cpu_seconds": 1.624199,
+  "peak_child_rss_kib": 229332,
+  "cpu_affinity": [
+    2
+  ]
+}

@@ -25,10 +25,10 @@ from c_types import Type, Types, Field, pointer, INT, UINT, LONG, ULONG, FLOAT, 
 PINNED_FAST_PATHS = {
     'q_f_alloc': 'ce7ec7436b0ed4ecec7e0b19e0e3b6e2b9daa4b7bcb78735aaba7eac39808edf',
     'q_f_freeall': '5afd2ea9c1954e0af01205a455008e24a4a7fffb7919c2fd162ab26e54d88acc',
-    'q_f_bscopy': '6f4319f913b27e6c47198095f2b54cbee407b76224ff437e2e8b1ae8cb2b68c7',
-    'q_f_bsunion': '440c9776ed8995e2e482969253c02471a0c5d71629844ecd9dc8b0cbcd048505',
-    'q_f_bsinter': '2f2d53f9a7ee8ff9815cb19ce2690e24216138b7944887fe43f32db5f972dde6',
-    'q_f_bsdiff': 'c6c3b96fb33e4614c6ca86d8511cb44fa0e7c8759bf68b1a3c8e86c2ad471b5e',
+    'q_f_bscopy': '24f6540444ad4790fa78cfcf4839976ee360b093684396ea4b3b7e610b85b5ba',
+    'q_f_bsunion': '97b489d50c70afecbc21780a3450ac957a4af40c8fcab5164bf63dee133606af',
+    'q_f_bsinter': '7ce877854c77b52728a829a2456edb67cb3c1b68de979bec658d9c1d2fb806ca',
+    'q_f_bsdiff': '52ae80084296054f4da7c3d2336360ad2ffd24096538edb2a51492628eb05704',
     'q_f_ssa_phiins': 'a8138c7da7592a2a4fb4ac4b90ad956a4503ccc0ee85c995668be6d47ec2bf02',
     'q_f_bsiter': '35321b9fab8da1fdca4a8eafc28eebf578093055ef2a9c70453eca9ce1ee7c5b',
 }
@@ -1118,6 +1118,35 @@ class Function:
             fused.append(line)
         self.lines = fused
 
+        # Raw CFG terminators end the block. The LSL frontend already skips
+        # statements until the next raw label; do not make it parse and retain
+        # those dead statements in the first place. A raw label also emits a
+        # fallthrough jump itself, so an adjacent jump to that same label is
+        # redundant. Keep every label: other blocks may still target it.
+        original = len(self.lines)
+        live = []
+        ended = False
+        label = re.compile(r'^    call __lsl_qbe_label\((\d+)\)$')
+        terminator = re.compile(r'^    call __lsl_qbe_(?:jump|branch)\(')
+        jump = re.compile(r'^    call __lsl_qbe_jump\((\d+)\)$')
+        for line in self.lines:
+            if label.fullmatch(line):
+                ended = False
+            elif ended:
+                continue
+            live.append(line)
+            if terminator.match(line):
+                ended = True
+        compact = []
+        for index, line in enumerate(live):
+            target = jump.fullmatch(line)
+            following = label.fullmatch(live[index+1]) if index+1 < len(live) else None
+            if target and following and target[1] == following[1]:
+                continue
+            compact.append(line)
+        self.lines = compact
+        self.elided_cfg_statements = original - len(compact)
+
     def ssa_index_cursor(self, initial):
         """Visit defining blocks in link order, starting at their first def.
 
@@ -1290,7 +1319,9 @@ def main():
             fn = Function(p,unit,node,binding)
             result = fn.generate()
             code.append(result)
-            p.coverage.append({'function':name,'source':str(node.coord),'status':'generated','nodes':dict(fn.generated_nodes)})
+            p.coverage.append({'function':name,'source':str(node.coord),'status':'generated',
+                               'nodes':dict(fn.generated_nodes),
+                               'elided_cfg_statements':fn.elided_cfg_statements})
         except Exception as e:
             failures.append({'function':name,'source':str(node.coord),'error':str(e),'trace':traceback.format_exc()})
     # Every object is allocated before initializers are evaluated, preserving

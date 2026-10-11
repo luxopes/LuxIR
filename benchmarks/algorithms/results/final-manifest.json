@@ -1,0 +1,31 @@
+{
+  "baseline_tag": "v0.1",
+  "baseline_commit": "7480a0fe0a70ec9525cbae7363cf9da457194fce",
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "c_flags": "-std=c99 -O2 -Wall -Wextra -Wpedantic",
+  "sha256": {
+    "src/all.h": "deb653bd5fe9e219a9babf76ba5c4ae0c1e2df8f4003108da1aab149f6f5a3d5",
+    "src/cfg.c": "308e5264b5b61ccebe181430c2cdf872aa9d42e3cce4c335b799e01d83c8aadc",
+    "src/spill.c": "4cf2b84ce63011550808ce5f5f3ff34439d0ef5d5ac2eac61d8be5d4c1c33c7b",
+    "src/util.c": "b0b2aa8f9d396a8ad1eb47da78b568f032a55cc4f406301d26a97bf004ea63cc",
+    "tools/translate.py": "0605f7a30edaa3d06ce013116fdd939f5ca83e1a74418b17cbd4744b94af4b7b",
+    "tools/support.lsl": "1206e1694965fd4043c468c976382f4be56504f0030e90d3f0c83e4ca4e6e729",
+    "lsl/luxir.lsl": "89429e0d56df6c8cf4021787136149a0768de92a12f292530f64c683bac9a989",
+    "lsl/luxir_float.lsl": "1e40c2301c0c11deb494a6a76a7d9b959f6240745f49c58d814162e960fe427a",
+    "lsl/luxir_libc.lsl": "4ed8ef93367d10d329fefa78ebf331127d2d2a274aa4cb4e668e51aaf8665537",
+    "lsl/luxir_memory.lsl": "202ed04843c3acfacf681779cbc697244781b74d2bb924c24482f12e41b57e05",
+    "lsl/luxir_stdio.lsl": "8be00e91991374141a6e6e0304e1dc843f5fec26f341e3aa5f798d829fdd7b05",
+    "lsl/luxir_stdio_raw.lsl": "723decc359039da5b43950b145f4fcae1e3d512a8bf4d9824b2dd6dd167a12cb",
+    "build/luxir": "cfa92a61e11df38dfa8397428a6375ba370d2742246f3851635d2a4b23c93adb",
+    "build/readability/raw/backend": "ba0bf00d4ebc6541d70e93973ec77bd77c1de16354c24a45d3f93e44a8502c4d",
+    "build/readability/toolchain/lsl-0.9.1/bin/lslc": "a6cb9d5ede10e59d42b61d37397f4e237ec755dc090257ca67618a9efd21338c",
+    "build/readability/toolchain/lsl-0.9.1/bin/luxir": "a6b418ad09c1788d18dd976ef11b9ce6761134c6d90fa068f16286ce0189f0de"
+  },
+  "compaction": {
+    "source_lines_before": 62308,
+    "source_lines_after": 57997,
+    "before_lir_sha256": "af0f024dd3573cb2e2d155e5470e203244103fce3965e7a040c63414f8ab1601",
+    "after_lir_sha256": "af0f024dd3573cb2e2d155e5470e203244103fce3965e7a040c63414f8ab1601",
+    "binary_identical": true
+  }
+}

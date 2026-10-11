@@ -1,0 +1,143 @@
+{
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "target": "amd64_sysv",
+  "cpu_affinity": [
+    2
+  ],
+  "repeats": 3,
+  "binaries": {
+    "baseline": {
+      "path": "/home/antonin/LuxIR-benchmark/build/performance/dominance/backend",
+      "sha256": "a2d92c2146946d2f2e2c9a24b2046a1139af48a2f4e3b65097bff5d72656fca5"
+    },
+    "candidate": {
+      "path": "/home/antonin/LuxIR-benchmark/build/performance/sort/backend",
+      "sha256": "d60df491d2c62e8f4709f76d75e7ca157c1b788bd3386daefe2d9fe76e77a775"
+    }
+  },
+  "cases": [
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir",
+      "input_bytes": 4181223,
+      "input_sha256": "27ab4d1a6c424b2002e61d47bd7657a2ba3b81e7f61bc805c3a7a1708b99389c",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 1.6392684919992462,
+          "cpu_seconds": 1.636082,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.6450684759765863,
+          "cpu_seconds": 1.6393339999999998,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.6380226589972153,
+          "cpu_seconds": 1.636456,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6413599399966188,
+          "cpu_seconds": 1.6396829999999993,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6379371590155642,
+          "cpu_seconds": 1.6320069999999995,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.6359065159922466,
+          "cpu_seconds": 1.631538,
+          "returncode": 0,
+          "repeat": 2
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+      "median_seconds": {
+        "baseline": 1.6392684919992462,
+        "candidate": 1.6380226589972153
+      },
+      "ratio_seconds": 0.9992400067419637,
+      "median_cpu_seconds": {
+        "baseline": 1.636082,
+        "candidate": 1.636456
+      },
+      "ratio_cpu_seconds": 1.0002285948992775
+    },
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir",
+      "input_bytes": 9790262,
+      "input_sha256": "315e2900da6b1ac59ee8d73a5b21c5b8d5e99743895a52ad6696a85a938624bb",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 5.022407588985516,
+          "cpu_seconds": 5.000643999999998,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 5.044989306974458,
+          "cpu_seconds": 5.00944,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 5.003058592003072,
+          "cpu_seconds": 4.997772000000005,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 4.983085159998154,
+          "cpu_seconds": 4.980105999999994,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.000188741018064,
+          "cpu_seconds": 4.987685000000003,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 5.02640971497749,
+          "cpu_seconds": 4.993721000000003,
+          "returncode": 0,
+          "repeat": 2
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+      "median_seconds": {
+        "baseline": 5.000188741018064,
+        "candidate": 5.02640971497749
+      },
+      "ratio_seconds": 1.0052439968404245,
+      "median_cpu_seconds": {
+        "baseline": 4.987685000000003,
+        "candidate": 4.997772000000005
+      },
+      "ratio_cpu_seconds": 1.0020223811247106
+    }
+  ],
+  "complete": true
+}

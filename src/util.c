@@ -619,10 +619,16 @@ uint
 bscount(BSet *bs)
 {
 	uint i, n;
+	bits word;
 
 	n = 0;
-	for (i=0; i<bs->nt; i++)
-		n += popcnt(bs->t[i]);
+	for (i=0; i<bs->nt; i++) {
+		word = bs->t[i];
+		/* Live register sets are sparse even in functions with many temps.
+		 * Avoid the full portable population count for their empty words. */
+		if (word)
+			n += popcnt(word);
+	}
 	return n;
 }
 

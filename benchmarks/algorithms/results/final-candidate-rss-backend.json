@@ -1,0 +1,15 @@
+{
+  "command": [
+    "build/luxir",
+    "-o",
+    "/dev/null",
+    "build/readability/raw/backend.lir"
+  ],
+  "returncode": 0,
+  "wall_seconds": 4.383878334017936,
+  "child_cpu_seconds": 4.367917,
+  "peak_child_rss_kib": 603368,
+  "cpu_affinity": [
+    2
+  ]
+}

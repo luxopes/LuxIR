@@ -1,0 +1,15 @@
+{
+  "command": [
+    "build/readability/toolchain/lsl-0.9.1/bin/lslc",
+    "lsl/luxir.lsl",
+    "build/performance/compact/stage2",
+    "/home/antonin/LuxIR-benchmark/build/luxir"
+  ],
+  "returncode": 0,
+  "wall_seconds": 58.79570077400422,
+  "child_cpu_seconds": 58.698479,
+  "peak_child_rss_kib": 1038224,
+  "cpu_affinity": [
+    2
+  ]
+}

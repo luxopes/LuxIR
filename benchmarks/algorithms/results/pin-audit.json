@@ -1,0 +1,22 @@
+{
+  "bscopy": {
+    "old": "6f4319f913b27e6c47198095f2b54cbee407b76224ff437e2e8b1ae8cb2b68c7",
+    "new": "24f6540444ad4790fa78cfcf4839976ee360b093684396ea4b3b7e610b85b5ba",
+    "only_assert_line_changed": true
+  },
+  "bsunion": {
+    "old": "440c9776ed8995e2e482969253c02471a0c5d71629844ecd9dc8b0cbcd048505",
+    "new": "97b489d50c70afecbc21780a3450ac957a4af40c8fcab5164bf63dee133606af",
+    "only_assert_line_changed": true
+  },
+  "bsinter": {
+    "old": "2f2d53f9a7ee8ff9815cb19ce2690e24216138b7944887fe43f32db5f972dde6",
+    "new": "7ce877854c77b52728a829a2456edb67cb3c1b68de979bec658d9c1d2fb806ca",
+    "only_assert_line_changed": true
+  },
+  "bsdiff": {
+    "old": "c6c3b96fb33e4614c6ca86d8511cb44fa0e7c8759bf68b1a3c8e86c2ad471b5e",
+    "new": "52ae80084296054f4da7c3d2336360ad2ffd24096538edb2a51492628eb05704",
+    "only_assert_line_changed": true
+  }
+}
