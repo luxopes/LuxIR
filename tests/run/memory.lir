@@ -1,0 +1,91 @@
+# Data, paměť, struktury a blit
+type Pair = struct(Int64, Int32)
+type Wide align 16 = struct(Int8 * 3, Pair)
+type Either = union(struct(Int32), struct(Float64, Int8))
+type Blob align 8 = opaque(24)
+
+data msg = ["tab\there \"q\" back\\slash x\x41 nul\0end", Int8(10, 0)]
+data nums align 16 = [Int8(-1, 2), Int16(-300), Int32(70000), Int64(-5), zero(3), Int8(9)]
+data ref = Ptr(nums + 2)
+data fmt = [
+    "%d:%lld\n",
+    Int8(0),
+]
+
+function out(Int32(id), Int64(v)):
+    call printf(Ptr(fmt), ..., Int32(id), Int64(v))
+    return
+end
+
+function psum(Pair(p)) -> Int64:
+    Int64(a) = load(p)
+    Ptr(p8) = add(p, 8)
+    Int32(b) = load_i32(p8)
+    Int64(bb) = sext32(b)
+    Int64(s) = add(a, bb)
+    return s
+end
+
+function mkpair(Int64(a), Int32(b)) -> Pair:
+    Ptr(p) = alloc8(16)
+    store(a, p)
+    Ptr(p8) = add(p, 8)
+    store(b, p8)
+    return p
+end
+
+export function main() -> Int32:
+    call printf(Ptr(msg))
+    Ptr(p) = load(ref)
+    Int32(h) = load_i16(p)
+    Int64(hx) = sext32(h)
+    call out(Int32(1), hx)
+    Int32(hu) = load_u16(p)
+    Int64(hux) = sext32(hu)
+    call out(Int32(2), hux)
+    Int32(b0) = load_i8(nums)
+    Int64(b0x) = sext32(b0)
+    call out(Int32(3), b0x)
+    Int32(b0u) = load_u8(nums)
+    Int64(b0ux) = sext32(b0u)
+    call out(Int32(4), b0ux)
+    Ptr(p4) = add(nums, 4)
+    Int64(w) = load_i32(p4)
+    call out(Int32(5), w)
+    Ptr(p8) = add(nums, 8)
+    Int64(q) = load(p8)
+    call out(Int32(6), q)
+    Ptr(p19) = add(nums, 19)
+    Int64(n9) = load_u8(p19)
+    call out(Int32(7), n9)
+    Ptr(buf) = alloc16(32)
+    store(Int64(-2), buf)
+    store(Int8(65), buf)
+    Int64(v) = load(buf)
+    call out(Int32(8), v)
+    Ptr(buf2) = alloc8(32)
+    blit(buf, buf2, 8)
+    Int64(v2) = load(buf2)
+    call out(Int32(9), v2)
+    store(Int16(0x1234), buf2)
+    Int64(v3) = load_u32(buf2)
+    call out(Int32(10), v3)
+    Ptr(pp) = alloc8(16)
+    store(Int64(11), pp)
+    Ptr(pp8) = add(pp, 8)
+    store(Int32(22), pp8)
+    Int64(sum) = call psum(Pair(pp))
+    call out(Int32(11), sum)
+    Pair(r) = call mkpair(Int64(5), Int32(6))
+    Int64(ra) = load(r)
+    call out(Int32(12), ra)
+    Ptr(r8) = add(r, 8)
+    Int64(rb) = load_i32(r8)
+    call out(Int32(13), rb)
+    Ptr(fb) = alloc8(8)
+    store(Float64(0.5), fb)
+    Float64(fv) = load(fb)
+    Int64(fbits) = bitcast(fv)
+    call out(Int32(14), fbits)
+    return 0
+end

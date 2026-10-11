@@ -1,0 +1,7 @@
+# Hello world v LuxIR
+data greeting = ["Hello from LuxIR!\n", Int8(0)]
+
+export function main() -> Int32:
+    call printf(Ptr(greeting))
+    return 0
+end

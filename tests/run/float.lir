@@ -1,0 +1,66 @@
+# Desetinná čísla, převody a bitové vzory
+data ffmt = ["%d:%.6f\n", Int8(0)]
+data ifmt = ["%d:%lld\n", Int8(0)]
+
+function outf(Int32(id), Float64(v)):
+    call printf(Ptr(ffmt), ..., Int32(id), Float64(v))
+    return
+end
+
+function outi(Int32(id), Int64(v)):
+    call printf(Ptr(ifmt), ..., Int32(id), Int64(v))
+    return
+end
+
+export function main() -> Int32:
+    Float64(x) = 1.5
+    Float64(y) = mul(x, 4.0)
+    call outf(Int32(1), y)
+    Float64(z) = div(y, -0.5)
+    call outf(Int32(2), z)
+    Float32(s) = 2.25
+    Float32(s2) = add(s, 0.25)
+    Float64(sd) = fext(s2)
+    call outf(Int32(3), sd)
+    Float32(t) = ftrunc(z)
+    Float64(td) = fext(t)
+    call outf(Int32(4), td)
+    Int64(i) = ftoi(z)
+    call outi(Int32(5), i)
+    Int32(iw) = ftoi(s2)
+    Int64(iwx) = sext32(iw)
+    call outi(Int32(6), iwx)
+    Float64(fi) = itof(Int64(-3))
+    call outf(Int32(7), fi)
+    Float64(fu) = utof(Int32(-1))
+    call outf(Int32(8), fu)
+    Int64(bc) = bitcast(1.0)
+    call outi(Int32(9), bc)
+    Float64(fb) = bits(4611686018427387904)
+    call outf(Int32(10), fb)
+    Float64(zero) = 0
+    Float64(nanv) = div(zero, zero)
+    Int32(o1) = ord(nanv, 1.0)
+    Int64(o1x) = zext32(o1)
+    call outi(Int32(11), o1x)
+    Int32(o2) = unord(nanv, 1.0)
+    Int64(o2x) = zext32(o2)
+    call outi(Int32(12), o2x)
+    Int32(o3) = lt(x, y)
+    Int64(o3x) = zext32(o3)
+    call outi(Int32(13), o3x)
+    Float64(inf1) = Float64(inf)
+    Int32(o4) = gt(inf1, 1e308)
+    Int64(o4x) = zext32(o4)
+    call outi(Int32(14), o4x)
+    Float64(e) = 2.5e-3
+    call outf(Int32(15), e)
+    Int64(u) = ftou(Float64(1e19))
+    call printf(Ptr(ifmt), ..., Int32(16), Int64(u))
+    Float64(n) = neg(x)
+    call outf(Int32(17), n)
+    Float32(sb) = bitcast(Int32(0x40490fdb))
+    Float64(sbd) = fext(sb)
+    call outf(Int32(18), sbd)
+    return 0
+end

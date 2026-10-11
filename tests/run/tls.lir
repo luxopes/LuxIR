@@ -1,0 +1,14 @@
+# Thread-local data
+thread data counter = Int32(41)
+export data shared align 4 = Int32(7)
+data fmt = ["%d %d\n", Int8(0)]
+
+export function main() -> Int32:
+    Int32(x) = load(thread(counter))
+    Int32(x1) = add(x, 1)
+    store(x1, thread(counter))
+    Int32(y) = load(thread(counter))
+    Int32(z) = load(shared)
+    call printf(Ptr(fmt), ..., Int32(y), Int32(z))
+    return 0
+end

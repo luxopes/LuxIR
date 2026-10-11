@@ -1,0 +1,75 @@
+# Celočíselná aritmetika, literály a porovnání
+data fmt = ["%d:%lld\n", Int8(0)]
+
+function out(Int32(id), Int64(v)):
+    call printf(Ptr(fmt), ..., Int32(id), Int64(v))
+    return
+end
+
+function out32(Int32(id), Int32(v)):
+    Int64(x) = sext32(v)
+    call out(Int32(id), Int64(x))
+    return
+end
+
+export function main() -> Int32:
+    Int64(a) = copy(-7)
+    Int64(b) = 3
+    Int64(r) = add(a, b)
+    call out(Int32(1), Int64(r))
+    Int64(r2) = sub(a, b)
+    call out(Int32(2), r2)
+    Int64(r3) = mul(a, b)
+    call out(Int32(3), r3)
+    Int64(r4) = div(a, b)
+    call out(Int32(4), r4)
+    Int64(r5) = rem(a, b)
+    call out(Int32(5), r5)
+    Int64(r6) = udiv(a, b)
+    call out(Int32(6), r6)
+    Int64(r7) = urem(a, b)
+    call out(Int32(7), r7)
+    Int64(r8) = neg(a)
+    call out(Int32(8), r8)
+    Int64(r9) = and(0xFF, 0b1010)
+    call out(Int32(9), r9)
+    Int64(r10) = or(0o17, 0x100)
+    call out(Int32(10), r10)
+    Int64(r11) = xor(a, -1)
+    call out(Int32(11), r11)
+    Int64(r12) = shl(1, 40)
+    call out(Int32(12), r12)
+    Int64(r13) = sar(a, 1)
+    call out(Int32(13), r13)
+    Int64(r14) = shr(a, 60)
+    call out(Int32(14), r14)
+    Int32(w) = add(2147483647, 1)
+    call out32(Int32(15), w)
+    Int32(c1) = lt(a, b)
+    call out32(Int32(16), c1)
+    Int32(c2) = ult(a, b)
+    call out32(Int32(17), c2)
+    Int32(c3) = ge(Int32(5), 5)
+    call out32(Int32(18), c3)
+    Int32(c4) = eq(a, -7)
+    call out32(Int32(19), c4)
+    Int32(c5) = ne(b, 3)
+    call out32(Int32(20), c5)
+    Int32(c6) = ugt(a, b)
+    call out32(Int32(21), c6)
+    Int32(c7) = le(Int32(a), -7)
+    call out32(Int32(22), c7)
+    Int64(big) = 0xFFFFFFFFFFFFFFFF
+    call out(Int32(23), big)
+    Int64(z) = zext32(w)
+    call out(Int32(24), z)
+    Int64(s8) = sext8(Int32(200))
+    call out(Int32(25), s8)
+    Int64(z8) = zext8(Int32(-1))
+    call out(Int32(26), z8)
+    Int64(s16) = sext16(Int32(40000))
+    call out(Int32(27), s16)
+    Int64(z16) = zext16(Int32(-1))
+    call out(Int32(28), z16)
+    return 0
+end

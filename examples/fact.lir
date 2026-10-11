@@ -1,0 +1,24 @@
+# Faktoriál se smyčkou a phi
+export function fact(Int64(n)) -> Int64:
+start:
+    goto loop
+loop:
+    Int64(i) = phi(start: n, body: i1)
+    Int64(acc) = phi(start: 1, body: acc1)
+    Int32(done) = le(i, 1)
+    if done goto finish else body
+body:
+    Int64(acc1) = mul(acc, i)
+    Int64(i1) = sub(i, 1)
+    goto loop
+finish:
+    return acc
+end
+
+data fmt = "%lld\n\000"
+
+export function main() -> Int32:
+    Int64(r) = call fact(Int64(20))
+    call printf(Ptr(fmt), ..., Int64(r))
+    return 0
+end

@@ -1,0 +1,78 @@
+# Řízení toku: skrytý vstupní blok, phi, propadnutí, rekurze
+data fmt = ["%d:%lld\n", Int8(0)]
+
+function out(Int32(id), Int64(v)):
+    call printf(Ptr(fmt), ..., Int32(id), Int64(v))
+    return
+end
+
+# rekurze bez úvodního návěští
+function fib(Int64(n)) -> Int64:
+    Int32(small) = lt(n, 2)
+    if small goto base else rec
+base:
+    return n
+rec:
+    Int64(n1) = sub(n, 1)
+    Int64(a) = call fib(n1)
+    Int64(n2) = sub(n, 2)
+    Int64(b) = call fib(n2)
+    Int64(s) = add(a, b)
+    return s
+end
+
+function sum(Int64(n)) -> Int64:
+start:
+    goto loop
+loop:
+    Int64(i) = phi(start: 1, body: i1)
+    Int64(acc) = phi(start: 0, body: acc1)
+    Int32(more) = le(i, n)
+    if more goto body else done
+body:
+    Int64(acc1) = add(acc, i)
+    Int64(i1) = add(i, 1)
+    goto loop
+done:
+    return acc
+end
+
+# nemutující SSA zápis: hodnota přiřazená ve dvou větvích
+function pick(Int32(c)) -> Int64:
+    if c goto yes else no
+yes:
+    Int64(r) = 10
+    goto join
+no:
+    Int64(r) = 20
+join:
+    return r
+end
+
+# propadnutí do dalšího bloku, halt v nedosažitelné větvi
+function fall(Int64(x)) -> Int64:
+    Int64(y) = add(x, 1)
+first:
+    Int64(z) = mul(y, 2)
+second:
+    Int32(bad) = eq(z, -1)
+    if bad goto trap else ok
+trap:
+    halt
+ok:
+    return z
+end
+
+export function main() -> Int32:
+    Int64(f) = call fib(Int64(20))
+    call out(Int32(1), f)
+    Int64(s) = call sum(Int64(100))
+    call out(Int32(2), s)
+    Int64(p1) = call pick(Int32(1))
+    call out(Int32(3), p1)
+    Int64(p0) = call pick(Int32(0))
+    call out(Int32(4), p0)
+    Int64(fa) = call fall(Int64(20))
+    call out(Int32(5), fa)
+    return 0
+end

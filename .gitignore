@@ -1,0 +1,6 @@
+/build/
+/src/*.o
+/src/*/*.o
+/src/luxir
+/src/config.h
+__pycache__/

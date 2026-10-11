@@ -1,0 +1,83 @@
+# Volání: varargs, env, malé typy v ABI, ukazatel na funkci
+data fmt = ["%d:%lld\n", Int8(0)]
+
+function out(Int32(id), Int64(v)):
+    call printf(Ptr(fmt), ..., Int32(id), Int64(v))
+    return
+end
+
+function vsum(Int32(n), ...) -> Int64:
+start:
+    Ptr(ap) = alloc8(32)
+    vastart(ap)
+    goto loop
+loop:
+    Int32(i) = phi(start: 0, body: i1)
+    Int64(acc) = phi(start: 0, body: acc1)
+    Int32(c) = lt(i, n)
+    if c goto body else done
+body:
+    Int64(x) = vaarg(ap)
+    Int64(acc1) = add(acc, x)
+    Int32(i1) = add(i, 1)
+    goto loop
+done:
+    return acc
+end
+
+function withenv(Env(e), Int64(x)) -> Int64:
+    Int64(r) = add(e, x)
+    return r
+end
+
+# Int8/UInt8/Int16/UInt16 v ABI zaručují jen spodní bity;
+# rozšíření provede příjemce
+function sx(Int8(c)) -> Int32:
+    Int32(v) = sext8(c)
+    return v
+end
+
+function zx(UInt8(c)) -> Int32:
+    Int32(v) = zext8(c)
+    return v
+end
+
+function rb() -> Int8:
+    return 200
+end
+
+function rub() -> UInt16:
+    return -1
+end
+
+function twice(Int64(x)) -> Int64:
+    Int64(r) = mul(x, 2)
+    return r
+end
+
+function apply(Ptr(f), Int64(x)) -> Int64:
+    Int64(r) = call f(Int64(x))
+    return r
+end
+
+export function main() -> Int32:
+    Int64(s) = call vsum(Int32(3), ..., Int64(10), Int64(20), Int64(30))
+    call out(Int32(1), s)
+    Int64(e) = call withenv(Env(100), Int64(5))
+    call out(Int32(2), e)
+    Int32(a) = call sx(Int8(255))
+    Int64(ax) = sext32(a)
+    call out(Int32(3), ax)
+    Int32(b) = call zx(UInt8(255))
+    Int64(bx) = sext32(b)
+    call out(Int32(4), bx)
+    Int8(c) = call rb()
+    Int64(cx) = sext8(c)
+    call out(Int32(5), cx)
+    UInt16(d) = call rub()
+    Int64(dx) = zext16(d)
+    call out(Int32(6), dx)
+    Int64(t) = call apply(Ptr(twice), Int64(21))
+    call out(Int32(7), t)
+    return 0
+end
