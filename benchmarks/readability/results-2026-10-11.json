@@ -1,0 +1,3776 @@
+{
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "cpu_affinity": [
+    2
+  ],
+  "compiler_sha256": "a6cb9d5ede10e59d42b61d37397f4e237ec755dc090257ca67618a9efd21338c",
+  "variants": {
+    "baseline_commit": "7480a0fe0a70ec9525cbae7363cf9da457194fce",
+    "baseline_source_sha256": "64034e255699544ff1400b9c8bd22cb1e7c611af36474622843425d996c42410",
+    "modified_functions": [
+      "q_f_bsclr",
+      "q_f_bscopy",
+      "q_f_bscount",
+      "q_f_bsdiff",
+      "q_f_bsequal",
+      "q_f_bsinter",
+      "q_f_bsset",
+      "q_f_bsunion"
+    ],
+    "original_lines": 264,
+    "readable_lines": 153,
+    "readable_source_sha256": "804a8fdf5ba04241881d700d32371b2d7c01fe6ae67197a5dcf780c0c2f8759e"
+  },
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/antonin/LuxIR-benchmark/tests/run_tests.py",
+        "--backend",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/backend"
+      ],
+      "seconds": 2.4494368649902754,
+      "cpu_seconds": 2.410442,
+      "returncode": 0,
+      "stdout_sha256": "06d0977963e27b085f83e97fced8237a9672330e887da33cba3b917dfe03459d"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/antonin/LuxIR-benchmark/tests/differential.py",
+        "--reference",
+        "/home/antonin/LSL-QBE/build/qbe/qbe-1.3/qbe",
+        "--backend",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+        "--report",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/differential.json"
+      ],
+      "seconds": 28.402728762011975,
+      "cpu_seconds": 27.166633,
+      "returncode": 0,
+      "stdout_sha256": "6ed63f8d89d5bb1a48701e0244a13d852844b52403ad115737ce077836b9393f"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/antonin/LuxIR-benchmark/tests/run_tests.py",
+        "--backend",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/backend"
+      ],
+      "seconds": 2.4836248729989165,
+      "cpu_seconds": 2.433365999999996,
+      "returncode": 0,
+      "stdout_sha256": "be8a3eb79069d3ca4052fcbee2580266b10bbb3da6b5d343b4e29aa318bd0b7a"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/antonin/LuxIR-benchmark/tests/differential.py",
+        "--reference",
+        "/home/antonin/LSL-QBE/build/qbe/qbe-1.3/qbe",
+        "--backend",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+        "--report",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/differential.json"
+      ],
+      "seconds": 27.7728591329942,
+      "cpu_seconds": 26.973338000000005,
+      "returncode": 0,
+      "stdout_sha256": "6ed63f8d89d5bb1a48701e0244a13d852844b52403ad115737ce077836b9393f"
+    },
+    {
+      "command": [
+        "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/micro.lsl",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+        "/home/antonin/LuxIR-benchmark/build/readability/raw/capture_micro.py"
+      ],
+      "seconds": 0.7952675620035734,
+      "cpu_seconds": 0.7935560000000024,
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/micro.lsl",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+        "/home/antonin/LuxIR-benchmark/build/readability/readable/capture_micro.py"
+      ],
+      "seconds": 0.7812421049893601,
+      "cpu_seconds": 0.7795749999999941,
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+        "/home/antonin/LuxIR-benchmark/build/readability/array/micro.lsl",
+        "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+        "/home/antonin/LuxIR-benchmark/build/readability/array/capture_micro.py"
+      ],
+      "seconds": 0.6183065700024599,
+      "cpu_seconds": 0.6169440000000037,
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+        "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro.lsl",
+        "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+        "/home/antonin/LuxIR-benchmark/build/readability/array_typed/capture_micro.py"
+      ],
+      "seconds": 0.6021448269893881,
+      "cpu_seconds": 0.5925239999999999,
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "micro": [
+    {
+      "pair": [
+        "raw",
+        "readable"
+      ],
+      "mode": "count",
+      "words": 256,
+      "repetitions": 135869,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.006682253006147221,
+          "cpu_seconds": 0.005887999999998783,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        },
+        "readable": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0060174499958520755,
+          "cpu_seconds": 0.005367999999997153,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1934524579992285,
+          "cpu_seconds": 0.19238500000000158,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1846205949987052,
+          "cpu_seconds": 0.1833559999999963,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1897292759967968,
+          "cpu_seconds": 0.18250000000000455,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.19142543399357237,
+          "cpu_seconds": 0.19064599999999388,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.18943549100367818,
+          "cpu_seconds": 0.1885430000000028,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1821753109979909,
+          "cpu_seconds": 0.18133799999999667,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.18617242100299336,
+          "cpu_seconds": 0.18285500000000354,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.19220881699584424,
+          "cpu_seconds": 0.19047300000000433,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1905210560071282,
+          "cpu_seconds": 0.18946899999999545,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.1822911130002467,
+          "cpu_seconds": 0.18153700000000583,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.18631040900072549,
+          "cpu_seconds": 0.18524999999999636,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.19952313299290836,
+          "cpu_seconds": 0.1974739999999997,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.202786672001821,
+          "cpu_seconds": 0.19778900000000021,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "count",
+            "256",
+            "135869"
+          ],
+          "seconds": 0.19049118499970064,
+          "cpu_seconds": 0.18529300000000148,
+          "returncode": 0,
+          "stdout_sha256": "b5d237c1255766c503275801ecc53ed2e5cd1ea1083d9b5461cb2722c211a8c9",
+          "variant": "readable",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.19220881699584424,
+        "readable": 0.18617242100299336
+      },
+      "ratio_seconds": 0.9685945936965972,
+      "median_cpu_seconds": {
+        "raw": 0.19064599999999388,
+        "readable": 0.18285500000000354
+      },
+      "ratio_cpu_seconds": 0.9591336823222592
+    },
+    {
+      "pair": [
+        "raw",
+        "readable"
+      ],
+      "mode": "bulk",
+      "words": 256,
+      "repetitions": 149309,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0064270089933415875,
+          "cpu_seconds": 0.005358000000001084,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        },
+        "readable": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.005471251992275938,
+          "cpu_seconds": 0.004764999999991915,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11603506399842445,
+          "cpu_seconds": 0.11505700000000729,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11632127600023523,
+          "cpu_seconds": 0.11539100000000246,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11713381900335662,
+          "cpu_seconds": 0.11515099999999734,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.12325652599975001,
+          "cpu_seconds": 0.11553100000000427,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11702159499691334,
+          "cpu_seconds": 0.11570399999999381,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11664676399959717,
+          "cpu_seconds": 0.11586699999999439,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.1182141750032315,
+          "cpu_seconds": 0.11452500000000043,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11846625099133234,
+          "cpu_seconds": 0.11506599999999878,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11478742699546274,
+          "cpu_seconds": 0.11399300000000778,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11673585900280159,
+          "cpu_seconds": 0.11551899999999193,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11422231800679583,
+          "cpu_seconds": 0.11349700000000951,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11471576199983247,
+          "cpu_seconds": 0.11393699999999285,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11481700299191289,
+          "cpu_seconds": 0.11373200000001304,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "bulk",
+            "256",
+            "149309"
+          ],
+          "seconds": 0.11525891200290062,
+          "cpu_seconds": 0.11439999999998918,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "readable",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.11603506399842445,
+        "readable": 0.11664676399959717
+      },
+      "ratio_seconds": 1.0052716823699173,
+      "median_cpu_seconds": {
+        "raw": 0.11505700000000729,
+        "readable": 0.11515099999999734
+      },
+      "ratio_cpu_seconds": 1.0008169863631942
+    },
+    {
+      "pair": [
+        "raw",
+        "readable"
+      ],
+      "mode": "equal",
+      "words": 256,
+      "repetitions": 219840,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.004058651000377722,
+          "cpu_seconds": 0.0031869999999969423,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        },
+        "readable": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.00436949499999173,
+          "cpu_seconds": 0.003639000000006831,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10606038900732528,
+          "cpu_seconds": 0.1052140000000037,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10515037000004668,
+          "cpu_seconds": 0.10438700000000267,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10811900100088678,
+          "cpu_seconds": 0.10704400000000192,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.1067540049989475,
+          "cpu_seconds": 0.10562799999999584,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10816355601127725,
+          "cpu_seconds": 0.10716099999999074,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10723569200490601,
+          "cpu_seconds": 0.10645200000000443,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10906928399344906,
+          "cpu_seconds": 0.1057610000000011,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.1066996849986026,
+          "cpu_seconds": 0.10593699999999728,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.11068598800920881,
+          "cpu_seconds": 0.10801599999999212,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.12455765999038704,
+          "cpu_seconds": 0.11037500000000477,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10829510900657624,
+          "cpu_seconds": 0.10746000000000322,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.1065569779893849,
+          "cpu_seconds": 0.10579500000000053,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.10729667299892753,
+          "cpu_seconds": 0.10651200000000927,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "equal",
+            "256",
+            "219840"
+          ],
+          "seconds": 0.1066319819947239,
+          "cpu_seconds": 0.10586399999999685,
+          "returncode": 0,
+          "stdout_sha256": "bb2b5a726df5eaa60d047a42480201c62bb5ee3b7414e61d213996cc3036524b",
+          "variant": "readable",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.1067540049989475,
+        "readable": 0.10811900100088678
+      },
+      "ratio_seconds": 1.0127863680800804,
+      "median_cpu_seconds": {
+        "raw": 0.10593699999999728,
+        "readable": 0.10645200000000443
+      },
+      "ratio_cpu_seconds": 1.0048613798767867
+    },
+    {
+      "pair": [
+        "raw",
+        "readable"
+      ],
+      "mode": "membership",
+      "words": 256,
+      "repetitions": 212709,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.004461969991098158,
+          "cpu_seconds": 0.0037609999999972388,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        },
+        "readable": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.004342141997767612,
+          "cpu_seconds": 0.0035790000000019973,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.033313227992039174,
+          "cpu_seconds": 0.031012000000004036,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.031066586001543328,
+          "cpu_seconds": 0.029820000000000846,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.030428900005063042,
+          "cpu_seconds": 0.02959099999999637,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.03208028800145257,
+          "cpu_seconds": 0.030408999999991693,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.0305067430017516,
+          "cpu_seconds": 0.02976900000000171,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.030007686000317335,
+          "cpu_seconds": 0.02915900000000704,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.0315757990028942,
+          "cpu_seconds": 0.03079799999999011,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.032410056999651715,
+          "cpu_seconds": 0.031424999999998704,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.03176361099758651,
+          "cpu_seconds": 0.030838000000002808,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.03204573299444746,
+          "cpu_seconds": 0.0312150000000031,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.032132869004271924,
+          "cpu_seconds": 0.031243999999986727,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.031098271007067524,
+          "cpu_seconds": 0.030167000000005828,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.030879236001055688,
+          "cpu_seconds": 0.03006899999999746,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/micro",
+            "membership",
+            "256",
+            "212709"
+          ],
+          "seconds": 0.03182902300613932,
+          "cpu_seconds": 0.0307899999999961,
+          "returncode": 0,
+          "stdout_sha256": "b510ae1b30c11fc12a8e26ecf028a72927822428fa16035b7dc24a30c0f84510",
+          "variant": "readable",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.03176361099758651,
+        "readable": 0.0315757990028942
+      },
+      "ratio_seconds": 0.9940871963610629,
+      "median_cpu_seconds": {
+        "raw": 0.030408999999991693,
+        "readable": 0.0307899999999961
+      },
+      "ratio_cpu_seconds": 1.0125291854386698
+    },
+    {
+      "pair": [
+        "raw",
+        "array"
+      ],
+      "mode": "count",
+      "words": 256,
+      "repetitions": 2000,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.006306485011009499,
+          "cpu_seconds": 0.005502000000007001,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        },
+        "array": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.4582476829964435,
+          "cpu_seconds": 0.4575360000000046,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.008681612991495058,
+          "cpu_seconds": 0.005535000000008949,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.4576219410082558,
+          "cpu_seconds": 0.4564939999999922,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.45860730099957436,
+          "cpu_seconds": 0.45781499999999653,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.011964963006903417,
+          "cpu_seconds": 0.005645000000001232,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.006767234997823834,
+          "cpu_seconds": 0.0053729999999916345,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.46040307999646757,
+          "cpu_seconds": 0.45569400000000826,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.4700905479985522,
+          "cpu_seconds": 0.4681099999999958,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0059000880137318745,
+          "cpu_seconds": 0.005176000000005843,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0056614170025568455,
+          "cpu_seconds": 0.005038999999996463,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.45896297600120306,
+          "cpu_seconds": 0.45673299999999983,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.45667874001082964,
+          "cpu_seconds": 0.4544819999999987,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.007230954986880533,
+          "cpu_seconds": 0.005729999999999791,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.005930654995609075,
+          "cpu_seconds": 0.00520700000001284,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.46900161998928525,
+          "cpu_seconds": 0.46432399999999063,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c",
+          "variant": "array",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.006767234997823834,
+        "array": 0.45896297600120306
+      },
+      "ratio_seconds": 67.82134448542034,
+      "median_cpu_seconds": {
+        "raw": 0.0053729999999916345,
+        "array": 0.45673299999999983
+      },
+      "ratio_cpu_seconds": 85.00521124152446
+    },
+    {
+      "pair": [
+        "raw",
+        "array"
+      ],
+      "mode": "bulk",
+      "words": 256,
+      "repetitions": 9025,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.005836623007780872,
+          "cpu_seconds": 0.005147000000008006,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        },
+        "array": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0911571710021235,
+          "cpu_seconds": 0.08863399999998478,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.013106951999361627,
+          "cpu_seconds": 0.010805000000004839,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.3241729230066994,
+          "cpu_seconds": 0.3225020000000143,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.32816736899258103,
+          "cpu_seconds": 0.3265349999999927,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.011760634995880537,
+          "cpu_seconds": 0.010530000000002815,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.010470269990037195,
+          "cpu_seconds": 0.009748000000001866,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.34094419098983053,
+          "cpu_seconds": 0.33683099999998944,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.32973623900034,
+          "cpu_seconds": 0.32771200000000533,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.011615644005360082,
+          "cpu_seconds": 0.010816999999988752,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.010769230997539125,
+          "cpu_seconds": 0.010032000000009589,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.328680794002139,
+          "cpu_seconds": 0.3263040000000075,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.32906212999660056,
+          "cpu_seconds": 0.32802999999998406,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.010768356005428359,
+          "cpu_seconds": 0.010019999999997253,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.010906367999268696,
+          "cpu_seconds": 0.01002100000000894,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "bulk",
+            "256",
+            "9025"
+          ],
+          "seconds": 0.3272287310101092,
+          "cpu_seconds": 0.32627899999999954,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.010906367999268696,
+        "array": 0.328680794002139
+      },
+      "ratio_seconds": 30.13659487963161,
+      "median_cpu_seconds": {
+        "raw": 0.010032000000009589,
+        "array": 0.3265349999999927
+      },
+      "ratio_cpu_seconds": 32.54934210523132
+    },
+    {
+      "pair": [
+        "raw",
+        "array"
+      ],
+      "mode": "equal",
+      "words": 256,
+      "repetitions": 33484,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.004290336000849493,
+          "cpu_seconds": 0.003421000000003005,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        },
+        "array": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0249671070050681,
+          "cpu_seconds": 0.023892000000003577,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.02088412300508935,
+          "cpu_seconds": 0.018675000000001774,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.34729495499050245,
+          "cpu_seconds": 0.34617899999999224,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.3465758249949431,
+          "cpu_seconds": 0.3453360000000032,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.01865171299141366,
+          "cpu_seconds": 0.017893000000000825,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.0188732649985468,
+          "cpu_seconds": 0.018026999999989357,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.3595522209943738,
+          "cpu_seconds": 0.3548020000000065,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.34835566399851814,
+          "cpu_seconds": 0.34729200000001015,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.019743944008951075,
+          "cpu_seconds": 0.018893999999988864,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.01945399800024461,
+          "cpu_seconds": 0.017973000000012007,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.34750351899128873,
+          "cpu_seconds": 0.3465049999999792,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.3509421670023585,
+          "cpu_seconds": 0.3489590000000078,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.018756270001176745,
+          "cpu_seconds": 0.017916999999997074,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.02072235800733324,
+          "cpu_seconds": 0.018618000000003576,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "equal",
+            "256",
+            "33484"
+          ],
+          "seconds": 0.35725967701000627,
+          "cpu_seconds": 0.35038799999999526,
+          "returncode": 0,
+          "stdout_sha256": "3bfca796a8207d0b680034cf711994d3dd4a91a444cc30c5c564eb0c0f50dc85",
+          "variant": "array",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.01945399800024461,
+        "array": 0.34835566399851814
+      },
+      "ratio_seconds": 17.906636157469432,
+      "median_cpu_seconds": {
+        "raw": 0.018026999999989357,
+        "array": 0.34729200000001015
+      },
+      "ratio_cpu_seconds": 19.265102346492217
+    },
+    {
+      "pair": [
+        "raw",
+        "array"
+      ],
+      "mode": "membership",
+      "words": 256,
+      "repetitions": 21938,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.004435326001839712,
+          "cpu_seconds": 0.00366100000000813,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        },
+        "array": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.03719187999377027,
+          "cpu_seconds": 0.03646600000000433,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.0069958379899617285,
+          "cpu_seconds": 0.00625999999999749,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.04206784399866592,
+          "cpu_seconds": 0.041206999999999994,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.039644381002290174,
+          "cpu_seconds": 0.038793999999995776,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.007439153006998822,
+          "cpu_seconds": 0.006385000000008745,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.009655734000261873,
+          "cpu_seconds": 0.00642699999998797,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.041591743007302284,
+          "cpu_seconds": 0.039841000000009785,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.04204283299623057,
+          "cpu_seconds": 0.040348999999991975,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.006925551002495922,
+          "cpu_seconds": 0.006178000000005568,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.00711630099976901,
+          "cpu_seconds": 0.006319999999988113,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.04034449000027962,
+          "cpu_seconds": 0.039016000000003714,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.047025652005686425,
+          "cpu_seconds": 0.04195300000000657,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.007207640999695286,
+          "cpu_seconds": 0.006410000000002469,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.006747178005753085,
+          "cpu_seconds": 0.006060000000005061,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array/micro",
+            "membership",
+            "256",
+            "21938"
+          ],
+          "seconds": 0.04000218299916014,
+          "cpu_seconds": 0.03877999999998849,
+          "returncode": 0,
+          "stdout_sha256": "2d3374fbd50b7c11b30762273e0b6b1afd543d185964eca675c6a8af017db07c",
+          "variant": "array",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.00711630099976901,
+        "array": 0.041591743007302284
+      },
+      "ratio_seconds": 5.844573326599356,
+      "median_cpu_seconds": {
+        "raw": 0.006319999999988113,
+        "array": 0.039841000000009785
+      },
+      "ratio_cpu_seconds": 6.303955696215937
+    },
+    {
+      "pair": [
+        "raw",
+        "array_typed"
+      ],
+      "mode": "count",
+      "words": 256,
+      "repetitions": 58067,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.005874328999198042,
+          "cpu_seconds": 0.005181000000000102,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        },
+        "array_typed": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.014397455001017079,
+          "cpu_seconds": 0.01377700000000004,
+          "returncode": 0,
+          "stdout_sha256": "63acf2bc466963351f38702916f36fd44d7efe01cea2d9a7fb9e9b09ebbdd10c"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08335797699692193,
+          "cpu_seconds": 0.08206899999999995,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.32745298300869763,
+          "cpu_seconds": 0.3221820000000001,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.3270947580022039,
+          "cpu_seconds": 0.32523900000000006,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08406598700094037,
+          "cpu_seconds": 0.08329699999999995,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08356769201054703,
+          "cpu_seconds": 0.08287099999999992,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.322759627000778,
+          "cpu_seconds": 0.3202560000000001,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.32145148699055426,
+          "cpu_seconds": 0.32074099999999994,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08336723600223195,
+          "cpu_seconds": 0.08251100000000022,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08968188599101268,
+          "cpu_seconds": 0.08896199999999954,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.32452453099540435,
+          "cpu_seconds": 0.32384499999999994,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.32389185900683515,
+          "cpu_seconds": 0.3227960000000003,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08347143899300136,
+          "cpu_seconds": 0.08244699999999971,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.08333931399101857,
+          "cpu_seconds": 0.08250899999999994,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "count",
+            "256",
+            "58067"
+          ],
+          "seconds": 0.3196406830102205,
+          "cpu_seconds": 0.3187169999999999,
+          "returncode": 0,
+          "stdout_sha256": "90d51d72c0b234a5259e468dad9b62da4986743c702a1effb479e6c3bbb7cace",
+          "variant": "array_typed",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.08347143899300136,
+        "array_typed": 0.32389185900683515
+      },
+      "ratio_seconds": 3.880271658357199,
+      "median_cpu_seconds": {
+        "raw": 0.08251100000000022,
+        "array_typed": 0.3221820000000001
+      },
+      "ratio_cpu_seconds": 3.9047157348717043
+    },
+    {
+      "pair": [
+        "raw",
+        "array_typed"
+      ],
+      "mode": "bulk",
+      "words": 256,
+      "repetitions": 8567,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0056115709885489196,
+          "cpu_seconds": 0.004783000000000204,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        },
+        "array_typed": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0962825629976578,
+          "cpu_seconds": 0.09337400000000029,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.010703245992772281,
+          "cpu_seconds": 0.009741,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.3262735030002659,
+          "cpu_seconds": 0.3223069999999999,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.3233407899970189,
+          "cpu_seconds": 0.3221110000000005,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.01089880800282117,
+          "cpu_seconds": 0.010269999999999335,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.012137837999034673,
+          "cpu_seconds": 0.010412000000000532,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.3283097359962994,
+          "cpu_seconds": 0.3272969999999997,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.32580295800289605,
+          "cpu_seconds": 0.3251269999999993,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.010465807004948147,
+          "cpu_seconds": 0.009738000000000469,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.010410317001515068,
+          "cpu_seconds": 0.009704000000000157,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.329992642000434,
+          "cpu_seconds": 0.3279069999999997,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.33376277300703805,
+          "cpu_seconds": 0.32720600000000033,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.011140100992633961,
+          "cpu_seconds": 0.01018799999999942,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.010831806997884996,
+          "cpu_seconds": 0.010163000000000366,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "bulk",
+            "256",
+            "8567"
+          ],
+          "seconds": 0.3291808089998085,
+          "cpu_seconds": 0.32821000000000033,
+          "returncode": 0,
+          "stdout_sha256": "b7f900629f7f6fa223db2324a97a6c3e26b41883369010ffc8846b79155ea8b5",
+          "variant": "array_typed",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.010831806997884996,
+        "array_typed": 0.3283097359962994
+      },
+      "ratio_seconds": 30.30978451336926,
+      "median_cpu_seconds": {
+        "raw": 0.010163000000000366,
+        "array_typed": 0.32720600000000033
+      },
+      "ratio_cpu_seconds": 32.19580832431256
+    },
+    {
+      "pair": [
+        "raw",
+        "array_typed"
+      ],
+      "mode": "equal",
+      "words": 256,
+      "repetitions": 41339,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.005794696000521071,
+          "cpu_seconds": 0.003635000000000055,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        },
+        "array_typed": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.019998450006823987,
+          "cpu_seconds": 0.01935200000000048,
+          "returncode": 0,
+          "stdout_sha256": "1d8fa3c8ab49d50b30fccbbd901735d5896a5d7959a5ad7ccecb79c1c849cc66"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.022043821998522617,
+          "cpu_seconds": 0.02132099999999859,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.3454458199994406,
+          "cpu_seconds": 0.34350200000000086,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.34689675299159717,
+          "cpu_seconds": 0.34528099999999906,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.02260382600070443,
+          "cpu_seconds": 0.021626000000000367,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.0224185820115963,
+          "cpu_seconds": 0.021741999999999706,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.3457250390056288,
+          "cpu_seconds": 0.3449530000000003,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.3426945589890238,
+          "cpu_seconds": 0.34165500000000026,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.02807112000300549,
+          "cpu_seconds": 0.023257000000000083,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.022432933998061344,
+          "cpu_seconds": 0.021777000000000157,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.3421565000026021,
+          "cpu_seconds": 0.3413499999999994,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.343655482007307,
+          "cpu_seconds": 0.34195300000000106,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.022195842990186065,
+          "cpu_seconds": 0.02149799999999935,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.022890797001309693,
+          "cpu_seconds": 0.021905999999999537,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "equal",
+            "256",
+            "41339"
+          ],
+          "seconds": 0.3425354719947791,
+          "cpu_seconds": 0.34157699999999913,
+          "returncode": 0,
+          "stdout_sha256": "ecc33d65a19e02feeb1c4b8cbbdb042c147c56ecbfa9709b74cc13af2c55fe23",
+          "variant": "array_typed",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.022432933998061344,
+        "array_typed": 0.343655482007307
+      },
+      "ratio_seconds": 15.319239205937384,
+      "median_cpu_seconds": {
+        "raw": 0.021741999999999706,
+        "array_typed": 0.34195300000000106
+      },
+      "ratio_cpu_seconds": 15.727761935424786
+    },
+    {
+      "pair": [
+        "raw",
+        "array_typed"
+      ],
+      "mode": "membership",
+      "words": 256,
+      "repetitions": 23297,
+      "pilots": {
+        "raw": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.00449812799342908,
+          "cpu_seconds": 0.0037940000000009633,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        },
+        "array_typed": {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "2000"
+          ],
+          "seconds": 0.0350957600021502,
+          "cpu_seconds": 0.03433900000000101,
+          "returncode": 0,
+          "stdout_sha256": "f12ee5eb1a03952167283b5b95ea3404ca40ea05eb1fe7eb22d46c3784def7aa"
+        }
+      },
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.01124411600176245,
+          "cpu_seconds": 0.006823999999999941,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.04043249100504909,
+          "cpu_seconds": 0.03903200000000062,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 0,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.04039560600358527,
+          "cpu_seconds": 0.03906999999999883,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.007197604005341418,
+          "cpu_seconds": 0.006517999999999802,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 1,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.009542487998260185,
+          "cpu_seconds": 0.00685300000000133,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.03926972199406009,
+          "cpu_seconds": 0.038441999999999865,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 2,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.04510229200241156,
+          "cpu_seconds": 0.03871299999999955,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.00890118899405934,
+          "cpu_seconds": 0.006728000000000733,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 3,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.006998997007030994,
+          "cpu_seconds": 0.006247999999999365,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.039825487008783966,
+          "cpu_seconds": 0.03899299999999961,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 4,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.039677731998381205,
+          "cpu_seconds": 0.03898899999999905,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.007257913006469607,
+          "cpu_seconds": 0.006448000000000675,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 5,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.00695033700321801,
+          "cpu_seconds": 0.006263000000000574,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "raw",
+          "repeat": 6,
+          "correct": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/array_typed/micro",
+            "membership",
+            "256",
+            "23297"
+          ],
+          "seconds": 0.03941980699892156,
+          "cpu_seconds": 0.03861999999999988,
+          "returncode": 0,
+          "stdout_sha256": "759a1a4095ec0d45937f47ea9a93eb1f1d666b844d0a54de856ce445d697b526",
+          "variant": "array_typed",
+          "repeat": 6,
+          "correct": true
+        }
+      ],
+      "median_seconds": {
+        "raw": 0.007257913006469607,
+        "array_typed": 0.039825487008783966
+      },
+      "ratio_seconds": 5.487181642062127,
+      "median_cpu_seconds": {
+        "raw": 0.006517999999999802,
+        "array_typed": 0.03898899999999905
+      },
+      "ratio_cpu_seconds": 5.981742865909824
+    }
+  ],
+  "backend": [
+    {
+      "input": "frontend",
+      "bytes": 4181223,
+      "sha256": "27ab4d1a6c424b2002e61d47bd7657a2ba3b81e7f61bc805c3a7a1708b99389c",
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6584033199906116,
+          "cpu_seconds": 1.651210000000006,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 0,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6697905179898953,
+          "cpu_seconds": 1.6610389999999882,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 0,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6563369119976414,
+          "cpu_seconds": 1.649294999999995,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 1,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6559136129944818,
+          "cpu_seconds": 1.6489740000000097,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 1,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6666933160013286,
+          "cpu_seconds": 1.655101000000002,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 2,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6736482600099407,
+          "cpu_seconds": 1.6602340000000027,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 2,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6577719730121316,
+          "cpu_seconds": 1.648828999999992,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 3,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.660470502989483,
+          "cpu_seconds": 1.6460739999999987,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 3,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6546582720038714,
+          "cpu_seconds": 1.6462250000000012,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 4,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.65506837599969,
+          "cpu_seconds": 1.644553000000002,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 4,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6615459119930165,
+          "cpu_seconds": 1.6536569999999955,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 5,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6584768100001384,
+          "cpu_seconds": 1.6497790000000094,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 5,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.655836656995234,
+          "cpu_seconds": 1.643068999999997,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "raw",
+          "repeat": 6,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir"
+          ],
+          "seconds": 1.6571617029985646,
+          "cpu_seconds": 1.6465979999999973,
+          "returncode": 0,
+          "stdout_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+          "variant": "readable",
+          "repeat": 6,
+          "assembly_matches": true
+        }
+      ],
+      "assembly_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+      "median_seconds": {
+        "raw": 1.6584033199906116,
+        "readable": 1.6577719730121316
+      },
+      "ratio_seconds": 0.9996193043206862,
+      "median_cpu_seconds": {
+        "raw": 1.6489740000000097,
+        "readable": 1.649294999999995
+      },
+      "ratio_cpu_seconds": 1.0001946665017067
+    },
+    {
+      "input": "backend",
+      "bytes": 9790262,
+      "sha256": "315e2900da6b1ac59ee8d73a5b21c5b8d5e99743895a52ad6696a85a938624bb",
+      "samples": [
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.837300882005366,
+          "cpu_seconds": 5.8210440000000006,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 0,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.837079008997534,
+          "cpu_seconds": 5.787342999999993,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 0,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.800916975000291,
+          "cpu_seconds": 5.789263000000005,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 1,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.829625088998,
+          "cpu_seconds": 5.8062559999999905,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 1,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.83575467200717,
+          "cpu_seconds": 5.812357999999989,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 2,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.807684838000569,
+          "cpu_seconds": 5.78416500000003,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 2,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.852147943005548,
+          "cpu_seconds": 5.809271999999993,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 3,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.809136655996554,
+          "cpu_seconds": 5.789209999999997,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 3,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.812279630990815,
+          "cpu_seconds": 5.796182999999985,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 4,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.787249607994454,
+          "cpu_seconds": 5.776916999999997,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 4,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.795262197003467,
+          "cpu_seconds": 5.783925000000039,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 5,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.860039388004225,
+          "cpu_seconds": 5.82078999999996,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 5,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.87968462400022,
+          "cpu_seconds": 5.835848999999996,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "raw",
+          "repeat": 6,
+          "assembly_matches": true
+        },
+        {
+          "command": [
+            "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+            "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir"
+          ],
+          "seconds": 5.797337037991383,
+          "cpu_seconds": 5.787012000000004,
+          "returncode": 0,
+          "stdout_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+          "variant": "readable",
+          "repeat": 6,
+          "assembly_matches": true
+        }
+      ],
+      "assembly_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+      "median_seconds": {
+        "raw": 5.83575467200717,
+        "readable": 5.800916975000291
+      },
+      "ratio_seconds": 0.9940303013123586,
+      "median_cpu_seconds": {
+        "raw": 5.812357999999989,
+        "readable": 5.787012000000004
+      },
+      "ratio_cpu_seconds": 0.995639291316883
+    }
+  ],
+  "complete": true,
+  "raw_binary_sha256": "ba0bf00d4ebc6541d70e93973ec77bd77c1de16354c24a45d3f93e44a8502c4d",
+  "readable_binary_sha256": "1c69b992c3dc76a297772c4d8ee36187250768a0fa6880bf83eed92f7f749d1c",
+  "independent_micro_checks_passed": 256,
+  "repeats": 7,
+  "reference_sha256": "9b2142227068a52f0f1e2efd73f34923b7dadd88b1fdf3205deb6d1a0c61429e",
+  "cpu_description": "Intel(R) Core(TM) i5 CPU 760 @ 2.80GHz; four physical cores",
+  "date": "2026-10-11",
+  "artifacts": {
+    "raw": {
+      "kernels.lsl": "3dcf824f7f600f6b0c2d0cc2fd520a99f24cd9b726570f510fec276b714ea9f9",
+      "storage.lsl": "4cc8a404e60a34334fea7d19f3bb9adcc147b10f01e4073bb134309c15350b5c",
+      "micro.lsl": "7510ddccbe4bb77e4f051306d3392963ba3ebba9e45174c99879a45c914f7286",
+      "micro": "ea04e65c4502cc1a3d454b4de1421a5fd3ef49266e01db6111ed2af8554974a5",
+      "micro.lir": "0c27d9c6dfe97b01da87e335fdc8bf320ae52908159802452ebbf536e5aa1d3f",
+      "micro.s": "2f6eb25710a0eb66075ea0e209a1297bb7925747767cf0c642b625747bc2a302"
+    },
+    "readable": {
+      "kernels.lsl": "cc043344fd1697e2e9424bb470c6edf46c303dadcc581b4c2affd7377a6ac9fc",
+      "storage.lsl": "4cc8a404e60a34334fea7d19f3bb9adcc147b10f01e4073bb134309c15350b5c",
+      "micro.lsl": "7510ddccbe4bb77e4f051306d3392963ba3ebba9e45174c99879a45c914f7286",
+      "micro": "8faec9bc56617ca5651e5b5a2942b06da0c078e8077138ece7abf89074da6fd3",
+      "micro.lir": "1f353253232ee2f9b49a28bf484e0e7c6555ccefe8760d32afc4300d18e3ca96",
+      "micro.s": "60e2ec861f7760916cf8939e96ec2ed83581ca225738b35bed404c4ee54257e7"
+    },
+    "array": {
+      "kernels.lsl": "c7b32b29a09954b1b90cc5611bd40c9f2e1dc73e7c519868ed721ed193afe935",
+      "storage.lsl": "35df9370a9e42ac8ea20b390accf4971225612dd03287f5e5df11b0e4935aadf",
+      "micro.lsl": "7510ddccbe4bb77e4f051306d3392963ba3ebba9e45174c99879a45c914f7286",
+      "micro": "e0f11b5d002ed0b763ce7207d10b3197a72794cb69055bcec6b1aaaf827219a1",
+      "micro.lir": "f1468d45ab3eb16c9d2283b410a32b829cfdbe8ab37b12b566565df96f26d77a",
+      "micro.s": "40864798e0196f27765ee52c54ab7c9148da736ecdbc2efc3770b232b45a07af"
+    },
+    "array_typed": {
+      "kernels.lsl": "75b5f61b5045cba002971bb5811d54e6a7ec7a02f635e36555b9d93cc2630aee",
+      "storage.lsl": "35df9370a9e42ac8ea20b390accf4971225612dd03287f5e5df11b0e4935aadf",
+      "micro.lsl": "7510ddccbe4bb77e4f051306d3392963ba3ebba9e45174c99879a45c914f7286",
+      "micro": "42cfe07d974c66e3343864cb5c1fba2eabebb8e87d05bbc1b04d7827088bd3e4",
+      "micro.lir": "014a2d9cea2e79b90a73ce59d9098eca8962c017e094892ced9c8fc4e869b822",
+      "micro.s": "ead78a5d779c56dd8b71b13aa7b962ce5c59da20235f25708779942c66173c9e"
+    }
+  },
+  "differential_summary": {
+    "raw": {
+      "amd64_sysv": {
+        "cases": 76,
+        "failures": 0
+      },
+      "amd64_apple": {
+        "cases": 76,
+        "failures": 0
+      },
+      "amd64_win": {
+        "cases": 76,
+        "failures": 0
+      },
+      "arm64": {
+        "cases": 76,
+        "failures": 0
+      },
+      "arm64_apple": {
+        "cases": 76,
+        "failures": 0
+      },
+      "rv64": {
+        "cases": 76,
+        "failures": 0
+      }
+    },
+    "readable": {
+      "amd64_sysv": {
+        "cases": 76,
+        "failures": 0
+      },
+      "amd64_apple": {
+        "cases": 76,
+        "failures": 0
+      },
+      "amd64_win": {
+        "cases": 76,
+        "failures": 0
+      },
+      "arm64": {
+        "cases": 76,
+        "failures": 0
+      },
+      "arm64_apple": {
+        "cases": 76,
+        "failures": 0
+      },
+      "rv64": {
+        "cases": 76,
+        "failures": 0
+      }
+    }
+  },
+  "build": {
+    "variants": {
+      "baseline_commit": "7480a0fe0a70ec9525cbae7363cf9da457194fce",
+      "baseline_source_sha256": "64034e255699544ff1400b9c8bd22cb1e7c611af36474622843425d996c42410",
+      "modified_functions": [
+        "q_f_bsclr",
+        "q_f_bscopy",
+        "q_f_bscount",
+        "q_f_bsdiff",
+        "q_f_bsequal",
+        "q_f_bsinter",
+        "q_f_bsset",
+        "q_f_bsunion"
+      ],
+      "original_lines": 264,
+      "readable_lines": 153,
+      "readable_source_sha256": "804a8fdf5ba04241881d700d32371b2d7c01fe6ae67197a5dcf780c0c2f8759e"
+    },
+    "commands": [
+      {
+        "command": [
+          "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+          "/home/antonin/LuxIR-benchmark/build/readability/raw/luxir.lsl",
+          "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+          "/home/antonin/LuxIR-benchmark/build/readability/raw/capture_backend.py"
+        ],
+        "seconds": 62.079378855007235,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+          "/home/antonin/LuxIR-benchmark/build/readability/readable/luxir.lsl",
+          "/home/antonin/LuxIR-benchmark/build/readability/readable/backend",
+          "/home/antonin/LuxIR-benchmark/build/readability/readable/capture_backend.py"
+        ],
+        "seconds": 61.98260647599818,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/bin/lslc",
+          "/home/antonin/LuxIR-benchmark/build/readability/toolchain/lsl-0.9.1/lib/lsl/compiler/pure/lslc_qbe.lsl",
+          "/home/antonin/LuxIR-benchmark/build/readability/frontend",
+          "/home/antonin/LuxIR-benchmark/build/readability/capture_frontend.py"
+        ],
+        "seconds": 7.896934413001873,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "complete": true,
+    "compiler_sha256": "a6cb9d5ede10e59d42b61d37397f4e237ec755dc090257ca67618a9efd21338c",
+    "bootstrap_backend_sha256": "a6b418ad09c1788d18dd976ef11b9ce6761134c6d90fa068f16286ce0189f0de",
+    "raw_binary_sha256": "ba0bf00d4ebc6541d70e93973ec77bd77c1de16354c24a45d3f93e44a8502c4d",
+    "readable_binary_sha256": "1c69b992c3dc76a297772c4d8ee36187250768a0fa6880bf83eed92f7f749d1c"
+  }
+}
