@@ -135,6 +135,110 @@ inter(Blk *b1, Blk *b2)
 	return b1;
 }
 
+/* Evaluate the minimum semidominator on the union-find path. Iterative
+ * compression avoids host-stack growth on long control-flow chains. */
+static inline uint
+domeval(uint v, uint *ancestor, uint *label, uint *semi, uint *stack)
+{
+	uint a, n, x;
+
+	n = 0;
+	x = v;
+	while ((a=ancestor[x]) && ancestor[a]) {
+		stack[n++] = x;
+		x = a;
+	}
+	while (n) {
+		x = stack[--n];
+		a = ancestor[x];
+		if (semi[label[a]] < semi[label[x]])
+			label[x] = label[a];
+		ancestor[x] = ancestor[a];
+	}
+	return label[v];
+}
+
+/* Lengauer-Tarjan with simple linking and path compression. The old
+ * iterative intersection algorithm is cheaper for small CFGs, but repeated
+ * ancestor walks are expensive in large generated functions. DFS numbering
+ * is private: existing RPO ids, block order and allocation decisions stay
+ * unchanged. All scratch storage expires before returning. */
+static void
+filldomlt(Fn *fn)
+{
+	uint *data, *semi, *label, *parent, *ancestor, *idom;
+	uint *head, *next, *number, *stack;
+	uint m, n, depth, v, w, p, u, k;
+	Blk **vertex, *b, *s;
+
+	m = fn->nblk + 1;
+	data = emalloc((size_t)9 * m * sizeof *data);
+	semi = data;
+	label = semi + m;
+	parent = label + m;
+	ancestor = parent + m;
+	idom = ancestor + m;
+	head = idom + m;
+	next = head + m;
+	number = next + m;
+	stack = number + m;
+	vertex = emalloc((size_t)m * sizeof *vertex);
+
+	n = 1;
+	vertex[n] = fn->start;
+	number[fn->start->id] = n;
+	stack[0] = n;
+	depth = 1;
+	while (depth) {
+		v = stack[depth-1];
+		b = vertex[v];
+		s = b->s1;
+		if (!s || number[s->id])
+			s = b->s2;
+		if (!s || number[s->id]) {
+			depth--;
+			continue;
+		}
+		number[s->id] = ++n;
+		vertex[n] = s;
+		parent[n] = v;
+		stack[depth++] = n;
+	}
+	assert(n == fn->nblk);
+	for (v=1; v<=n; v++)
+		semi[v] = label[v] = v;
+
+	for (w=n; w>1; w--) {
+		b = vertex[w];
+		for (k=0; k<b->npred; k++) {
+			v = number[b->pred[k]->id];
+			u = domeval(v, ancestor, label, semi, stack);
+			if (semi[u] < semi[w])
+				semi[w] = semi[u];
+		}
+		next[w] = head[semi[w]];
+		head[semi[w]] = w;
+		p = parent[w];
+		ancestor[w] = p;
+		for (v=head[p]; v; v=next[v]) {
+			u = domeval(v, ancestor, label, semi, stack);
+			idom[v] = semi[u] < semi[v] ? u : p;
+		}
+		head[p] = 0;
+	}
+	for (w=2; w<=n; w++) {
+		if (idom[w] != semi[w])
+			idom[w] = idom[idom[w]];
+		vertex[w]->idom = vertex[idom[w]];
+	}
+	free(vertex);
+	free(data);
+}
+
+#ifndef LUXIR_DOM_SMALL_LIMIT
+#define LUXIR_DOM_SMALL_LIMIT 64
+#endif
+
 void
 filldom(Fn *fn)
 {
@@ -147,7 +251,9 @@ filldom(Fn *fn)
 		b->dom = 0;
 		b->dlink = 0;
 	}
-	do {
+	if (fn->nblk > LUXIR_DOM_SMALL_LIMIT)
+		filldomlt(fn);
+	else do {
 		ch = 0;
 		for (n=1; n<fn->nblk; n++) {
 			b = fn->rpo[n];
@@ -168,6 +274,27 @@ filldom(Fn *fn)
 			b->dlink = d->dom;
 			d->dom = b;
 		}
+	/* Preorder subtree intervals make dominance queries constant-time.
+	 * Follow the existing tree links without recursion or extra allocation. */
+	n = 0;
+	b = fn->start;
+	while (b) {
+		b->dompre = n++;
+		if (b->dom) {
+			b = b->dom;
+			continue;
+		}
+		for (;;) {
+			b->domend = n;
+			if (b->dlink) {
+				b = b->dlink;
+				break;
+			}
+			b = b->idom;
+			if (!b)
+				break;
+		}
+	}
 }
 
 int
@@ -176,9 +303,7 @@ sdom(Blk *b1, Blk *b2)
 	assert(b1 && b2);
 	if (b1 == b2)
 		return 0;
-	while (b2->id > b1->id)
-		b2 = b2->idom;
-	return b1 == b2;
+	return b1->dompre <= b2->dompre && b2->dompre < b1->domend;
 }
 
 int

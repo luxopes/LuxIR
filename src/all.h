@@ -274,6 +274,7 @@ struct Blk {
 	int nlive[2];
 	int loop;
 	char *name;
+	uint dompre, domend; /* half-open dominator subtree interval */
 };
 
 struct Use {

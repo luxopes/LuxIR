@@ -1,0 +1,47 @@
+make -C src
+make[1]: Entering directory '/home/antonin/LuxIR-benchmark/src'
+make[1]: 'luxir' is up to date.
+make[1]: Leaving directory '/home/antonin/LuxIR-benchmark/src'
+make check-dominance check-bitsets
+make[1]: Entering directory '/home/antonin/LuxIR-benchmark'
+mkdir -p build
+cc -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+	tests/dominance.c src/cfg.c -o build/dominance-test
+build/dominance-test
+dominance: 3217536 independent reachability checks PASS
+cc -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+	-DLUXIR_DOM_SMALL_LIMIT=0 tests/dominance.c src/cfg.c -o build/dominance-lt-test
+build/dominance-lt-test
+dominance: 3217536 independent reachability checks PASS
+mkdir -p build
+cc -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+	tests/bitset_count.c src/util.c -o build/bitset-count-test
+build/bitset-count-test
+bitset count: 12384 independent checks PASS
+make[1]: Leaving directory '/home/antonin/LuxIR-benchmark'
+python3 tests/run_tests.py --backend src/luxir --backend build/luxir
+== src/luxir
+ok   arith.lir
+ok   calls.lir
+ok   control.lir
+ok   float.lir
+ok   memory.lir
+ok   tls.lir
+36/36 error cases ok
+== build/luxir
+ok   arith.lir
+ok   calls.lir
+ok   control.lir
+ok   float.lir
+ok   memory.lir
+ok   tls.lir
+36/36 error cases ok
+all tests passed
+python3 tests/differential.py --reference /home/antonin/LSL-QBE/build/qbe/qbe-1.3/qbe --backend src/luxir
+456 input/target pairs, 0 failures
+python3 tests/differential.py --reference /home/antonin/LSL-QBE/build/qbe/qbe-1.3/qbe --backend build/luxir
+456 input/target pairs, 0 failures
+python3 tests/fuzz.py --backend build/luxir --compare src/luxir --cases 300
+300 cases: {'ok': 8, 'error': 292, 'internal': 0}, 0 problems
+CFG pipeline: 216 assembly comparisons, 36 executions PASS
+amd64_sysv: {'ok': 59, 'skip': 0, 'fail': 0}

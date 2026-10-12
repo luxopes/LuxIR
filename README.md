@@ -10,7 +10,8 @@ luxir -t amd64_sysv -o program.s program.lir
 ```
 
 Optimalizace a generování kódu pocházejí z QBE 1.3: SSA, alias analýza,
-GVN/GCM, if-conversion, alokace registrů a ABI. Jiný je jen vstupní jazyk.
+GVN/GCM, if-conversion, alokace registrů a ABI. LuxIR přidává vlastní vstupní
+jazyk a zrychlení sdílených algoritmů backendu.
 Místo QBE IL (`%x =w add %a, 1`) LuxIR čte:
 
 ```lsl
@@ -69,11 +70,9 @@ make native LSLC=/cesta/k/lslc            # build/luxir
 
 `lsl/luxir.lsl` a jeho moduly mají značku `# lsl: internal-abi`. LSL
 compiler je musí přeložit s interním ABI, i když leží mimo jeho strom
-`compiler/pure/`. Současný compiler 0.8.9 i větve QBE to zatím
-neumí. Potřebuje úpravu v `compiler/pure/linker.lsl`, která uzná značku
-u modulů importovaných z už důvěryhodného zdroje (připraveno pro LSL 0.9.0).
-S neupraveným compilerem se backend přeloží, ale za běhu skončí
-`MemoryError`.
+`compiler/pure/`. Pro reprodukci použijte LSL 0.9.1; jeho frontend i bootstrap
+backend jsou součástí stejného balíku. Neupravený compiler 0.8.9 značku mimo
+svůj strom nezpracuje správně a výsledný backend za běhu skončí `MemoryError`.
 
 ## Testy
 
@@ -96,8 +95,14 @@ make check LSLC=/cesta/k/lslc QBE=/cesta/k/qbe-1.3
   assemblery.
 - `tests/fuzz.py`: mutační fuzzing čtečky. Backend nesmí spadnout a C
   i LSL verze musí dát stejný výsledek i stejné chybové hlášení.
+- `make check-dominance`: nezávislé ověření dominátorů odstraněním vrcholu
+  a testem dosažitelnosti; běžný i vynucený Lengauerův–Tarjanův algoritmus.
+- `tests/dominance_pipeline.py`: velké náhodné CFG přes celý překladač,
+  porovnání assembleru s předchozím backendem a spuštění na hostiteli.
 
-Ověřený stav (Linux x86_64):
+Aktuální úpravy algoritmů, měření a regresní ověření jsou popsány v
+[benchmarks/algorithms/README.md](benchmarks/algorithms/README.md).
+Následující přehled zachycuje ověření výchozího stavu před vydáním 0.1:
 
 | Kontrola | C reference | LSL backend |
 |---|---|---|
@@ -130,13 +135,19 @@ Windows nepodporuje. Samotný backend jako program běží jen na
 Linuxu x86_64, protože tam dnes existuje LSL runtime. Kód pro ostatní
 platformy generuje, ale na nich se zatím nespustí.
 
-C reference prošla také MemorySanitizerem nad celým korpusem. IL z LSL
+Výchozí C reference prošla také MemorySanitizerem nad celým korpusem. IL z LSL
 frontendu na rv64 končí v obou implementacích stejnou kontrolou QBE, takže
 jde o existující omezení cíle, nikoli o rozdíl.
 
 ## Rychlost
 
-Medián ze tří běhů, Linux x86_64, výstup do `/dev/null`:
+Proti vydání 0.1 klesl čas překladu IR frontendu o **12,6 %** a IR backendu
+o **23,7 %**, špičková RSS o **27–28 %**. Jde o sedm střídavých dvojic se
+stejným vstupem a shodným výstupním assemblerem; podrobnosti a všechny vzorky
+jsou v [měření algoritmů](benchmarks/algorithms/README.md).
+
+Historické srovnání původního portu QBE a LuxIR, jiné vstupy a sestavení:
+medián ze tří běhů, Linux x86_64, výstup do `/dev/null`.
 
 | Vstup | QBE port v LSL (QBE IL) | LuxIR v LSL |
 |---|---:|---:|

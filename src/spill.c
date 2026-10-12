@@ -101,6 +101,7 @@ static int locs;  /* stack size used by locals */
 static int slot4; /* next slot of 4 bytes */
 static int slot8; /* ditto, 8 bytes */
 static BSet mask[2][1]; /* class masks */
+static BSet limitset[1]; /* scratch, reused by nonrecursive limit2 calls */
 
 static int
 tcmp0(const void *pa, const void *pb)
@@ -199,15 +200,40 @@ limit(BSet *b, int k, BSet *f)
  * that k1 gprs and k2 fprs are
  * currently in use
  */
+static inline void
+partitionword(bits *a, bits *b, bits *m0, bits *m1, uint n)
+{
+	bits word;
+
+	word = a[n];
+	a[n] = word & m0[n];
+	b[n] = word & m1[n];
+}
+
 static void
 limit2(BSet *b1, int k1, int k2, BSet *f)
 {
-	BSet b2[1];
+	BSet *b2 = limitset;
+	bits *a, *b, *m0, *m1;
+	uint n, count;
 
-	bsinit(b2, ntmp); /* todo, free those */
-	bscopy(b2, b1);
-	bsinter(b1, mask[0]);
-	bsinter(b2, mask[1]);
+	assert(b1->nt == b2->nt);
+	assert(b1->nt == mask[0]->nt && b1->nt == mask[1]->nt);
+	/* Partition both register classes in one pass, loading each input
+	 * word once. The scratch set is overwritten completely on every call. */
+	a = b1->t;
+	b = b2->t;
+	m0 = mask[0]->t;
+	m1 = mask[1]->t;
+	count = b1->nt;
+	for (n=0; n+4<=count; n+=4) {
+		partitionword(a, b, m0, m1, n);
+		partitionword(a, b, m0, m1, n+1);
+		partitionword(a, b, m0, m1, n+2);
+		partitionword(a, b, m0, m1, n+3);
+	}
+	for (; n<count; n++)
+		partitionword(a, b, m0, m1, n);
 	limit(b1, T.ngpr - k1, f);
 	limit(b2, T.nfpr - k2, f);
 	bsunion(b1, b2);
@@ -339,6 +365,7 @@ spill(Fn *fn)
 	bsinit(u, ntmp);
 	bsinit(v, ntmp);
 	bsinit(w, ntmp);
+	bsinit(limitset, ntmp);
 	bsinit(mask[0], ntmp);
 	bsinit(mask[1], ntmp);
 	locs = fn->slot;

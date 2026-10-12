@@ -29,12 +29,31 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 		lsl/luxir_stdio_raw.lsl lsl/luxir_float.lsl lsl/luxir_libc.lsl
 	mkdir -p build
 	$(LSLC) lsl/luxir.lsl build/luxir $(LSLC_BACKEND)
+	chmod +x build/luxir
 
 check: c native
+	$(MAKE) check-dominance check-bitsets
 	$(PYTHON) tests/run_tests.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/differential.py --reference $(QBE) --backend src/luxir
 	$(PYTHON) tests/differential.py --reference $(QBE) --backend build/luxir
 	$(PYTHON) tests/fuzz.py --backend build/luxir --compare src/luxir --cases 300
+
+# Independent graph oracle, including a build forcing Lengauer-Tarjan even
+# on tiny CFGs. Run on the Linux development host.
+check-dominance:
+	mkdir -p build
+	$(CC) -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+		tests/dominance.c src/cfg.c -o build/dominance-test
+	build/dominance-test
+	$(CC) -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+		-DLUXIR_DOM_SMALL_LIMIT=0 tests/dominance.c src/cfg.c -o build/dominance-lt-test
+	build/dominance-lt-test
+
+check-bitsets:
+	mkdir -p build
+	$(CC) -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
+		tests/bitset_count.c src/util.c -o build/bitset-count-test
+	build/bitset-count-test
 
 # Další cíle: Windows pod Wine (mingw-w64), arm64 a rv64 v qemu-user
 # (cross gcc), upstream spustitelné testy QBE s C drivery a překlad výstupu
@@ -54,4 +73,4 @@ clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-cross clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-cross clean

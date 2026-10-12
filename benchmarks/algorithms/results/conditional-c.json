@@ -1,0 +1,143 @@
+{
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "target": "amd64_sysv",
+  "cpu_affinity": [
+    2
+  ],
+  "repeats": 3,
+  "binaries": {
+    "baseline": {
+      "path": "/home/antonin/LuxIR-benchmark/build/performance/c-reuse",
+      "sha256": "aa78d56ea56911a269bb5cc11efcbae29ace37e3fb808041105f7a2f19567b9e"
+    },
+    "candidate": {
+      "path": "/home/antonin/LuxIR-benchmark/src/luxir",
+      "sha256": "87a62f81662ff03e5780c512c14432afb76f6d38e2e36828c1ee084ab2470c2a"
+    }
+  },
+  "cases": [
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir",
+      "input_bytes": 4181223,
+      "input_sha256": "27ab4d1a6c424b2002e61d47bd7657a2ba3b81e7f61bc805c3a7a1708b99389c",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 1.343502562987851,
+          "cpu_seconds": 1.3407739999999997,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.3364868810167536,
+          "cpu_seconds": 1.3349419999999999,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.3425415800011251,
+          "cpu_seconds": 1.3409400000000007,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.3368432279967237,
+          "cpu_seconds": 1.3347339999999994,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.352313081995817,
+          "cpu_seconds": 1.350417,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.3422303080151323,
+          "cpu_seconds": 1.3412009999999994,
+          "returncode": 0,
+          "repeat": 2
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+      "median_seconds": {
+        "baseline": 1.343502562987851,
+        "candidate": 1.3422303080151323
+      },
+      "ratio_seconds": 0.9990530312276522,
+      "median_cpu_seconds": {
+        "baseline": 1.3407739999999997,
+        "candidate": 1.3409400000000007
+      },
+      "ratio_cpu_seconds": 1.0001238090834108
+    },
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir",
+      "input_bytes": 9790262,
+      "input_sha256": "315e2900da6b1ac59ee8d73a5b21c5b8d5e99743895a52ad6696a85a938624bb",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 4.29215333799948,
+          "cpu_seconds": 4.2903410000000015,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.27959768299479,
+          "cpu_seconds": 4.273901000000001,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.379948287009029,
+          "cpu_seconds": 4.349679999999997,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 4.349958097998751,
+          "cpu_seconds": 4.321612999999998,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 4.324103669001488,
+          "cpu_seconds": 4.3110050000000015,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.3441685720172245,
+          "cpu_seconds": 4.326542999999999,
+          "returncode": 0,
+          "repeat": 2
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+      "median_seconds": {
+        "baseline": 4.324103669001488,
+        "candidate": 4.3441685720172245
+      },
+      "ratio_seconds": 1.0046402455980825,
+      "median_cpu_seconds": {
+        "baseline": 4.3110050000000015,
+        "candidate": 4.326542999999999
+      },
+      "ratio_cpu_seconds": 1.0036042639709297
+    }
+  ],
+  "complete": true
+}

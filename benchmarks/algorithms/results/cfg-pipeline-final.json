@@ -1,0 +1,14 @@
+{
+  "cases": 36,
+  "targets": [
+    "amd64_sysv",
+    "amd64_apple",
+    "amd64_win",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "assembly_comparisons": 216,
+  "executions": 36,
+  "complete": true
+}

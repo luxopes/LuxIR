@@ -1,0 +1,255 @@
+{
+  "platform": "Linux-6.12.74+deb13+1-amd64-x86_64-with-glibc2.41",
+  "target": "amd64_sysv",
+  "cpu_affinity": [
+    2
+  ],
+  "repeats": 7,
+  "binaries": {
+    "baseline": {
+      "path": "/home/antonin/LuxIR-benchmark/build/readability/raw/backend",
+      "sha256": "ba0bf00d4ebc6541d70e93973ec77bd77c1de16354c24a45d3f93e44a8502c4d"
+    },
+    "candidate": {
+      "path": "/home/antonin/LuxIR-benchmark/build/luxir",
+      "sha256": "cfa92a61e11df38dfa8397428a6375ba370d2742246f3851635d2a4b23c93adb"
+    }
+  },
+  "cases": [
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/frontend.lir",
+      "input_bytes": 4181223,
+      "input_sha256": "27ab4d1a6c424b2002e61d47bd7657a2ba3b81e7f61bc805c3a7a1708b99389c",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 1.6249290310079232,
+          "cpu_seconds": 1.623443,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.413663773011649,
+          "cpu_seconds": 1.4124850000000002,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.4200681000074837,
+          "cpu_seconds": 1.418978,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6286214319989085,
+          "cpu_seconds": 1.6250659999999997,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6314829619950615,
+          "cpu_seconds": 1.628471,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.419423043000279,
+          "cpu_seconds": 1.4145839999999992,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.4210032480186783,
+          "cpu_seconds": 1.419636,
+          "returncode": 0,
+          "repeat": 3
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6217297319963109,
+          "cpu_seconds": 1.6205629999999984,
+          "returncode": 0,
+          "repeat": 3
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6346516770136077,
+          "cpu_seconds": 1.6207340000000015,
+          "returncode": 0,
+          "repeat": 4
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.4132062509888783,
+          "cpu_seconds": 1.4096109999999982,
+          "returncode": 0,
+          "repeat": 4
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.4217310860112775,
+          "cpu_seconds": 1.4203930000000002,
+          "returncode": 0,
+          "repeat": 5
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.620486959000118,
+          "cpu_seconds": 1.6167979999999984,
+          "returncode": 0,
+          "repeat": 5
+        },
+        {
+          "variant": "baseline",
+          "seconds": 1.6250341220002156,
+          "cpu_seconds": 1.6232589999999991,
+          "returncode": 0,
+          "repeat": 6
+        },
+        {
+          "variant": "candidate",
+          "seconds": 1.4612240179849323,
+          "cpu_seconds": 1.443680000000001,
+          "returncode": 0,
+          "repeat": 6
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "af9369b58eb55f204a7f93830861e2566d87b452dab0ac71836a554b9bedbea7",
+      "median_seconds": {
+        "baseline": 1.6250341220002156,
+        "candidate": 1.4200681000074837
+      },
+      "ratio_seconds": 0.8738697118922992,
+      "median_cpu_seconds": {
+        "baseline": 1.6232589999999991,
+        "candidate": 1.418978
+      },
+      "ratio_cpu_seconds": 0.8741537856866962
+    },
+    {
+      "input": "/home/antonin/LuxIR-benchmark/build/readability/raw/backend.lir",
+      "input_bytes": 9790262,
+      "input_sha256": "315e2900da6b1ac59ee8d73a5b21c5b8d5e99743895a52ad6696a85a938624bb",
+      "samples": [
+        {
+          "variant": "baseline",
+          "seconds": 5.728983449982479,
+          "cpu_seconds": 5.725436999999999,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.348094779998064,
+          "cpu_seconds": 4.345914999999995,
+          "returncode": 0,
+          "repeat": 0
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.36237126699416,
+          "cpu_seconds": 4.360727999999999,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.7395090450008865,
+          "cpu_seconds": 5.736457000000003,
+          "returncode": 0,
+          "repeat": 1
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.717930949991569,
+          "cpu_seconds": 5.710345000000004,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.373079017997952,
+          "cpu_seconds": 4.365495999999997,
+          "returncode": 0,
+          "repeat": 2
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.377627651003422,
+          "cpu_seconds": 4.372072999999995,
+          "returncode": 0,
+          "repeat": 3
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.755258451012196,
+          "cpu_seconds": 5.7377590000000085,
+          "returncode": 0,
+          "repeat": 3
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.706401047995314,
+          "cpu_seconds": 5.703425999999999,
+          "returncode": 0,
+          "repeat": 4
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.426912791997893,
+          "cpu_seconds": 4.407149000000001,
+          "returncode": 0,
+          "repeat": 4
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.354063186008716,
+          "cpu_seconds": 4.3519230000000055,
+          "returncode": 0,
+          "repeat": 5
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.724954881996382,
+          "cpu_seconds": 5.721549999999994,
+          "returncode": 0,
+          "repeat": 5
+        },
+        {
+          "variant": "baseline",
+          "seconds": 5.726736714976141,
+          "cpu_seconds": 5.724233000000002,
+          "returncode": 0,
+          "repeat": 6
+        },
+        {
+          "variant": "candidate",
+          "seconds": 4.3697906989837065,
+          "cpu_seconds": 4.366467000000004,
+          "returncode": 0,
+          "repeat": 6
+        }
+      ],
+      "assembly_matches": true,
+      "assembly_sha256": "5af5525413f0be97a4c9e68924921906dcc613650303b9769fdc7c6d3f5b4457",
+      "median_seconds": {
+        "baseline": 5.726736714976141,
+        "candidate": 4.3697906989837065
+      },
+      "ratio_seconds": 0.7630507418921758,
+      "median_cpu_seconds": {
+        "baseline": 5.724233000000002,
+        "candidate": 4.365495999999997
+      },
+      "ratio_cpu_seconds": 0.7626342254062676
+    }
+  ],
+  "complete": true
+}

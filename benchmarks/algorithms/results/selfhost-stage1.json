@@ -1,0 +1,15 @@
+{
+  "command": [
+    "build/readability/toolchain/lsl-0.9.1/bin/lslc",
+    "lsl/luxir.lsl",
+    "build/luxir",
+    "/home/antonin/LuxIR-benchmark/build/performance/compact/capture.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 59.031325318996096,
+  "child_cpu_seconds": 58.88057,
+  "peak_child_rss_kib": 1038288,
+  "cpu_affinity": [
+    2
+  ]
+}
