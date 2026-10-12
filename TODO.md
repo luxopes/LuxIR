@@ -78,6 +78,41 @@ Implementace OS vrstvy:
 - [ ] Atomiky a fence jako instrukce pro všechny cíle.
 - [ ] Výpis neodchycených chyb a ukončení programu (dnes runtime LSL).
 
+## Výkon runtime (benchmark „autobusy“, 12. 10. 2026)
+
+Program: dosažitelnost v grafu ~100 000 zastávek a ~780 000 hran, 150 dotazů
+DFS, zastávky jako řetězcové klíče slovníku (`~/autobus.lsl`, vstup
+`04.in`). C se stejným algoritmem 0,33 s, Python 8,8 s, LSL 0.9.2 19 s
+(16,4 s s úpravou indexu slovníku níže). Stejný algoritmus v LSL s čísly
+zastávek a `IntArray` místo slovníků: 1,48 s. Cíl: řetězcová verze nejvýš 3 s,
+číselná nejvýš 0,6 s.
+
+- [ ] **Tagované hodnoty:** hodnoty Any dnes nenesou tag, takže runtime
+  každou hodnotu ověřuje dotazem do globální hashovací tabulky objektů
+  (`runtime_is_heap_object`). To je výpadek cache při každém hashi klíče,
+  porovnání i kontrole typu: jedna lookup ve slovníku ~90–120 ns, z toho
+  většina na tuto tabulku. Navrhnout reprezentaci s tagem (tagované ukazatele
+  nebo malé Int v tagu), aby test „je objekt / je String“ byl test bitu.
+  Patří do kontraktu s frontendem (layout hodnot) a do GC.
+  Přijetí: lookup slovníku s řetězcovým klíčem nejvýš 40 ns.
+- [ ] **Hash v řetězci:** ukládat hash do hlavičky String (spočítá se jednou),
+  porovnávat nejdřív ukazatel, délku a hash, teprve pak bajty.
+- [ ] **Slovník v runtime:** kompaktní slovník se zachovaným pořadím vkládání
+  (jako CPython). V položce indexu uložený hash a druh klíče; při růstu
+  přesun položek bez čtení klíčů; jedno hashování při vložení. LSL 0.9.2 to
+  po vydání doplnilo do svého runtime (`heap_runtime_linux_x86_64.lsl`,
+  `runtime_dict_probe`, `runtime_dict_index_insert`, `runtime_dict_grow`,
+  `runtime_dict_set`) a slouží to jako reference. Malé slovníky bez indexu
+  zatím porovnávají lineárně přes `runtime_equal_any`.
+- [ ] **Množiny a sety:** stejné principy jako slovník (`set`, `in` nad Set).
+- [ ] **split a malé řetězce:** `split` vytváří nový objekt pro každý token.
+  Zvážit internování krátkých řetězců nebo řezy bez kopie, aby opakované
+  klíče sdílely objekt a porovnání skončilo na shodě ukazatelů.
+- [ ] **Benchmarková sada:** přidat „autobusy“ (řetězcovou i číselnou verzi)
+  a mikrobenchmarky slovníku (vložení, `in` při zásahu i minutí, čtení,
+  vkládání do nového slovníku, append/pop na seznamu) s referencí v C a
+  Pythonu; měřit při každé změně runtime.
+
 ## Optimalizace (převzít z frontendu a doplnit)
 
 - [ ] Inlinování malých funkcí (listové funkce, tělo jeden výraz). Benchmark
