@@ -35,6 +35,7 @@ check: c native
 	$(PYTHON) tests/atomic_ir.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/numeric.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/qbe2lir_extern.py --backend src/luxir --backend build/luxir
 	$(MAKE) check-dominance check-bitsets
 	$(PYTHON) tests/run_tests.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/differential.py --reference $(QBE) --backend src/luxir
@@ -73,6 +74,7 @@ check-runtime: c native
 	$(PYTHON) tests/runtime/run_integer.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_checked.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_arena.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_managed.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_os.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_startup.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/standalone.py --backend src/luxir --backend build/luxir

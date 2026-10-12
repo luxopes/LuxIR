@@ -197,6 +197,13 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   1 213 384 kontrol C/LSL, sanitizery C, standalone execution tří Linux
   cílů. Nejde o managed allocator, bump nursery s GC nebo thread STW.
 
+- [x] Experimentální managed core: tagované 61bitové Int, Bool/None,
+  bezeztrátové Int64/Float64 boxy, descriptor pointerových polí a opakovaných
+  Value slotů, explicitní root frames, non-moving mark-sweep a slab/freelist
+  allocator. C → IR generování, 1 281 292 kontrol, tři Linux cíle.
+  Jeden vlastník haldy; automatické stack mapy, generační GC, STW,
+  finalizéry a stabilní integrované ABI nadále otevřené.
+
 ## Runtime knihovna LuxIR (luxrt)
 
 ### OS vrstva: jediné místo s kódem pro konkrétní systém

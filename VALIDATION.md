@@ -269,3 +269,21 @@ backend 3,6696 s (včetně spuštění wrapperu), úspěšná kompilace. Zbytek
 je frontend, generování IR, as/ld a driver; jednotlivé složky zbytku
 tímto měřením nejsou rozdělené. Výstup ověřen jako shodný s výchozí
 binárkou. Aktuální limit 60 s nesplněn.
+
+## Managed core a extern call — 12. 10. 2026
+
+1 281 292 kontrol pro C referenci a pro IR přeložený C/LSL backendem;
+nezávislý BFS model určuje živé objekty 32 náhodných grafů po 1 024 uzlech,
+včetně cyklů. Int64/Float64 roundtrips, 30 000-node chain, malformed
+fixed/tail pointer maps, foreign heap, duplicate/LIFO frames, map/unmap
+failures, nulování recyklovaných payloadů a skutečné uvolnění všech
+mapování při destroy. C ASan/UBSan prošly; LeakSanitizer nepoužit.
+Standalone smoke s raw Linux mmap/munmap běží na x86-64 a v ARM64/RV64
+QEMU; C/LSL binárky shodné. Assembler managed modulu shodný pro šest cílů.
+Jde o single-owner precise explicit-root GC, nikoli produkční multithread
+GC nebo automatické stack mapy.
+
+Při C → IR převodu nalezena mezera: `qbe2lir` i LuxIR parser neuměly
+`call extern symbol`. Opraveny value/void cally, samostatný execution test
+`tests/qbe2lir_extern.py`. C reference stále zdroj pravdy pro backend;
+465/465 LSL funkcí přegenerováno, bootstrap nového native backendu 63,29 s.

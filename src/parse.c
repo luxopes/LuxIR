@@ -1259,10 +1259,12 @@ parsecall(Ref r, int k, int tyn)
 	Opd o;
 	Ref a0, a1;
 
-	if (next() != Tid)
+	if (peek() != Tid)
 		err("function name expected after call");
-	memset(&o, 0, sizeof o);
-	nameopd(&o, tid);
+	parseopd(&o);
+	if ((o.kind != OGlo && o.kind != OTmp) || o.ann != Kx
+	|| (o.symty & SThr))
+		err("call needs a function name, pointer or extern symbol");
 	curf->leaf = 0;
 	a0 = mkref(&o, Kl);
 	parseargs();

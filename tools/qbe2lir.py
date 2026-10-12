@@ -619,8 +619,9 @@ class FunctionConverter:
     def rhs(self, op, args, k):
         name = op[1]
         if name == 'call':
-            callee = self.ref(args[:1], 'l')
-            return f'call {callee}({self.callargs(args[1:])})'
+            count = 2 if args and args[0][1] == 'extern' else 1
+            callee = self.ref(args[:count], 'l')
+            return f'call {callee}({self.callargs(args[count:])})'
         if name == 'phi':
             pairs = []
             for arg in self.split_args(args):
@@ -673,8 +674,9 @@ class FunctionConverter:
         if name == 'hlt':
             return 'halt'
         if name == 'call':
-            callee = self.ref(rest[:1], 'l')
-            return f'call {callee}({self.callargs(rest[1:])})'
+            count = 2 if rest and rest[0][1] == 'extern' else 1
+            callee = self.ref(rest[:count], 'l')
+            return f'call {callee}({self.callargs(rest[count:])})'
         if name in STORES:
             args = self.split_args(rest)
             k = STORE_CLS[name]
