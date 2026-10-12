@@ -1,0 +1,670 @@
+ir_version "1"
+runtime_abi "none"
+data .Lstring.2 align 1 = "one,,three,\x00"
+data .Lstring.3 align 1 = ",\x00"
+data .Lstring.4 align 1 = "three\x00"
+export function main() -> Int32:
+start.1:
+    Int64(.1) = alloc8(336)
+    Int64(.2) = alloc8(24)
+    Int64(.3) = alloc8(96)
+    Int64(.40) = alloc8(8)
+    Int64(.63) = alloc4(4)
+    Int64(.79) = alloc8(8)
+    Int64(.92) = alloc8(8)
+    Int64(.94) = alloc8(8)
+    Int64(.99) = alloc8(8)
+    Int64(.128) = alloc8(8)
+    Int64(.133) = alloc8(8)
+    Int64(.140) = alloc8(8)
+    Int64(.155) = alloc8(8)
+    Int64(.160) = alloc8(8)
+    Int64(.182) = alloc8(8)
+    Int64(.187) = alloc8(8)
+    Int64(.206) = alloc8(8)
+    Int64(.208) = alloc8(8)
+    Int64(.209) = alloc8(8)
+    Int64(.210) = alloc8(8)
+    Int64(.280) = alloc8(8)
+body.2:
+    Int64(.4) = sext32(0)
+    store(.4, .3)
+    Int64(.5) = add(.3, 8)
+    store(Int64(0), .5)
+    Int64(.6) = add(.3, 16)
+    store(Int64(0), .6)
+    Int64(.7) = add(.3, 24)
+    store(Int64(0), .7)
+    Int64(.8) = add(.3, 32)
+    store(Int64(0), .8)
+    Int64(.9) = add(.3, 40)
+    store(Int64(0), .9)
+    Int64(.10) = add(.3, 48)
+    store(Int64(0), .10)
+    Int64(.11) = add(.3, 56)
+    store(Int64(0), .11)
+    Int64(.12) = add(.3, 64)
+    store(Int64(0), .12)
+    Int64(.13) = add(.3, 72)
+    store(Int64(0), .13)
+    Int64(.14) = add(.3, 80)
+    store(Int64(0), .14)
+    Int64(.15) = add(.3, 88)
+    store(Int64(0), .15)
+do_body.3:
+    Int64(.16) = sext32(16777216)
+    Int64(.17) = sext32(4096)
+    Int32(.18) = call extern(luxrt_heap_init)(Int64(.1), Int64(.16), Int64(.17))
+    if .18 goto if_true.6 else if_false.7
+if_true.6:
+    return 1
+if_false.7:
+do_cond.4:
+    if 0 goto do_body.3 else do_join.5
+do_join.5:
+do_body.8:
+    Int64(.19) = sext32(12)
+    Int32(.20) = call extern(luxrt_roots_push)(Int64(.1), Int64(.2), Int64(.3), Int64(.19))
+    if .20 goto if_true.11 else if_false.12
+if_true.11:
+    return 1
+if_false.12:
+do_cond.9:
+    if 0 goto do_body.8 else do_join.10
+do_join.10:
+do_body.13:
+    Int64(.21) = sext32(11)
+    Int32(.22) = call extern(luxrt_string_new)(Int64(.1), Int64(.Lstring.2), Int64(.21), Int64(.3))
+    if .22 goto if_true.16 else if_false.17
+if_true.16:
+    return 1
+if_false.17:
+do_cond.14:
+    if 0 goto do_body.13 else do_join.15
+do_join.15:
+do_body.18:
+    Int64(.23) = sext32(1)
+    Int64(.24) = sext32(1)
+    Int64(.25) = mul(.24, 8)
+    Int64(.26) = add(.3, .25)
+    Int32(.27) = call extern(luxrt_string_new)(Int64(.1), Int64(.Lstring.3), Int64(.23), Int64(.26))
+    if .27 goto if_true.21 else if_false.22
+if_true.21:
+    return 1
+if_false.22:
+do_cond.19:
+    if 0 goto do_body.18 else do_join.20
+do_join.20:
+do_body.23:
+    Int64(.28) = sext32(0)
+    Int64(.29) = mul(.28, 8)
+    Int64(.30) = add(.3, .29)
+    Int64(.31) = load(.30)
+    Int64(.32) = sext32(1)
+    Int64(.33) = mul(.32, 8)
+    Int64(.34) = add(.3, .33)
+    Int64(.35) = load(.34)
+    Int64(.36) = sext32(2)
+    Int64(.37) = mul(.36, 8)
+    Int64(.38) = add(.3, .37)
+    Int32(.39) = call extern(luxrt_string_split)(Int64(.1), Int64(.31), Int64(.35), Int64(.38))
+    if .39 goto if_true.26 else if_false.27
+if_true.26:
+    return 1
+if_false.27:
+do_cond.24:
+    if 0 goto do_body.23 else do_join.25
+do_join.25:
+    Int64(.41) = sext32(0)
+    store(.41, .40)
+do_body.28:
+    Int64(.42) = sext32(2)
+    Int64(.43) = mul(.42, 8)
+    Int64(.44) = add(.3, .43)
+    Int64(.45) = load(.44)
+    Int32(.46) = call extern(luxrt_vector_length)(Int64(.45), Int64(.40))
+    if .46 goto if_true.31 else logic_and.33
+logic_and.33:
+    Int64(.47) = load(.40)
+    Int32(.48) = eq(.47, 4)
+    if .48 goto if_false.32 else if_true.31
+if_true.31:
+    return 1
+if_false.32:
+do_cond.29:
+    if 0 goto do_body.28 else do_join.30
+do_join.30:
+do_body.34:
+    Int64(.49) = sext32(2)
+    Int64(.50) = mul(.49, 8)
+    Int64(.51) = add(.3, .50)
+    Int64(.52) = load(.51)
+    Int64(.53) = sext32(2)
+    Int64(.54) = sext32(3)
+    Int64(.55) = mul(.54, 8)
+    Int64(.56) = add(.3, .55)
+    Int32(.57) = call extern(luxrt_values_get)(Int64(.52), Int64(.53), Int64(.56))
+    if .57 goto if_true.37 else if_false.38
+if_true.37:
+    return 1
+if_false.38:
+do_cond.35:
+    if 0 goto do_body.34 else do_join.36
+do_join.36:
+do_body.39:
+    Int64(.58) = sext32(5)
+    Int64(.59) = sext32(4)
+    Int64(.60) = mul(.59, 8)
+    Int64(.61) = add(.3, .60)
+    Int32(.62) = call extern(luxrt_string_new)(Int64(.1), Int64(.Lstring.4), Int64(.58), Int64(.61))
+    if .62 goto if_true.42 else if_false.43
+if_true.42:
+    return 1
+if_false.43:
+do_cond.40:
+    if 0 goto do_body.39 else do_join.41
+do_join.41:
+    store(Int32(0), .63)
+do_body.44:
+    Int64(.64) = sext32(3)
+    Int64(.65) = mul(.64, 8)
+    Int64(.66) = add(.3, .65)
+    Int64(.67) = load(.66)
+    Int64(.68) = sext32(4)
+    Int64(.69) = mul(.68, 8)
+    Int64(.70) = add(.3, .69)
+    Int64(.71) = load(.70)
+    Int32(.72) = call extern(luxrt_string_equal)(Int64(.67), Int64(.71), Int64(.63))
+    if .72 goto if_true.47 else logic_and.49
+logic_and.49:
+    Int32(.73) = load_i32(.63)
+    if .73 goto if_false.48 else if_true.47
+if_true.47:
+    return 1
+if_false.48:
+do_cond.45:
+    if 0 goto do_body.44 else do_join.46
+do_join.46:
+do_body.50:
+    Int64(.74) = sext32(0)
+    Int64(.75) = sext32(5)
+    Int64(.76) = mul(.75, 8)
+    Int64(.77) = add(.3, .76)
+    Int32(.78) = call extern(luxrt_array_new)(Int64(.1), Int64(22), Int64(.74), Int64(.77))
+    if .78 goto if_true.53 else if_false.54
+if_true.53:
+    return 1
+if_false.54:
+do_cond.51:
+    if 0 goto do_body.50 else do_join.52
+do_join.52:
+    Int64(.80) = sext32(0)
+    store(.80, .79)
+for_cond.55:
+    Int64(.81) = load(.79)
+    Int64(.82) = sext32(10000)
+    Int32(.83) = ult(.81, .82)
+    if .83 goto for_body.56 else for_join.58
+for_body.56:
+do_body.59:
+    Int64(.84) = sext32(5)
+    Int64(.85) = mul(.84, 8)
+    Int64(.86) = add(.3, .85)
+    Int64(.87) = load(.86)
+    Int64(.88) = load(.79)
+    Int32(.89) = call extern(luxrt_array_append)(Int64(.1), Int64(.87), Int64(.88))
+    if .89 goto if_true.62 else if_false.63
+if_true.62:
+    return 1
+if_false.63:
+do_cond.60:
+    if 0 goto do_body.59 else do_join.61
+do_join.61:
+for_cont.57:
+    Int64(.90) = load(.79)
+    Int64(.91) = add(.90, 1)
+    store(.91, .79)
+    goto for_cond.55
+for_join.58:
+    Int64(.93) = sext32(0)
+    store(.93, .92)
+    Int64(.95) = sext32(0)
+    store(.95, .94)
+for_cond.64:
+    Int64(.96) = load(.94)
+    Int64(.97) = sext32(10000)
+    Int32(.98) = ult(.96, .97)
+    if .98 goto for_body.65 else for_join.67
+for_body.65:
+do_body.68:
+    Int64(.100) = sext32(5)
+    Int64(.101) = mul(.100, 8)
+    Int64(.102) = add(.3, .101)
+    Int64(.103) = load(.102)
+    Int64(.104) = load(.94)
+    Int32(.105) = call extern(luxrt_array_get)(Int64(.103), Int64(.104), Int64(.99))
+    if .105 goto if_true.71 else if_false.72
+if_true.71:
+    return 1
+if_false.72:
+do_cond.69:
+    if 0 goto do_body.68 else do_join.70
+do_join.70:
+    Int64(.106) = load(.92)
+    Int64(.107) = load(.99)
+    Int64(.108) = add(.106, .107)
+    store(.108, .92)
+for_cont.66:
+    Int64(.109) = load(.94)
+    Int64(.110) = add(.109, 1)
+    store(.110, .94)
+    goto for_cond.64
+for_join.67:
+do_body.73:
+    Int64(.111) = load(.92)
+    Int32(.112) = eq(.111, 49995000)
+    if .112 goto if_false.77 else if_true.76
+if_true.76:
+    return 1
+if_false.77:
+do_cond.74:
+    if 0 goto do_body.73 else do_join.75
+do_join.75:
+do_body.78:
+    Int64(.113) = sext32(0)
+    Int64(.114) = sext32(7)
+    Int64(.115) = mul(.114, 8)
+    Int64(.116) = add(.3, .115)
+    Int32(.117) = call extern(luxrt_array_new)(Int64(.1), Int64(23), Int64(.113), Int64(.116))
+    if .117 goto if_true.81 else if_false.82
+if_true.81:
+    return 1
+if_false.82:
+do_cond.79:
+    if 0 goto do_body.78 else do_join.80
+do_join.80:
+do_body.83:
+    Int64(.118) = sext32(7)
+    Int64(.119) = mul(.118, 8)
+    Int64(.120) = add(.3, .119)
+    Int64(.121) = load(.120)
+    Int32(.122) = call extern(luxrt_array_append)(Int64(.1), Int64(.121), Int64(18444492273895910349))
+    if .122 goto if_true.86 else if_false.87
+if_true.86:
+    return 1
+if_false.87:
+do_cond.84:
+    if 0 goto do_body.83 else do_join.85
+do_join.85:
+do_body.88:
+    Int64(.123) = sext32(1)
+    Int64(.124) = sext32(6)
+    Int64(.125) = mul(.124, 8)
+    Int64(.126) = add(.3, .125)
+    Int32(.127) = call extern(luxrt_map_new)(Int64(.1), Int64(.123), Int64(.126))
+    if .127 goto if_true.91 else if_false.92
+if_true.91:
+    return 1
+if_false.92:
+do_cond.89:
+    if 0 goto do_body.88 else do_join.90
+do_join.90:
+    Int64(.129) = sext32(0)
+    store(.129, .128)
+for_cond.93:
+    Int64(.130) = load(.128)
+    Int64(.131) = sext32(10000)
+    Int32(.132) = ult(.130, .131)
+    if .132 goto for_body.94 else for_join.96
+for_body.94:
+    Int64(.134) = load(.128)
+    Int64(.135) = sext32(1024)
+    Int64(.136) = urem(.134, .135)
+    Int64(.137) = shl(.136, 3)
+    Int64(.138) = sext32(1)
+    Int64(.139) = or(.137, .138)
+    store(.139, .133)
+    Int64(.141) = load(.128)
+    Int64(.142) = shl(.141, 3)
+    Int64(.143) = sext32(1)
+    Int64(.144) = or(.142, .143)
+    store(.144, .140)
+do_body.97:
+    Int64(.145) = sext32(6)
+    Int64(.146) = mul(.145, 8)
+    Int64(.147) = add(.3, .146)
+    Int64(.148) = load(.147)
+    Int64(.149) = load(.133)
+    Int64(.150) = load(.140)
+    Int32(.151) = call extern(luxrt_map_set)(Int64(.1), Int64(.148), Int64(.149), Int64(.150))
+    if .151 goto if_true.100 else if_false.101
+if_true.100:
+    return 1
+if_false.101:
+do_cond.98:
+    if 0 goto do_body.97 else do_join.99
+do_join.99:
+for_cont.95:
+    Int64(.152) = load(.128)
+    Int64(.153) = add(.152, 1)
+    store(.153, .128)
+    goto for_cond.93
+for_join.96:
+do_body.102:
+    Int32(.154) = call extern(luxrt_heap_collect)(Int64(.1))
+    if .154 goto if_true.105 else if_false.106
+if_true.105:
+    return 1
+if_false.106:
+do_cond.103:
+    if 0 goto do_body.102 else do_join.104
+do_join.104:
+    Int64(.156) = sext32(0)
+    store(.156, .155)
+for_cond.107:
+    Int64(.157) = load(.155)
+    Int64(.158) = sext32(1024)
+    Int32(.159) = ult(.157, .158)
+    if .159 goto for_body.108 else for_join.110
+for_body.108:
+do_body.111:
+    Int64(.161) = sext32(6)
+    Int64(.162) = mul(.161, 8)
+    Int64(.163) = add(.3, .162)
+    Int64(.164) = load(.163)
+    Int64(.165) = load(.155)
+    Int64(.166) = shl(.165, 3)
+    Int64(.167) = sext32(1)
+    Int64(.168) = or(.166, .167)
+    Int32(.169) = call extern(luxrt_map_get)(Int64(.164), Int64(.168), Int64(.160))
+    if .169 goto if_true.114 else if_false.115
+if_true.114:
+    return 1
+if_false.115:
+do_cond.112:
+    if 0 goto do_body.111 else do_join.113
+do_join.113:
+do_body.116:
+    Int64(.170) = load(.160)
+    Int64(.171) = load(.155)
+    Int64(.172) = sub(9999, .171)
+    Int64(.173) = udiv(.172, 1024)
+    Int64(.174) = mul(.173, 1024)
+    Int64(.175) = load(.155)
+    Int64(.176) = add(.174, .175)
+    Int64(.177) = shl(.176, 3)
+    Int64(.178) = or(.177, 1)
+    Int32(.179) = eq(.170, .178)
+    if .179 goto if_false.120 else if_true.119
+if_true.119:
+    return 1
+if_false.120:
+do_cond.117:
+    if 0 goto do_body.116 else do_join.118
+do_join.118:
+for_cont.109:
+    Int64(.180) = load(.155)
+    Int64(.181) = add(.180, 1)
+    store(.181, .155)
+    goto for_cond.107
+for_join.110:
+    Int64(.183) = sext32(0)
+    store(.183, .182)
+for_cond.121:
+    Int64(.184) = load(.182)
+    Int64(.185) = sext32(1024)
+    Int32(.186) = ult(.184, .185)
+    if .186 goto for_body.122 else for_join.124
+for_body.122:
+do_body.125:
+    Int64(.188) = sext32(6)
+    Int64(.189) = mul(.188, 8)
+    Int64(.190) = add(.3, .189)
+    Int64(.191) = load(.190)
+    Int64(.192) = load(.182)
+    Int64(.193) = shl(.192, 3)
+    Int64(.194) = sext32(1)
+    Int64(.195) = or(.193, .194)
+    Int32(.196) = call extern(luxrt_map_delete)(Int64(.191), Int64(.195), Int64(.187))
+    if .196 goto if_true.128 else if_false.129
+if_true.128:
+    return 1
+if_false.129:
+do_cond.126:
+    if 0 goto do_body.125 else do_join.127
+do_join.127:
+for_cont.123:
+    Int64(.197) = load(.182)
+    Int64(.198) = sext32(2)
+    Int64(.199) = add(.197, .198)
+    store(.199, .182)
+    goto for_cond.121
+for_join.124:
+do_body.130:
+    Int64(.200) = sext32(6)
+    Int64(.201) = mul(.200, 8)
+    Int64(.202) = add(.3, .201)
+    Int64(.203) = load(.202)
+    Int64(.204) = sext32(1)
+    Int32(.205) = call extern(luxrt_map_set)(Int64(.1), Int64(.203), Int64(.204), Int64(11))
+    if .205 goto if_true.133 else if_false.134
+if_true.133:
+    return 1
+if_false.134:
+do_cond.131:
+    if 0 goto do_body.130 else do_join.132
+do_join.132:
+    Int64(.207) = sext32(0)
+    store(.207, .206)
+    Int64(.211) = sext32(1)
+    store(.211, .210)
+for_cond.135:
+    Int64(.212) = load(.210)
+    Int64(.213) = sext32(1024)
+    Int32(.214) = ult(.212, .213)
+    if .214 goto for_body.136 else for_join.138
+for_body.136:
+do_body.139:
+    Int64(.215) = sext32(6)
+    Int64(.216) = mul(.215, 8)
+    Int64(.217) = add(.3, .216)
+    Int64(.218) = load(.217)
+    Int32(.219) = call extern(luxrt_map_next)(Int64(.218), Int64(.206), Int64(.208), Int64(.209))
+    if .219 goto if_true.142 else if_false.143
+if_true.142:
+    return 1
+if_false.143:
+do_cond.140:
+    if 0 goto do_body.139 else do_join.141
+do_join.141:
+do_body.144:
+    Int64(.220) = load(.208)
+    Int64(.221) = load(.210)
+    Int64(.222) = shl(.221, 3)
+    Int64(.223) = or(.222, 1)
+    Int32(.224) = eq(.220, .223)
+    if .224 goto if_false.148 else if_true.147
+if_true.147:
+    return 1
+if_false.148:
+do_cond.145:
+    if 0 goto do_body.144 else do_join.146
+do_join.146:
+for_cont.137:
+    Int64(.225) = load(.210)
+    Int64(.226) = sext32(2)
+    Int64(.227) = add(.225, .226)
+    store(.227, .210)
+    goto for_cond.135
+for_join.138:
+do_body.149:
+    Int64(.228) = sext32(6)
+    Int64(.229) = mul(.228, 8)
+    Int64(.230) = add(.3, .229)
+    Int64(.231) = load(.230)
+    Int32(.232) = call extern(luxrt_map_next)(Int64(.231), Int64(.206), Int64(.208), Int64(.209))
+    if .232 goto if_true.152 else logic_and.154
+logic_and.154:
+    Int64(.233) = load(.208)
+    Int32(.234) = eq(.233, 1)
+    if .234 goto if_false.153 else if_true.152
+if_true.152:
+    return 1
+if_false.153:
+do_cond.150:
+    if 0 goto do_body.149 else do_join.151
+do_join.151:
+do_body.155:
+    Int64(.235) = sext32(6)
+    Int64(.236) = mul(.235, 8)
+    Int64(.237) = add(.3, .236)
+    Int64(.238) = load(.237)
+    Int32(.239) = call extern(luxrt_map_next)(Int64(.238), Int64(.206), Int64(.208), Int64(.209))
+    Int32(.240) = eq(.239, 18446744073709551614)
+    if .240 goto if_false.159 else if_true.158
+if_true.158:
+    return 1
+if_false.159:
+do_cond.156:
+    if 0 goto do_body.155 else do_join.157
+do_join.157:
+do_body.160:
+    Int64(.241) = sext32(8)
+    Int64(.242) = mul(.241, 8)
+    Int64(.243) = add(.3, .242)
+    Int32(.244) = call extern(luxrt_value_float_bits)(Int64(.1), Int64(4607182418800017408), Int64(.243))
+    if .244 goto if_true.163 else if_false.164
+if_true.163:
+    return 1
+if_false.164:
+do_cond.161:
+    if 0 goto do_body.160 else do_join.162
+do_join.162:
+do_body.165:
+    Int64(.245) = sext32(6)
+    Int64(.246) = mul(.245, 8)
+    Int64(.247) = add(.3, .246)
+    Int64(.248) = load(.247)
+    Int64(.249) = sext32(8)
+    Int64(.250) = mul(.249, 8)
+    Int64(.251) = add(.3, .250)
+    Int64(.252) = load(.251)
+    Int32(.253) = call extern(luxrt_map_get)(Int64(.248), Int64(.252), Int64(.209))
+    if .253 goto if_true.168 else logic_and.170
+logic_and.170:
+    Int64(.254) = load(.209)
+    Int32(.255) = eq(.254, 73737)
+    if .255 goto if_false.169 else if_true.168
+if_true.168:
+    return 1
+if_false.169:
+do_cond.166:
+    if 0 goto do_body.165 else do_join.167
+do_join.167:
+do_body.171:
+    Int64(.256) = sext32(1)
+    Int64(.257) = sext32(9)
+    Int64(.258) = mul(.257, 8)
+    Int64(.259) = add(.3, .258)
+    Int32(.260) = call extern(luxrt_set_new)(Int64(.1), Int64(.256), Int64(.259))
+    if .260 goto if_true.174 else if_false.175
+if_true.174:
+    return 1
+if_false.175:
+do_cond.172:
+    if 0 goto do_body.171 else do_join.173
+do_join.173:
+do_body.176:
+    Int64(.261) = sext32(9)
+    Int64(.262) = mul(.261, 8)
+    Int64(.263) = add(.3, .262)
+    Int64(.264) = load(.263)
+    Int32(.265) = call extern(luxrt_set_add)(Int64(.1), Int64(.264), Int64(11))
+    if .265 goto if_true.179 else if_false.180
+if_true.179:
+    return 1
+if_false.180:
+do_cond.177:
+    if 0 goto do_body.176 else do_join.178
+do_join.178:
+do_body.181:
+    Int64(.266) = sext32(9)
+    Int64(.267) = mul(.266, 8)
+    Int64(.268) = add(.3, .267)
+    Int64(.269) = load(.268)
+    Int64(.270) = sext32(9)
+    Int32(.271) = call extern(luxrt_set_add)(Int64(.1), Int64(.269), Int64(.270))
+    if .271 goto if_true.184 else if_false.185
+if_true.184:
+    return 1
+if_false.185:
+do_cond.182:
+    if 0 goto do_body.181 else do_join.183
+do_join.183:
+do_body.186:
+    Int64(.272) = sext32(9)
+    Int64(.273) = mul(.272, 8)
+    Int64(.274) = add(.3, .273)
+    Int64(.275) = load(.274)
+    Int32(.276) = call extern(luxrt_map_length)(Int64(.275), Int64(.40))
+    if .276 goto if_true.189 else logic_and.191
+logic_and.191:
+    Int64(.277) = load(.40)
+    Int32(.278) = eq(.277, 1)
+    if .278 goto if_false.190 else if_true.189
+if_true.189:
+    return 1
+if_false.190:
+do_cond.187:
+    if 0 goto do_body.186 else do_join.188
+do_join.188:
+do_body.192:
+    Int32(.279) = call extern(luxrt_heap_collect)(Int64(.1))
+    if .279 goto if_true.195 else if_false.196
+if_true.195:
+    return 1
+if_false.196:
+do_cond.193:
+    if 0 goto do_body.192 else do_join.194
+do_join.194:
+    Int64(.281) = sext32(0)
+    store(.281, .280)
+do_body.197:
+    Int64(.282) = sext32(7)
+    Int64(.283) = mul(.282, 8)
+    Int64(.284) = add(.3, .283)
+    Int64(.285) = load(.284)
+    Int64(.286) = sext32(0)
+    Int32(.287) = call extern(luxrt_array_get)(Int64(.285), Int64(.286), Int64(.280))
+    if .287 goto if_true.200 else logic_and.202
+logic_and.202:
+    Int64(.288) = load(.280)
+    Int32(.289) = eq(.288, 18444492273895910349)
+    if .289 goto if_false.201 else if_true.200
+if_true.200:
+    return 1
+if_false.201:
+do_cond.198:
+    if 0 goto do_body.197 else do_join.199
+do_join.199:
+do_body.203:
+    Int32(.290) = call extern(luxrt_roots_pop)(Int64(.1), Int64(.2))
+    if .290 goto if_true.206 else if_false.207
+if_true.206:
+    return 1
+if_false.207:
+do_cond.204:
+    if 0 goto do_body.203 else do_join.205
+do_join.205:
+do_body.208:
+    Int32(.291) = call extern(luxrt_heap_destroy)(Int64(.1))
+    if .291 goto if_true.211 else if_false.212
+if_true.211:
+    return 1
+if_false.212:
+do_cond.209:
+    if 0 goto do_body.208 else do_join.210
+do_join.210:
+    return 0
+end
+

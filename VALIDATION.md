@@ -287,3 +287,22 @@ Při C → IR převodu nalezena mezera: `qbe2lir` i LuxIR parser neuměly
 `call extern symbol`. Opraveny value/void cally, samostatný execution test
 `tests/qbe2lir_extern.py`. C reference stále zdroj pravdy pro backend;
 465/465 LSL funkcí přegenerováno, bootstrap nového native backendu 63,29 s.
+
+## Managed collections — 12. 10. 2026
+
+799 669 kontrol pro C referenci a C/LSL-generated IR, ASan/UBSan C;
+random list a tři typed-array modely, 100 000 map operací s nezávislým
+pořadím, 10 000 vložení nově alokovaných shodných String keys, GC stress,
+UTF-8 (včetně NUL a 4-byte scalar), slice/concat/split, float bit fidelity,
+NaN identity, numeric-key policy a typed Bool/Int rozlišení, Set.
+Standalone contest-like smoke (10 000 numeric array items a opakované
+map updates/deletes/iteration) běží na třech Linux cílech; C/LSL binárky
+shodné. Všechna mapování uvolněna při destroy.
+
+Lookup benchmark: 4096 distinct-but-equal cached String keys, milion
+lookupů/trial, 7 trialů + warm-up, checksum, alokace/GC mimo timing.
+Původní implementace: native 75,32 ns, C 55,63 ns. Po přímém cached hash
+loadu, jednorázovém avalanche při konstrukci String a odstranění
+opakovaných type/coercion/out-parameter helperů: native 27,19 ns,
+C-emitted IR 29,14 ns, C reference 25,18 ns. Nejde o měření celé LSL
+varianta autobusů nebo srovnání s předchozím LSL release.

@@ -204,6 +204,15 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   Jeden vlastník haldy; automatické stack mapy, generační GC, STW,
   finalizéry a stabilní integrované ABI nadále otevřené.
 
+- [x] Experimentální managed UTF-8 String (cached hash, equality/order,
+  concat, codepoint slice, explicit split), dynamic Value list, raw
+  Int64/Float64/Byte vectors, insertion-ordered Map a Set; 799 669
+  modelových kontrol, GC stress a tři Linux execution cíle.
+  Jde o základní API, ne celý stdlib/145 funkcí, Tuple nebo Unicode case.
+  String lookup v izolovaném benchmarku 27–29 ns (4096 různých stejně
+  obsahujících objektů); není to end-to-end benchmark autobusů v LSL.
+  Seeded/cryptographic collision protection zůstává otevřená.
+
 ## Runtime knihovna LuxIR (luxrt)
 
 ### OS vrstva: jediné místo s kódem pro konkrétní systém

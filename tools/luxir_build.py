@@ -47,6 +47,7 @@ def main():
     ap.add_argument('-t','--target',choices=TARGETS,default='amd64_sysv')
     ap.add_argument('--backend',type=Path,default=ROOT/'build/luxir')
     ap.add_argument('--entry',default='main');ap.add_argument('--keep-runtime',action='store_true',help='disable section garbage collection')
+    ap.add_argument('--managed',action='store_true',help='link experimental single-owner managed core and collections (explicit roots)')
     a=ap.parse_args()
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',a.entry):ap.error('entry must be a plain IR symbol')
     if not a.backend.is_file():ap.error('backend missing; build LuxIR or pass --backend')
@@ -55,6 +56,8 @@ def main():
     arch,prefix=TARGETS[a.target];platform=ROOT/('runtime/linux-'+arch)
     sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate','arena']]
     sources+=[platform/(name+'.lir') for name in ['os','thread','signal','tls-native']]
+    if a.managed:
+        sources += [ROOT/('runtime/'+name+'.lir') for name in ['managed','collections','map']]
     destination=a.output.resolve();destination.parent.mkdir(parents=True,exist_ok=True)
     # Final output is replaced only after successful compile and link.
     with tempfile.TemporaryDirectory(prefix='.luxir-build-',dir=destination.parent) as tmp:

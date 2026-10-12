@@ -1,0 +1,42 @@
+{
+  "target": "amd64_sysv",
+  "results": [
+    {
+      "keys": 4096,
+      "lookups_per_trial": 1000000,
+      "trials": 7,
+      "median_ns_per_lookup": 25.175219,
+      "distinct_equal_string_objects": true,
+      "implementation": "C reference"
+    },
+    {
+      "keys": 4096,
+      "lookups_per_trial": 1000000,
+      "trials": 7,
+      "median_ns_per_lookup": 29.137107,
+      "distinct_equal_string_objects": true,
+      "implementation": "src/luxir"
+    },
+    {
+      "keys": 4096,
+      "lookups_per_trial": 1000000,
+      "trials": 7,
+      "median_ns_per_lookup": 27.189411,
+      "distinct_equal_string_objects": true,
+      "implementation": "build/luxir"
+    }
+  ],
+  "inline": false,
+  "excludes": [
+    "allocation",
+    "GC",
+    "string construction"
+  ],
+  "includes": [
+    "function calls",
+    "hash/probe",
+    "full byte equality",
+    "checksum"
+  ],
+  "caveat": "isolated lookup, not complete contest programs"
+}

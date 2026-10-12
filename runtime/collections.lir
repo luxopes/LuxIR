@@ -1,0 +1,2165 @@
+ir_version "1"
+runtime_abi "none"
+data vector_refs align 8 = Int64(16)
+data string_desc align 8 = [Int64(18), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0)]
+data values_desc align 8 = [Int64(19), Int64(1), Int64(vector_refs), Int64(0), Int64(0), Int64(0)]
+data int_array_desc align 8 = [Int64(22), Int64(1), Int64(vector_refs), Int64(0), Int64(0), Int64(0)]
+data float_array_desc align 8 = [Int64(23), Int64(1), Int64(vector_refs), Int64(0), Int64(0), Int64(0)]
+data byte_array_desc align 8 = [Int64(24), Int64(1), Int64(vector_refs), Int64(0), Int64(0), Int64(0)]
+data refs_buffer_desc align 8 = [Int64(32), Int64(0), Int64(0), Int64(16), Int64(0), Int64(8)]
+data raw_buffer_desc align 8 = [Int64(33), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0)]
+function object_of(Int64(.1), Int64(.3)) -> Int64:
+start.1:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.12) = alloc8(8)
+body.2:
+    Int64(.5) = load(.2)
+    Int32(.6) = ne(.5, 0)
+    if .6 goto logic_or.5 else if_true.3
+logic_or.5:
+    Int64(.7) = load(.2)
+    Int64(.8) = sext32(7)
+    Int64(.9) = and(.7, .8)
+    Int32(.10) = ne(.9, 0)
+    if .10 goto if_true.3 else if_false.4
+if_true.3:
+    Int64(.11) = sext32(0)
+    return .11
+if_false.4:
+    Int64(.13) = load(.2)
+    store(.13, .12)
+    Int64(.14) = load(.12)
+    Int64(.15) = add(.14, 0)
+    Int64(.16) = load(.15)
+    Int32(.17) = ne(.16, 0)
+    if .17 goto logic_and.9 else cond_false.7
+logic_and.9:
+    Int64(.18) = load(.12)
+    Int64(.19) = add(.18, 0)
+    Int64(.20) = load(.19)
+    Int64(.21) = add(.20, 0)
+    Int64(.22) = load(.21)
+    Int64(.23) = load(.4)
+    Int32(.24) = eq(.22, .23)
+    if .24 goto cond_true.6 else cond_false.7
+cond_true.6:
+    Int64(.25) = load(.12)
+    goto cond_join.8
+cond_false.7:
+    Int64(.26) = sext32(0)
+cond_join.8:
+    Int64(.27) = phi(cond_true.6: .25, cond_false.7: .26)
+    return .27
+end
+
+function owned(Int64(.1), Int64(.3)) -> Int32:
+start.10:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.21) = alloc8(8)
+body.11:
+    Int64(.5) = load(.4)
+    Int64(.6) = sext32(7)
+    Int64(.7) = and(.5, .6)
+    Int32(.8) = eq(.7, 1)
+    if .8 goto if_true.12 else logic_or.16
+logic_or.16:
+    Int64(.9) = load(.4)
+    Int32(.10) = eq(.9, 2)
+    if .10 goto if_true.12 else logic_or.15
+logic_or.15:
+    Int64(.11) = load(.4)
+    Int32(.12) = eq(.11, 3)
+    if .12 goto if_true.12 else logic_or.14
+logic_or.14:
+    Int64(.13) = load(.4)
+    Int32(.14) = eq(.13, 11)
+    if .14 goto if_true.12 else if_false.13
+if_true.12:
+    return 1
+if_false.13:
+    Int64(.15) = load(.4)
+    Int32(.16) = ne(.15, 0)
+    if .16 goto logic_or.19 else if_true.17
+logic_or.19:
+    Int64(.17) = load(.4)
+    Int64(.18) = sext32(7)
+    Int64(.19) = and(.17, .18)
+    Int32(.20) = ne(.19, 0)
+    if .20 goto if_true.17 else if_false.18
+if_true.17:
+    return 0
+if_false.18:
+    Int64(.22) = load(.4)
+    store(.22, .21)
+    Int64(.23) = load(.21)
+    Int64(.24) = add(.23, 32)
+    Int64(.25) = load(.24)
+    Int64(.26) = load(.2)
+    Int32(.27) = eq(.25, .26)
+    if .27 goto logic_and.23 else logic_false.21
+logic_and.23:
+    Int64(.28) = load(.21)
+    Int64(.29) = add(.28, 0)
+    Int64(.30) = load(.29)
+    Int32(.31) = ne(.30, 0)
+    if .31 goto logic_true.20 else logic_false.21
+logic_true.20:
+    goto logic_join.22
+logic_false.21:
+logic_join.22:
+    Int32(.32) = phi(logic_true.20: 1, logic_false.21: 0)
+    return .32
+end
+
+function get_string(Int64(.1)) -> Int64:
+start.24:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.25:
+    Int64(.3) = load(.2)
+    Int64(.4) = call object_of(Int64(.3), Int64(18))
+    Int32(.5) = ne(.4, 0)
+    if .5 goto cond_true.26 else cond_false.27
+cond_true.26:
+    Int64(.6) = load(.2)
+    Int64(.7) = call extern(luxrt_object_payload)(Int64(.6))
+    goto cond_join.28
+cond_false.27:
+    Int64(.8) = sext32(0)
+cond_join.28:
+    Int64(.9) = phi(cond_true.26: .7, cond_false.27: .8)
+    return .9
+end
+
+function hash_string(Int64(.1), Int64(.3)) -> Int64:
+start.29:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+    Int64(.6) = alloc8(8)
+body.30:
+    store(Int64(14695981039346656037), .5)
+    Int64(.7) = sext32(0)
+    store(.7, .6)
+for_cond.31:
+    Int64(.8) = load(.6)
+    Int64(.9) = load(.4)
+    Int32(.10) = ult(.8, .9)
+    if .10 goto for_body.32 else for_join.34
+for_body.32:
+    Int64(.11) = load(.5)
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.6)
+    Int64(.14) = mul(.13, 1)
+    Int64(.15) = add(.12, .14)
+    Int32(.16) = load_u8(.15)
+    Int64(.17) = zext8(.16)
+    Int64(.18) = xor(.11, .17)
+    store(.18, .5)
+    Int64(.19) = load(.5)
+    Int64(.20) = mul(.19, 1099511628211)
+    store(.20, .5)
+for_cont.33:
+    Int64(.21) = load(.6)
+    Int64(.22) = add(.21, 1)
+    store(.22, .6)
+    goto for_cond.31
+for_join.34:
+    Int64(.23) = load(.5)
+    Int64(.24) = load(.5)
+    Int64(.25) = shr(.24, 30)
+    Int64(.26) = xor(.23, .25)
+    store(.26, .5)
+    Int64(.27) = load(.5)
+    Int64(.28) = mul(.27, 13787848793156543929)
+    store(.28, .5)
+    Int64(.29) = load(.5)
+    Int64(.30) = load(.5)
+    Int64(.31) = shr(.30, 27)
+    Int64(.32) = xor(.29, .31)
+    store(.32, .5)
+    Int64(.33) = load(.5)
+    Int64(.34) = mul(.33, 10723151780598845931)
+    store(.34, .5)
+    Int64(.35) = load(.5)
+    Int64(.36) = load(.5)
+    Int64(.37) = shr(.36, 31)
+    Int64(.38) = xor(.35, .37)
+    return .38
+end
+
+function character_count(Int64(.1), Int64(.3)) -> Int64:
+start.35:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+    Int64(.7) = alloc8(8)
+body.36:
+    Int64(.6) = sext32(0)
+    store(.6, .5)
+    Int64(.8) = sext32(0)
+    store(.8, .7)
+for_cond.37:
+    Int64(.9) = load(.7)
+    Int64(.10) = load(.4)
+    Int32(.11) = ult(.9, .10)
+    if .11 goto for_body.38 else for_join.40
+for_body.38:
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.7)
+    Int64(.14) = mul(.13, 1)
+    Int64(.15) = add(.12, .14)
+    Int32(.16) = load_u8(.15)
+    Int32(.17) = zext8(.16)
+    Int32(.18) = and(.17, 192)
+    Int32(.19) = ne(.18, 128)
+    if .19 goto if_true.41 else if_false.42
+if_true.41:
+    Int64(.20) = load(.5)
+    Int64(.21) = add(.20, 1)
+    store(.21, .5)
+if_false.42:
+for_cont.39:
+    Int64(.22) = load(.7)
+    Int64(.23) = add(.22, 1)
+    store(.23, .7)
+    goto for_cond.37
+for_join.40:
+    Int64(.24) = load(.5)
+    return .24
+end
+
+export function luxrt_string_new(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.43:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.23) = alloc8(8)
+    Int64(.24) = alloc4(4)
+    Int64(.33) = alloc8(8)
+body.44:
+    Int64(.9) = load(.6)
+    Int32(.10) = ne(.9, 0)
+    if .10 goto logic_and.48 else logic_or.47
+logic_and.48:
+    Int64(.11) = load(.4)
+    Int32(.12) = eq(.11, 0)
+    if .12 goto if_true.45 else logic_or.47
+logic_or.47:
+    Int64(.13) = load(.6)
+    Int64(.14) = sub(18446744073709551615, 24)
+    Int64(.15) = sext32(1)
+    Int64(.16) = sub(.14, .15)
+    Int32(.17) = ugt(.13, .16)
+    if .17 goto if_true.45 else if_false.46
+if_true.45:
+    Int32(.18) = neg(34)
+    return .18
+if_false.46:
+    Int64(.19) = load(.4)
+    Int64(.20) = load(.6)
+    Int32(.21) = call extern(luxrt_utf8_valid)(Int64(.19), Int64(.20))
+    if .21 goto if_false.50 else if_true.49
+if_true.49:
+    Int32(.22) = neg(84)
+    return .22
+if_false.50:
+    Int64(.25) = load(.2)
+    Int64(.26) = load(.6)
+    Int64(.27) = add(24, .26)
+    Int64(.28) = sext32(1)
+    Int64(.29) = add(.27, .28)
+    Int32(.30) = call extern(luxrt_object_new)(Int64(.25), Int64(string_desc), Int64(.29), Int64(.23))
+    store(.30, .24)
+    Int32(.31) = load_i32(.24)
+    if .31 goto if_true.51 else if_false.52
+if_true.51:
+    Int32(.32) = load_i32(.24)
+    return .32
+if_false.52:
+    Int64(.34) = load(.23)
+    Int64(.35) = call extern(luxrt_object_payload)(Int64(.34))
+    store(.35, .33)
+    Int64(.36) = load(.6)
+    Int64(.37) = load(.33)
+    Int64(.38) = add(.37, 0)
+    store(.36, .38)
+    Int64(.39) = load(.4)
+    Int64(.40) = load(.6)
+    Int64(.41) = call character_count(Int64(.39), Int64(.40))
+    Int64(.42) = load(.33)
+    Int64(.43) = add(.42, 8)
+    store(.41, .43)
+    Int64(.44) = load(.33)
+    Int64(.45) = add(.44, 24)
+    Int64(.46) = load(.4)
+    Int64(.47) = load(.6)
+    Int64(.48) = call extern(luxrt_memcpy)(Int64(.45), Int64(.46), Int64(.47))
+    Int64(.49) = load(.33)
+    Int64(.50) = add(.49, 24)
+    Int64(.51) = load(.6)
+    Int64(.52) = mul(.51, 1)
+    Int64(.53) = add(.50, .52)
+    store(Int8(0), .53)
+    Int64(.54) = load(.33)
+    Int64(.55) = add(.54, 24)
+    Int64(.56) = load(.6)
+    Int64(.57) = call hash_string(Int64(.55), Int64(.56))
+    Int64(.58) = load(.33)
+    Int64(.59) = add(.58, 16)
+    store(.57, .59)
+    Int64(.60) = load(.23)
+    Int64(.61) = load(.8)
+    store(.60, .61)
+    return 0
+end
+
+export function luxrt_string_info(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9)) -> Int32:
+start.53:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.11) = alloc8(8)
+body.54:
+    Int64(.12) = load(.2)
+    Int64(.13) = call get_string(Int64(.12))
+    store(.13, .11)
+    Int64(.14) = load(.11)
+    Int32(.15) = eq(.14, 0)
+    if .15 goto if_true.55 else if_false.56
+if_true.55:
+    Int32(.16) = neg(22)
+    return .16
+if_false.56:
+    Int64(.17) = load(.11)
+    Int64(.18) = add(.17, 0)
+    Int64(.19) = load(.18)
+    Int64(.20) = load(.4)
+    store(.19, .20)
+    Int64(.21) = load(.11)
+    Int64(.22) = add(.21, 8)
+    Int64(.23) = load(.22)
+    Int64(.24) = load(.6)
+    store(.23, .24)
+    Int64(.25) = load(.11)
+    Int64(.26) = add(.25, 24)
+    Int64(.27) = load(.8)
+    store(.26, .27)
+    Int64(.28) = load(.11)
+    Int64(.29) = add(.28, 16)
+    Int64(.30) = load(.29)
+    Int64(.31) = load(.10)
+    store(.30, .31)
+    return 0
+end
+
+export function luxrt_string_equal(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.57:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.10) = alloc8(8)
+body.58:
+    Int64(.8) = load(.2)
+    Int64(.9) = call get_string(Int64(.8))
+    store(.9, .7)
+    Int64(.11) = load(.4)
+    Int64(.12) = call get_string(Int64(.11))
+    store(.12, .10)
+    Int64(.13) = load(.7)
+    Int32(.14) = eq(.13, 0)
+    if .14 goto if_true.59 else logic_or.61
+logic_or.61:
+    Int64(.15) = load(.10)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.59 else if_false.60
+if_true.59:
+    Int32(.17) = neg(22)
+    return .17
+if_false.60:
+    Int64(.18) = load(.2)
+    Int64(.19) = load(.4)
+    Int32(.20) = eq(.18, .19)
+    if .20 goto logic_true.62 else logic_or.65
+logic_or.65:
+    Int64(.21) = load(.7)
+    Int64(.22) = add(.21, 0)
+    Int64(.23) = load(.22)
+    Int64(.24) = load(.10)
+    Int64(.25) = add(.24, 0)
+    Int64(.26) = load(.25)
+    Int32(.27) = eq(.23, .26)
+    if .27 goto logic_and.67 else logic_false.63
+logic_and.67:
+    Int64(.28) = load(.7)
+    Int64(.29) = add(.28, 16)
+    Int64(.30) = load(.29)
+    Int64(.31) = load(.10)
+    Int64(.32) = add(.31, 16)
+    Int64(.33) = load(.32)
+    Int32(.34) = eq(.30, .33)
+    if .34 goto logic_and.66 else logic_false.63
+logic_and.66:
+    Int64(.35) = load(.7)
+    Int64(.36) = add(.35, 24)
+    Int64(.37) = load(.10)
+    Int64(.38) = add(.37, 24)
+    Int64(.39) = load(.7)
+    Int64(.40) = add(.39, 0)
+    Int64(.41) = load(.40)
+    Int32(.42) = call extern(luxrt_memcmp)(Int64(.36), Int64(.38), Int64(.41))
+    if .42 goto logic_false.63 else logic_true.62
+logic_true.62:
+    goto logic_join.64
+logic_false.63:
+logic_join.64:
+    Int32(.43) = phi(logic_true.62: 1, logic_false.63: 0)
+    Int64(.44) = load(.6)
+    store(.43, .44)
+    return 0
+end
+
+export function luxrt_string_compare(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.68:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.10) = alloc8(8)
+    Int64(.18) = alloc8(8)
+    Int64(.33) = alloc4(4)
+body.69:
+    Int64(.8) = load(.2)
+    Int64(.9) = call get_string(Int64(.8))
+    store(.9, .7)
+    Int64(.11) = load(.4)
+    Int64(.12) = call get_string(Int64(.11))
+    store(.12, .10)
+    Int64(.13) = load(.7)
+    Int32(.14) = eq(.13, 0)
+    if .14 goto if_true.70 else logic_or.72
+logic_or.72:
+    Int64(.15) = load(.10)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.70 else if_false.71
+if_true.70:
+    Int32(.17) = neg(22)
+    return .17
+if_false.71:
+    Int64(.19) = load(.7)
+    Int64(.20) = add(.19, 0)
+    Int64(.21) = load(.20)
+    Int64(.22) = load(.10)
+    Int64(.23) = add(.22, 0)
+    Int64(.24) = load(.23)
+    Int32(.25) = ult(.21, .24)
+    if .25 goto cond_true.73 else cond_false.74
+cond_true.73:
+    Int64(.26) = load(.7)
+    Int64(.27) = add(.26, 0)
+    Int64(.28) = load(.27)
+    goto cond_join.75
+cond_false.74:
+    Int64(.29) = load(.10)
+    Int64(.30) = add(.29, 0)
+    Int64(.31) = load(.30)
+cond_join.75:
+    Int64(.32) = phi(cond_true.73: .28, cond_false.74: .31)
+    store(.32, .18)
+    Int64(.34) = load(.7)
+    Int64(.35) = add(.34, 24)
+    Int64(.36) = load(.10)
+    Int64(.37) = add(.36, 24)
+    Int64(.38) = load(.18)
+    Int32(.39) = call extern(luxrt_memcmp)(Int64(.35), Int64(.37), Int64(.38))
+    store(.39, .33)
+    Int32(.40) = load_i32(.33)
+    if .40 goto cond_true.76 else cond_false.77
+cond_true.76:
+    Int32(.41) = load_i32(.33)
+    goto cond_join.78
+cond_false.77:
+    Int64(.42) = load(.7)
+    Int64(.43) = add(.42, 0)
+    Int64(.44) = load(.43)
+    Int64(.45) = load(.10)
+    Int64(.46) = add(.45, 0)
+    Int64(.47) = load(.46)
+    Int32(.48) = ult(.44, .47)
+    if .48 goto cond_true.79 else cond_false.80
+cond_true.79:
+    Int32(.49) = neg(1)
+    goto cond_join.81
+cond_false.80:
+    Int64(.50) = load(.7)
+    Int64(.51) = add(.50, 0)
+    Int64(.52) = load(.51)
+    Int64(.53) = load(.10)
+    Int64(.54) = add(.53, 0)
+    Int64(.55) = load(.54)
+    Int32(.56) = ugt(.52, .55)
+    if .56 goto cond_true.82 else cond_false.83
+cond_true.82:
+    goto cond_join.84
+cond_false.83:
+cond_join.84:
+    Int32(.57) = phi(cond_true.82: 1, cond_false.83: 0)
+cond_join.81:
+    Int32(.58) = phi(cond_true.79: .49, cond_join.84: .57)
+cond_join.78:
+    Int32(.59) = phi(cond_true.76: .41, cond_join.81: .58)
+    Int64(.60) = load(.6)
+    store(.59, .60)
+    return 0
+end
+
+export function luxrt_string_concat(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.85:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+    Int64(.12) = alloc8(8)
+    Int64(.38) = alloc8(16)
+    Int64(.42) = alloc8(24)
+    Int64(.43) = alloc4(4)
+    Int64(.49) = alloc8(8)
+    Int64(.50) = alloc8(8)
+    Int64(.65) = alloc8(8)
+body.86:
+    Int64(.10) = load(.4)
+    Int64(.11) = call get_string(Int64(.10))
+    store(.11, .9)
+    Int64(.13) = load(.6)
+    Int64(.14) = call get_string(Int64(.13))
+    store(.14, .12)
+    Int64(.15) = load(.9)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.87 else logic_or.91
+logic_or.91:
+    Int64(.17) = load(.12)
+    Int32(.18) = eq(.17, 0)
+    if .18 goto if_true.87 else logic_or.90
+logic_or.90:
+    Int64(.19) = load(.2)
+    Int64(.20) = load(.4)
+    Int32(.21) = call owned(Int64(.19), Int64(.20))
+    if .21 goto logic_or.89 else if_true.87
+logic_or.89:
+    Int64(.22) = load(.2)
+    Int64(.23) = load(.6)
+    Int32(.24) = call owned(Int64(.22), Int64(.23))
+    if .24 goto if_false.88 else if_true.87
+if_true.87:
+    Int32(.25) = neg(22)
+    return .25
+if_false.88:
+    Int64(.26) = load(.9)
+    Int64(.27) = add(.26, 0)
+    Int64(.28) = load(.27)
+    Int64(.29) = sub(18446744073709551615, 24)
+    Int64(.30) = sext32(1)
+    Int64(.31) = sub(.29, .30)
+    Int64(.32) = load(.12)
+    Int64(.33) = add(.32, 0)
+    Int64(.34) = load(.33)
+    Int64(.35) = sub(.31, .34)
+    Int32(.36) = ugt(.28, .35)
+    if .36 goto if_true.92 else if_false.93
+if_true.92:
+    Int32(.37) = neg(34)
+    return .37
+if_false.93:
+    Int64(.39) = load(.4)
+    store(.39, .38)
+    Int64(.40) = add(.38, 8)
+    Int64(.41) = load(.6)
+    store(.41, .40)
+    Int64(.44) = load(.2)
+    Int64(.45) = sext32(2)
+    Int32(.46) = call extern(luxrt_roots_push)(Int64(.44), Int64(.42), Int64(.38), Int64(.45))
+    store(.46, .43)
+    Int32(.47) = load_i32(.43)
+    if .47 goto if_true.94 else if_false.95
+if_true.94:
+    Int32(.48) = load_i32(.43)
+    return .48
+if_false.95:
+    Int64(.51) = load(.9)
+    Int64(.52) = add(.51, 0)
+    Int64(.53) = load(.52)
+    Int64(.54) = load(.12)
+    Int64(.55) = add(.54, 0)
+    Int64(.56) = load(.55)
+    Int64(.57) = add(.53, .56)
+    store(.57, .50)
+    Int64(.58) = load(.2)
+    Int64(.59) = load(.50)
+    Int64(.60) = add(24, .59)
+    Int64(.61) = sext32(1)
+    Int64(.62) = add(.60, .61)
+    Int32(.63) = call extern(luxrt_object_new)(Int64(.58), Int64(string_desc), Int64(.62), Int64(.49))
+    store(.63, .43)
+    Int32(.64) = load_i32(.43)
+    if .64 goto if_false.97 else if_true.96
+if_true.96:
+    Int64(.66) = load(.49)
+    Int64(.67) = call extern(luxrt_object_payload)(Int64(.66))
+    store(.67, .65)
+    Int64(.68) = load(.50)
+    Int64(.69) = load(.65)
+    Int64(.70) = add(.69, 0)
+    store(.68, .70)
+    Int64(.71) = load(.9)
+    Int64(.72) = add(.71, 8)
+    Int64(.73) = load(.72)
+    Int64(.74) = load(.12)
+    Int64(.75) = add(.74, 8)
+    Int64(.76) = load(.75)
+    Int64(.77) = add(.73, .76)
+    Int64(.78) = load(.65)
+    Int64(.79) = add(.78, 8)
+    store(.77, .79)
+    Int64(.80) = load(.65)
+    Int64(.81) = add(.80, 24)
+    Int64(.82) = load(.9)
+    Int64(.83) = add(.82, 24)
+    Int64(.84) = load(.9)
+    Int64(.85) = add(.84, 0)
+    Int64(.86) = load(.85)
+    Int64(.87) = call extern(luxrt_memcpy)(Int64(.81), Int64(.83), Int64(.86))
+    Int64(.88) = load(.65)
+    Int64(.89) = add(.88, 24)
+    Int64(.90) = load(.9)
+    Int64(.91) = add(.90, 0)
+    Int64(.92) = load(.91)
+    Int64(.93) = mul(.92, 1)
+    Int64(.94) = add(.89, .93)
+    Int64(.95) = load(.12)
+    Int64(.96) = add(.95, 24)
+    Int64(.97) = load(.12)
+    Int64(.98) = add(.97, 0)
+    Int64(.99) = load(.98)
+    Int64(.100) = call extern(luxrt_memcpy)(Int64(.94), Int64(.96), Int64(.99))
+    Int64(.101) = load(.65)
+    Int64(.102) = add(.101, 24)
+    Int64(.103) = load(.50)
+    Int64(.104) = mul(.103, 1)
+    Int64(.105) = add(.102, .104)
+    store(Int8(0), .105)
+    Int64(.106) = load(.65)
+    Int64(.107) = add(.106, 24)
+    Int64(.108) = load(.50)
+    Int64(.109) = call hash_string(Int64(.107), Int64(.108))
+    Int64(.110) = load(.65)
+    Int64(.111) = add(.110, 16)
+    store(.109, .111)
+    Int64(.112) = load(.49)
+    Int64(.113) = load(.8)
+    store(.112, .113)
+if_false.97:
+    Int64(.114) = load(.2)
+    Int32(.115) = call extern(luxrt_roots_pop)(Int64(.114), Int64(.42))
+    Int32(.116) = load_i32(.43)
+    return .116
+end
+
+export function luxrt_string_slice(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9)) -> Int32:
+start.98:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.11) = alloc8(8)
+    Int64(.29) = alloc8(8)
+    Int64(.31) = alloc8(8)
+    Int64(.33) = alloc8(8)
+    Int64(.35) = alloc8(8)
+    Int64(.50) = alloc4(1)
+    Int64(.90) = alloc8(24)
+    Int64(.91) = alloc4(4)
+body.99:
+    Int64(.12) = load(.4)
+    Int64(.13) = call get_string(Int64(.12))
+    store(.13, .11)
+    Int64(.14) = load(.11)
+    Int32(.15) = eq(.14, 0)
+    if .15 goto if_true.100 else logic_or.102
+logic_or.102:
+    Int64(.16) = load(.2)
+    Int64(.17) = load(.4)
+    Int32(.18) = call owned(Int64(.16), Int64(.17))
+    if .18 goto if_false.101 else if_true.100
+if_true.100:
+    Int32(.19) = neg(22)
+    return .19
+if_false.101:
+    Int64(.20) = load(.6)
+    Int64(.21) = load(.8)
+    Int32(.22) = ugt(.20, .21)
+    if .22 goto if_true.103 else logic_or.105
+logic_or.105:
+    Int64(.23) = load(.8)
+    Int64(.24) = load(.11)
+    Int64(.25) = add(.24, 8)
+    Int64(.26) = load(.25)
+    Int32(.27) = ugt(.23, .26)
+    if .27 goto if_true.103 else if_false.104
+if_true.103:
+    Int32(.28) = neg(34)
+    return .28
+if_false.104:
+    Int64(.30) = sext32(0)
+    store(.30, .29)
+    Int64(.32) = sext32(0)
+    store(.32, .31)
+    Int64(.34) = sext32(0)
+    store(.34, .33)
+    Int64(.36) = sext32(0)
+    store(.36, .35)
+while_cond.106:
+    Int64(.37) = load(.29)
+    Int64(.38) = load(.11)
+    Int64(.39) = add(.38, 0)
+    Int64(.40) = load(.39)
+    Int32(.41) = ult(.37, .40)
+    if .41 goto while_body.107 else while_join.108
+while_body.107:
+    Int64(.42) = load(.31)
+    Int64(.43) = load(.6)
+    Int32(.44) = eq(.42, .43)
+    if .44 goto if_true.109 else if_false.110
+if_true.109:
+    Int64(.45) = load(.29)
+    store(.45, .33)
+if_false.110:
+    Int64(.46) = load(.31)
+    Int64(.47) = load(.8)
+    Int32(.48) = eq(.46, .47)
+    if .48 goto if_true.111 else if_false.112
+if_true.111:
+    Int64(.49) = load(.29)
+    store(.49, .35)
+    goto while_join.108
+if_false.112:
+    Int64(.51) = load(.11)
+    Int64(.52) = add(.51, 24)
+    Int64(.53) = load(.29)
+    Int64(.54) = mul(.53, 1)
+    Int64(.55) = add(.52, .54)
+    Int32(.56) = load_u8(.55)
+    store(Int8(.56), .50)
+    Int64(.57) = load(.29)
+    Int32(.58) = load_u8(.50)
+    Int32(.59) = zext8(.58)
+    Int32(.60) = lt(.59, 128)
+    if .60 goto cond_true.113 else cond_false.114
+cond_true.113:
+    goto cond_join.115
+cond_false.114:
+    Int32(.61) = load_u8(.50)
+    Int32(.62) = zext8(.61)
+    Int32(.63) = lt(.62, 224)
+    if .63 goto cond_true.116 else cond_false.117
+cond_true.116:
+    goto cond_join.118
+cond_false.117:
+    Int32(.64) = load_u8(.50)
+    Int32(.65) = zext8(.64)
+    Int32(.66) = lt(.65, 240)
+    if .66 goto cond_true.119 else cond_false.120
+cond_true.119:
+    goto cond_join.121
+cond_false.120:
+cond_join.121:
+    Int32(.67) = phi(cond_true.119: 3, cond_false.120: 4)
+cond_join.118:
+    Int32(.68) = phi(cond_true.116: 2, cond_join.121: .67)
+cond_join.115:
+    Int32(.69) = phi(cond_true.113: 1, cond_join.118: .68)
+    Int64(.70) = sext32(.69)
+    Int64(.71) = add(.57, .70)
+    store(.71, .29)
+    Int64(.72) = load(.31)
+    Int64(.73) = add(.72, 1)
+    store(.73, .31)
+    goto while_cond.106
+while_join.108:
+    Int64(.74) = load(.6)
+    Int64(.75) = load(.11)
+    Int64(.76) = add(.75, 8)
+    Int64(.77) = load(.76)
+    Int32(.78) = eq(.74, .77)
+    if .78 goto if_true.122 else if_false.123
+if_true.122:
+    Int64(.79) = load(.11)
+    Int64(.80) = add(.79, 0)
+    Int64(.81) = load(.80)
+    store(.81, .33)
+if_false.123:
+    Int64(.82) = load(.8)
+    Int64(.83) = load(.11)
+    Int64(.84) = add(.83, 8)
+    Int64(.85) = load(.84)
+    Int32(.86) = eq(.82, .85)
+    if .86 goto if_true.124 else if_false.125
+if_true.124:
+    Int64(.87) = load(.11)
+    Int64(.88) = add(.87, 0)
+    Int64(.89) = load(.88)
+    store(.89, .35)
+if_false.125:
+    Int64(.92) = load(.2)
+    Int64(.93) = sext32(1)
+    Int32(.94) = call extern(luxrt_roots_push)(Int64(.92), Int64(.90), Int64(.4), Int64(.93))
+    store(.94, .91)
+    Int32(.95) = load_i32(.91)
+    if .95 goto if_true.126 else if_false.127
+if_true.126:
+    Int32(.96) = load_i32(.91)
+    return .96
+if_false.127:
+    Int64(.97) = load(.2)
+    Int64(.98) = load(.11)
+    Int64(.99) = add(.98, 24)
+    Int64(.100) = load(.33)
+    Int64(.101) = mul(.100, 1)
+    Int64(.102) = add(.99, .101)
+    Int64(.103) = load(.35)
+    Int64(.104) = load(.33)
+    Int64(.105) = sub(.103, .104)
+    Int64(.106) = load(.10)
+    Int32(.107) = call extern(luxrt_string_new)(Int64(.97), Int64(.102), Int64(.105), Int64(.106))
+    store(.107, .91)
+    Int64(.108) = load(.2)
+    Int32(.109) = call extern(luxrt_roots_pop)(Int64(.108), Int64(.90))
+    Int32(.110) = load_i32(.91)
+    return .110
+end
+
+function get_vector(Int64(.1)) -> Int64:
+start.128:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.3) = alloc8(8)
+body.129:
+    Int64(.4) = load(.2)
+    Int64(.5) = call extern(luxrt_value_type)(Int64(.4))
+    store(.5, .3)
+    Int64(.6) = load(.3)
+    Int32(.7) = eq(.6, 19)
+    if .7 goto cond_true.130 else logic_or.135
+logic_or.135:
+    Int64(.8) = load(.3)
+    Int32(.9) = eq(.8, 22)
+    if .9 goto cond_true.130 else logic_or.134
+logic_or.134:
+    Int64(.10) = load(.3)
+    Int32(.11) = eq(.10, 23)
+    if .11 goto cond_true.130 else logic_or.133
+logic_or.133:
+    Int64(.12) = load(.3)
+    Int32(.13) = eq(.12, 24)
+    if .13 goto cond_true.130 else cond_false.131
+cond_true.130:
+    Int64(.14) = load(.2)
+    Int64(.15) = call extern(luxrt_object_payload)(Int64(.14))
+    goto cond_join.132
+cond_false.131:
+    Int64(.16) = sext32(0)
+cond_join.132:
+    Int64(.17) = phi(cond_true.130: .15, cond_false.131: .16)
+    return .17
+end
+
+function grow(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.136:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.10) = alloc8(8)
+    Int64(.13) = alloc8(8)
+    Int64(.31) = alloc8(24)
+    Int64(.32) = alloc4(4)
+    Int64(.38) = alloc8(8)
+    Int64(.50) = alloc8(8)
+    Int64(.65) = alloc8(8)
+body.137:
+    Int64(.8) = load(.4)
+    Int64(.9) = call get_vector(Int64(.8))
+    store(.9, .7)
+    Int64(.11) = load(.4)
+    Int64(.12) = call extern(luxrt_value_type)(Int64(.11))
+    store(.12, .10)
+    Int64(.14) = load(.10)
+    Int32(.15) = eq(.14, 24)
+    if .15 goto cond_true.138 else cond_false.139
+cond_true.138:
+    goto cond_join.140
+cond_false.139:
+cond_join.140:
+    Int32(.16) = phi(cond_true.138: 1, cond_false.139: 8)
+    Int64(.17) = sext32(.16)
+    store(.17, .13)
+    Int64(.18) = load(.7)
+    Int32(.19) = eq(.18, 0)
+    if .19 goto if_true.141 else logic_or.143
+logic_or.143:
+    Int64(.20) = load(.2)
+    Int64(.21) = load(.4)
+    Int32(.22) = call owned(Int64(.20), Int64(.21))
+    if .22 goto if_false.142 else if_true.141
+if_true.141:
+    Int32(.23) = neg(22)
+    return .23
+if_false.142:
+    Int64(.24) = load(.6)
+    Int64(.25) = sext32(16)
+    Int64(.26) = sub(18446744073709551615, .25)
+    Int64(.27) = load(.13)
+    Int64(.28) = udiv(.26, .27)
+    Int32(.29) = ugt(.24, .28)
+    if .29 goto if_true.144 else if_false.145
+if_true.144:
+    Int32(.30) = neg(34)
+    return .30
+if_false.145:
+    Int64(.33) = load(.2)
+    Int64(.34) = sext32(1)
+    Int32(.35) = call extern(luxrt_roots_push)(Int64(.33), Int64(.31), Int64(.4), Int64(.34))
+    store(.35, .32)
+    Int32(.36) = load_i32(.32)
+    if .36 goto if_true.146 else if_false.147
+if_true.146:
+    Int32(.37) = load_i32(.32)
+    return .37
+if_false.147:
+    Int64(.39) = load(.2)
+    Int64(.40) = load(.10)
+    Int32(.41) = eq(.40, 19)
+    if .41 goto cond_true.148 else cond_false.149
+cond_true.148:
+    goto cond_join.150
+cond_false.149:
+cond_join.150:
+    Int64(.42) = phi(cond_true.148: refs_buffer_desc, cond_false.149: raw_buffer_desc)
+    Int64(.43) = sext32(16)
+    Int64(.44) = load(.6)
+    Int64(.45) = load(.13)
+    Int64(.46) = mul(.44, .45)
+    Int64(.47) = add(.43, .46)
+    Int32(.48) = call extern(luxrt_object_new)(Int64(.39), Int64(.42), Int64(.47), Int64(.38))
+    store(.48, .32)
+    Int32(.49) = load_i32(.32)
+    if .49 goto if_false.152 else if_true.151
+if_true.151:
+    Int64(.51) = load(.38)
+    Int64(.52) = call extern(luxrt_object_payload)(Int64(.51))
+    store(.52, .50)
+    Int64(.53) = load(.7)
+    Int64(.54) = add(.53, 0)
+    Int64(.55) = load(.54)
+    Int64(.56) = load(.50)
+    Int64(.57) = add(.56, 0)
+    store(.55, .57)
+    Int64(.58) = load(.6)
+    Int64(.59) = load(.50)
+    Int64(.60) = add(.59, 8)
+    store(.58, .60)
+    Int64(.61) = load(.7)
+    Int64(.62) = add(.61, 0)
+    Int64(.63) = load(.62)
+    Int32(.64) = ne(.63, 0)
+    if .64 goto if_true.153 else if_false.154
+if_true.153:
+    Int64(.66) = load(.7)
+    Int64(.67) = add(.66, 16)
+    Int64(.68) = load(.67)
+    Int64(.69) = call extern(luxrt_object_payload)(Int64(.68))
+    store(.69, .65)
+    Int64(.70) = load(.50)
+    Int64(.71) = add(.70, 16)
+    Int64(.72) = load(.65)
+    Int64(.73) = add(.72, 16)
+    Int64(.74) = load(.7)
+    Int64(.75) = add(.74, 0)
+    Int64(.76) = load(.75)
+    Int64(.77) = load(.13)
+    Int64(.78) = mul(.76, .77)
+    Int64(.79) = call extern(luxrt_memcpy)(Int64(.71), Int64(.73), Int64(.78))
+if_false.154:
+    Int64(.80) = load(.38)
+    Int64(.81) = load(.7)
+    Int64(.82) = add(.81, 16)
+    store(.80, .82)
+    Int64(.83) = load(.6)
+    Int64(.84) = load(.7)
+    Int64(.85) = add(.84, 8)
+    store(.83, .85)
+if_false.152:
+    Int64(.86) = load(.2)
+    Int32(.87) = call extern(luxrt_roots_pop)(Int64(.86), Int64(.31))
+    Int32(.88) = load_i32(.32)
+    return .88
+end
+
+function new_vector(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.155:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+    Int64(.10) = alloc4(4)
+body.156:
+    Int64(.11) = load(.2)
+    Int64(.12) = load(.4)
+    Int32(.13) = call extern(luxrt_object_new)(Int64(.11), Int64(.12), Int64(24), Int64(.9))
+    store(.13, .10)
+    Int32(.14) = load_i32(.10)
+    if .14 goto if_true.157 else if_false.158
+if_true.157:
+    Int32(.15) = load_i32(.10)
+    return .15
+if_false.158:
+    Int64(.16) = load(.6)
+    Int32(.17) = ne(.16, 0)
+    if .17 goto if_true.159 else if_false.160
+if_true.159:
+    Int64(.18) = load(.2)
+    Int64(.19) = load(.9)
+    Int64(.20) = load(.6)
+    Int32(.21) = call grow(Int64(.18), Int64(.19), Int64(.20))
+    store(.21, .10)
+    Int32(.22) = load_i32(.10)
+    if .22 goto if_true.161 else if_false.162
+if_true.161:
+    Int32(.23) = load_i32(.10)
+    return .23
+if_false.162:
+if_false.160:
+    Int64(.24) = load(.9)
+    Int64(.25) = load(.8)
+    store(.24, .25)
+    return 0
+end
+
+export function luxrt_values_new(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.163:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.164:
+    Int64(.7) = load(.2)
+    Int64(.8) = load(.4)
+    Int64(.9) = load(.6)
+    Int32(.10) = call new_vector(Int64(.7), Int64(values_desc), Int64(.8), Int64(.9))
+    return .10
+end
+
+export function luxrt_vector_length(Int64(.1), Int64(.3)) -> Int32:
+start.165:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+body.166:
+    Int64(.6) = load(.2)
+    Int64(.7) = call get_vector(Int64(.6))
+    store(.7, .5)
+    Int64(.8) = load(.5)
+    Int32(.9) = eq(.8, 0)
+    if .9 goto if_true.167 else if_false.168
+if_true.167:
+    Int32(.10) = neg(22)
+    return .10
+if_false.168:
+    Int64(.11) = load(.5)
+    Int64(.12) = add(.11, 0)
+    Int64(.13) = load(.12)
+    Int64(.14) = load(.4)
+    store(.13, .14)
+    return 0
+end
+
+export function luxrt_values_append(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.169:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.24) = alloc8(16)
+    Int64(.28) = alloc8(24)
+    Int64(.29) = alloc4(4)
+    Int64(.42) = alloc8(8)
+    Int64(.66) = alloc8(8)
+body.170:
+    Int64(.8) = load(.4)
+    Int64(.9) = call object_of(Int64(.8), Int64(19))
+    Int32(.10) = ne(.9, 0)
+    if .10 goto cond_true.171 else cond_false.172
+cond_true.171:
+    Int64(.11) = load(.4)
+    Int64(.12) = call extern(luxrt_object_payload)(Int64(.11))
+    goto cond_join.173
+cond_false.172:
+    Int64(.13) = sext32(0)
+cond_join.173:
+    Int64(.14) = phi(cond_true.171: .12, cond_false.172: .13)
+    store(.14, .7)
+    Int64(.15) = load(.7)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.174 else logic_or.177
+logic_or.177:
+    Int64(.17) = load(.2)
+    Int64(.18) = load(.4)
+    Int32(.19) = call owned(Int64(.17), Int64(.18))
+    if .19 goto logic_or.176 else if_true.174
+logic_or.176:
+    Int64(.20) = load(.2)
+    Int64(.21) = load(.6)
+    Int32(.22) = call owned(Int64(.20), Int64(.21))
+    if .22 goto if_false.175 else if_true.174
+if_true.174:
+    Int32(.23) = neg(22)
+    return .23
+if_false.175:
+    Int64(.25) = load(.4)
+    store(.25, .24)
+    Int64(.26) = add(.24, 8)
+    Int64(.27) = load(.6)
+    store(.27, .26)
+    Int64(.30) = load(.2)
+    Int64(.31) = sext32(2)
+    Int32(.32) = call extern(luxrt_roots_push)(Int64(.30), Int64(.28), Int64(.24), Int64(.31))
+    store(.32, .29)
+    Int32(.33) = load_i32(.29)
+    if .33 goto if_true.178 else if_false.179
+if_true.178:
+    Int32(.34) = load_i32(.29)
+    return .34
+if_false.179:
+    Int64(.35) = load(.7)
+    Int64(.36) = add(.35, 0)
+    Int64(.37) = load(.36)
+    Int64(.38) = load(.7)
+    Int64(.39) = add(.38, 8)
+    Int64(.40) = load(.39)
+    Int32(.41) = eq(.37, .40)
+    if .41 goto if_true.180 else if_false.181
+if_true.180:
+    Int64(.43) = load(.7)
+    Int64(.44) = add(.43, 8)
+    Int64(.45) = load(.44)
+    Int32(.46) = ne(.45, 0)
+    if .46 goto cond_true.182 else cond_false.183
+cond_true.182:
+    Int64(.47) = load(.7)
+    Int64(.48) = add(.47, 8)
+    Int64(.49) = load(.48)
+    Int64(.50) = sext32(2)
+    Int64(.51) = mul(.49, .50)
+    goto cond_join.184
+cond_false.183:
+    Int64(.52) = sext32(8)
+cond_join.184:
+    Int64(.53) = phi(cond_true.182: .51, cond_false.183: .52)
+    store(.53, .42)
+    Int64(.54) = load(.42)
+    Int64(.55) = load(.7)
+    Int64(.56) = add(.55, 8)
+    Int64(.57) = load(.56)
+    Int32(.58) = ult(.54, .57)
+    if .58 goto cond_true.185 else cond_false.186
+cond_true.185:
+    Int32(.59) = neg(34)
+    goto cond_join.187
+cond_false.186:
+    Int64(.60) = load(.2)
+    Int64(.61) = load(.4)
+    Int64(.62) = load(.42)
+    Int32(.63) = call grow(Int64(.60), Int64(.61), Int64(.62))
+cond_join.187:
+    Int32(.64) = phi(cond_true.185: .59, cond_false.186: .63)
+    store(.64, .29)
+if_false.181:
+    Int32(.65) = load_i32(.29)
+    if .65 goto if_false.189 else if_true.188
+if_true.188:
+    Int64(.67) = load(.7)
+    Int64(.68) = add(.67, 16)
+    Int64(.69) = load(.68)
+    Int64(.70) = call extern(luxrt_object_payload)(Int64(.69))
+    store(.70, .66)
+    Int64(.71) = load(.6)
+    Int64(.72) = load(.66)
+    Int64(.73) = add(.72, 16)
+    Int64(.74) = load(.7)
+    Int64(.75) = add(.74, 0)
+    Int64(.76) = load(.75)
+    Int64(.77) = mul(.76, 8)
+    Int64(.78) = add(.73, .77)
+    store(.71, .78)
+    Int64(.79) = load(.7)
+    Int64(.80) = add(.79, 0)
+    Int64(.81) = load(.80)
+    Int64(.82) = add(.81, 1)
+    store(.82, .80)
+    Int64(.83) = load(.7)
+    Int64(.84) = add(.83, 0)
+    Int64(.85) = load(.84)
+    Int64(.86) = load(.66)
+    Int64(.87) = add(.86, 0)
+    store(.85, .87)
+if_false.189:
+    Int64(.88) = load(.2)
+    Int32(.89) = call extern(luxrt_roots_pop)(Int64(.88), Int64(.28))
+    Int32(.90) = load_i32(.29)
+    return .90
+end
+
+export function luxrt_values_get(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.190:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+body.191:
+    Int64(.8) = load(.2)
+    Int64(.9) = call object_of(Int64(.8), Int64(19))
+    Int32(.10) = ne(.9, 0)
+    if .10 goto cond_true.192 else cond_false.193
+cond_true.192:
+    Int64(.11) = load(.2)
+    Int64(.12) = call extern(luxrt_object_payload)(Int64(.11))
+    goto cond_join.194
+cond_false.193:
+    Int64(.13) = sext32(0)
+cond_join.194:
+    Int64(.14) = phi(cond_true.192: .12, cond_false.193: .13)
+    store(.14, .7)
+    Int64(.15) = load(.7)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.195 else if_false.196
+if_true.195:
+    Int32(.17) = neg(22)
+    return .17
+if_false.196:
+    Int64(.18) = load(.4)
+    Int64(.19) = load(.7)
+    Int64(.20) = add(.19, 0)
+    Int64(.21) = load(.20)
+    Int32(.22) = uge(.18, .21)
+    if .22 goto if_true.197 else if_false.198
+if_true.197:
+    Int32(.23) = neg(34)
+    return .23
+if_false.198:
+    Int64(.24) = load(.7)
+    Int64(.25) = add(.24, 16)
+    Int64(.26) = load(.25)
+    Int64(.27) = call extern(luxrt_object_payload)(Int64(.26))
+    Int64(.28) = add(.27, 16)
+    Int64(.29) = load(.4)
+    Int64(.30) = mul(.29, 8)
+    Int64(.31) = add(.28, .30)
+    Int64(.32) = load(.31)
+    Int64(.33) = load(.6)
+    store(.32, .33)
+    return 0
+end
+
+export function luxrt_values_set(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.199:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+body.200:
+    Int64(.10) = load(.4)
+    Int64(.11) = call object_of(Int64(.10), Int64(19))
+    Int32(.12) = ne(.11, 0)
+    if .12 goto cond_true.201 else cond_false.202
+cond_true.201:
+    Int64(.13) = load(.4)
+    Int64(.14) = call extern(luxrt_object_payload)(Int64(.13))
+    goto cond_join.203
+cond_false.202:
+    Int64(.15) = sext32(0)
+cond_join.203:
+    Int64(.16) = phi(cond_true.201: .14, cond_false.202: .15)
+    store(.16, .9)
+    Int64(.17) = load(.9)
+    Int32(.18) = eq(.17, 0)
+    if .18 goto if_true.204 else logic_or.207
+logic_or.207:
+    Int64(.19) = load(.2)
+    Int64(.20) = load(.4)
+    Int32(.21) = call owned(Int64(.19), Int64(.20))
+    if .21 goto logic_or.206 else if_true.204
+logic_or.206:
+    Int64(.22) = load(.2)
+    Int64(.23) = load(.8)
+    Int32(.24) = call owned(Int64(.22), Int64(.23))
+    if .24 goto if_false.205 else if_true.204
+if_true.204:
+    Int32(.25) = neg(22)
+    return .25
+if_false.205:
+    Int64(.26) = load(.6)
+    Int64(.27) = load(.9)
+    Int64(.28) = add(.27, 0)
+    Int64(.29) = load(.28)
+    Int32(.30) = uge(.26, .29)
+    if .30 goto if_true.208 else if_false.209
+if_true.208:
+    Int32(.31) = neg(34)
+    return .31
+if_false.209:
+    Int64(.32) = load(.8)
+    Int64(.33) = load(.9)
+    Int64(.34) = add(.33, 16)
+    Int64(.35) = load(.34)
+    Int64(.36) = call extern(luxrt_object_payload)(Int64(.35))
+    Int64(.37) = add(.36, 16)
+    Int64(.38) = load(.6)
+    Int64(.39) = mul(.38, 8)
+    Int64(.40) = add(.37, .39)
+    store(.32, .40)
+    return 0
+end
+
+export function luxrt_values_pop(Int64(.1), Int64(.3)) -> Int32:
+start.210:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+    Int64(.21) = alloc8(8)
+body.211:
+    Int64(.6) = load(.2)
+    Int64(.7) = call object_of(Int64(.6), Int64(19))
+    Int32(.8) = ne(.7, 0)
+    if .8 goto cond_true.212 else cond_false.213
+cond_true.212:
+    Int64(.9) = load(.2)
+    Int64(.10) = call extern(luxrt_object_payload)(Int64(.9))
+    goto cond_join.214
+cond_false.213:
+    Int64(.11) = sext32(0)
+cond_join.214:
+    Int64(.12) = phi(cond_true.212: .10, cond_false.213: .11)
+    store(.12, .5)
+    Int64(.13) = load(.5)
+    Int32(.14) = eq(.13, 0)
+    if .14 goto if_true.215 else if_false.216
+if_true.215:
+    Int32(.15) = neg(22)
+    return .15
+if_false.216:
+    Int64(.16) = load(.5)
+    Int64(.17) = add(.16, 0)
+    Int64(.18) = load(.17)
+    Int32(.19) = ne(.18, 0)
+    if .19 goto if_false.218 else if_true.217
+if_true.217:
+    Int32(.20) = neg(34)
+    return .20
+if_false.218:
+    Int64(.22) = load(.5)
+    Int64(.23) = add(.22, 16)
+    Int64(.24) = load(.23)
+    Int64(.25) = call extern(luxrt_object_payload)(Int64(.24))
+    store(.25, .21)
+    Int64(.26) = load(.21)
+    Int64(.27) = add(.26, 16)
+    Int64(.28) = load(.5)
+    Int64(.29) = add(.28, 0)
+    Int64(.30) = load(.29)
+    Int64(.31) = sext32(1)
+    Int64(.32) = sub(.30, .31)
+    Int64(.33) = mul(.32, 8)
+    Int64(.34) = add(.27, .33)
+    Int64(.35) = load(.34)
+    Int64(.36) = load(.4)
+    store(.35, .36)
+    Int64(.37) = sext32(0)
+    Int64(.38) = load(.21)
+    Int64(.39) = add(.38, 16)
+    Int64(.40) = load(.5)
+    Int64(.41) = add(.40, 0)
+    Int64(.42) = load(.41)
+    Int64(.43) = sext32(1)
+    Int64(.44) = sub(.42, .43)
+    Int64(.45) = mul(.44, 8)
+    Int64(.46) = add(.39, .45)
+    store(.37, .46)
+    Int64(.47) = load(.5)
+    Int64(.48) = add(.47, 0)
+    Int64(.49) = load(.48)
+    Int64(.50) = sub(.49, 1)
+    store(.50, .48)
+    Int64(.51) = load(.5)
+    Int64(.52) = add(.51, 0)
+    Int64(.53) = load(.52)
+    Int64(.54) = load(.21)
+    Int64(.55) = add(.54, 0)
+    store(.53, .55)
+    return 0
+end
+
+export function luxrt_values_clear(Int64(.1)) -> Int32:
+start.219:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.3) = alloc8(8)
+    Int64(.18) = alloc8(8)
+body.220:
+    Int64(.4) = load(.2)
+    Int64(.5) = call object_of(Int64(.4), Int64(19))
+    Int32(.6) = ne(.5, 0)
+    if .6 goto cond_true.221 else cond_false.222
+cond_true.221:
+    Int64(.7) = load(.2)
+    Int64(.8) = call extern(luxrt_object_payload)(Int64(.7))
+    goto cond_join.223
+cond_false.222:
+    Int64(.9) = sext32(0)
+cond_join.223:
+    Int64(.10) = phi(cond_true.221: .8, cond_false.222: .9)
+    store(.10, .3)
+    Int64(.11) = load(.3)
+    Int32(.12) = eq(.11, 0)
+    if .12 goto if_true.224 else if_false.225
+if_true.224:
+    Int32(.13) = neg(22)
+    return .13
+if_false.225:
+    Int64(.14) = load(.3)
+    Int64(.15) = add(.14, 16)
+    Int64(.16) = load(.15)
+    Int32(.17) = ne(.16, 0)
+    if .17 goto if_true.226 else if_false.227
+if_true.226:
+    Int64(.19) = load(.3)
+    Int64(.20) = add(.19, 16)
+    Int64(.21) = load(.20)
+    Int64(.22) = call extern(luxrt_object_payload)(Int64(.21))
+    store(.22, .18)
+    Int64(.23) = load(.18)
+    Int64(.24) = add(.23, 16)
+    Int64(.25) = load(.3)
+    Int64(.26) = add(.25, 0)
+    Int64(.27) = load(.26)
+    Int64(.28) = sext32(8)
+    Int64(.29) = mul(.27, .28)
+    Int64(.30) = call extern(luxrt_memset)(Int64(.24), Int32(0), Int64(.29))
+    Int64(.31) = sext32(0)
+    Int64(.32) = load(.18)
+    Int64(.33) = add(.32, 0)
+    store(.31, .33)
+if_false.227:
+    Int64(.34) = sext32(0)
+    Int64(.35) = load(.3)
+    Int64(.36) = add(.35, 0)
+    store(.34, .36)
+    return 0
+end
+
+export function luxrt_array_new(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.228:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+    Int64(.23) = alloc8(8)
+    Int64(.24) = alloc4(4)
+body.229:
+    Int64(.10) = load(.4)
+    Int32(.11) = eq(.10, 22)
+    if .11 goto cond_true.230 else cond_false.231
+cond_true.230:
+    goto cond_join.232
+cond_false.231:
+    Int64(.12) = load(.4)
+    Int32(.13) = eq(.12, 23)
+    if .13 goto cond_true.233 else cond_false.234
+cond_true.233:
+    goto cond_join.235
+cond_false.234:
+    Int64(.14) = load(.4)
+    Int32(.15) = eq(.14, 24)
+    if .15 goto cond_true.236 else cond_false.237
+cond_true.236:
+    goto cond_join.238
+cond_false.237:
+    Int64(.16) = sext32(0)
+cond_join.238:
+    Int64(.17) = phi(cond_true.236: byte_array_desc, cond_false.237: .16)
+cond_join.235:
+    Int64(.18) = phi(cond_true.233: float_array_desc, cond_join.238: .17)
+cond_join.232:
+    Int64(.19) = phi(cond_true.230: int_array_desc, cond_join.235: .18)
+    store(.19, .9)
+    Int64(.20) = load(.9)
+    Int32(.21) = eq(.20, 0)
+    if .21 goto if_true.239 else if_false.240
+if_true.239:
+    Int32(.22) = neg(22)
+    return .22
+if_false.240:
+    Int64(.25) = load(.2)
+    Int64(.26) = load(.9)
+    Int64(.27) = load(.6)
+    Int32(.28) = call new_vector(Int64(.25), Int64(.26), Int64(.27), Int64(.23))
+    store(.28, .24)
+    Int32(.29) = load_i32(.24)
+    if .29 goto if_true.241 else if_false.242
+if_true.241:
+    Int32(.30) = load_i32(.24)
+    return .30
+if_false.242:
+    Int64(.31) = load(.6)
+    Int64(.32) = load(.23)
+    Int64(.33) = call extern(luxrt_object_payload)(Int64(.32))
+    Int64(.34) = add(.33, 0)
+    store(.31, .34)
+    Int64(.35) = load(.23)
+    Int64(.36) = load(.8)
+    store(.35, .36)
+    return 0
+end
+
+function get_array(Int64(.1)) -> Int64:
+start.243:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.3) = alloc8(8)
+body.244:
+    Int64(.4) = load(.2)
+    Int64(.5) = call extern(luxrt_value_type)(Int64(.4))
+    store(.5, .3)
+    Int64(.6) = load(.3)
+    Int32(.7) = eq(.6, 22)
+    if .7 goto cond_true.245 else logic_or.249
+logic_or.249:
+    Int64(.8) = load(.3)
+    Int32(.9) = eq(.8, 23)
+    if .9 goto cond_true.245 else logic_or.248
+logic_or.248:
+    Int64(.10) = load(.3)
+    Int32(.11) = eq(.10, 24)
+    if .11 goto cond_true.245 else cond_false.246
+cond_true.245:
+    Int64(.12) = load(.2)
+    Int64(.13) = call extern(luxrt_object_payload)(Int64(.12))
+    goto cond_join.247
+cond_false.246:
+    Int64(.14) = sext32(0)
+cond_join.247:
+    Int64(.15) = phi(cond_true.245: .13, cond_false.246: .14)
+    return .15
+end
+
+export function luxrt_array_append(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.250:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.16) = alloc8(8)
+    Int64(.25) = alloc4(4)
+    Int64(.33) = alloc8(8)
+    Int64(.58) = alloc8(8)
+body.251:
+    Int64(.8) = load(.4)
+    Int64(.9) = call get_array(Int64(.8))
+    store(.9, .7)
+    Int64(.10) = load(.7)
+    Int32(.11) = eq(.10, 0)
+    if .11 goto if_true.252 else logic_or.254
+logic_or.254:
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.4)
+    Int32(.14) = call owned(Int64(.12), Int64(.13))
+    if .14 goto if_false.253 else if_true.252
+if_true.252:
+    Int32(.15) = neg(22)
+    return .15
+if_false.253:
+    Int64(.17) = load(.4)
+    Int64(.18) = call extern(luxrt_value_type)(Int64(.17))
+    store(.18, .16)
+    Int64(.19) = load(.16)
+    Int32(.20) = eq(.19, 24)
+    if .20 goto logic_and.257 else if_false.256
+logic_and.257:
+    Int64(.21) = load(.6)
+    Int64(.22) = sext32(255)
+    Int32(.23) = ugt(.21, .22)
+    if .23 goto if_true.255 else if_false.256
+if_true.255:
+    Int32(.24) = neg(34)
+    return .24
+if_false.256:
+    store(Int32(0), .25)
+    Int64(.26) = load(.7)
+    Int64(.27) = add(.26, 0)
+    Int64(.28) = load(.27)
+    Int64(.29) = load(.7)
+    Int64(.30) = add(.29, 8)
+    Int64(.31) = load(.30)
+    Int32(.32) = eq(.28, .31)
+    if .32 goto if_true.258 else if_false.259
+if_true.258:
+    Int64(.34) = load(.7)
+    Int64(.35) = add(.34, 8)
+    Int64(.36) = load(.35)
+    Int32(.37) = ne(.36, 0)
+    if .37 goto cond_true.260 else cond_false.261
+cond_true.260:
+    Int64(.38) = load(.7)
+    Int64(.39) = add(.38, 8)
+    Int64(.40) = load(.39)
+    Int64(.41) = sext32(2)
+    Int64(.42) = mul(.40, .41)
+    goto cond_join.262
+cond_false.261:
+    Int64(.43) = sext32(8)
+cond_join.262:
+    Int64(.44) = phi(cond_true.260: .42, cond_false.261: .43)
+    store(.44, .33)
+    Int64(.45) = load(.33)
+    Int64(.46) = load(.7)
+    Int64(.47) = add(.46, 8)
+    Int64(.48) = load(.47)
+    Int32(.49) = ult(.45, .48)
+    if .49 goto cond_true.263 else cond_false.264
+cond_true.263:
+    Int32(.50) = neg(34)
+    goto cond_join.265
+cond_false.264:
+    Int64(.51) = load(.2)
+    Int64(.52) = load(.4)
+    Int64(.53) = load(.33)
+    Int32(.54) = call grow(Int64(.51), Int64(.52), Int64(.53))
+cond_join.265:
+    Int32(.55) = phi(cond_true.263: .50, cond_false.264: .54)
+    store(.55, .25)
+if_false.259:
+    Int32(.56) = load_i32(.25)
+    if .56 goto if_true.266 else if_false.267
+if_true.266:
+    Int32(.57) = load_i32(.25)
+    return .57
+if_false.267:
+    Int64(.59) = load(.7)
+    Int64(.60) = add(.59, 16)
+    Int64(.61) = load(.60)
+    Int64(.62) = call extern(luxrt_object_payload)(Int64(.61))
+    store(.62, .58)
+    Int64(.63) = load(.16)
+    Int32(.64) = eq(.63, 24)
+    if .64 goto if_true.268 else if_false.269
+if_true.268:
+    Int64(.65) = load(.6)
+    Int64(.66) = load(.58)
+    Int64(.67) = add(.66, 16)
+    Int64(.68) = load(.7)
+    Int64(.69) = add(.68, 0)
+    Int64(.70) = load(.69)
+    Int64(.71) = mul(.70, 1)
+    Int64(.72) = add(.67, .71)
+    store(Int8(.65), .72)
+    goto if_join.270
+if_false.269:
+    Int64(.73) = load(.6)
+    Int64(.74) = load(.58)
+    Int64(.75) = add(.74, 16)
+    Int64(.76) = load(.7)
+    Int64(.77) = add(.76, 0)
+    Int64(.78) = load(.77)
+    Int64(.79) = mul(.78, 8)
+    Int64(.80) = add(.75, .79)
+    store(.73, .80)
+if_join.270:
+    Int64(.81) = load(.7)
+    Int64(.82) = add(.81, 0)
+    Int64(.83) = load(.82)
+    Int64(.84) = add(.83, 1)
+    store(.84, .82)
+    return 0
+end
+
+export function luxrt_array_get(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.271:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.19) = alloc8(8)
+body.272:
+    Int64(.8) = load(.2)
+    Int64(.9) = call get_array(Int64(.8))
+    store(.9, .7)
+    Int64(.10) = load(.7)
+    Int32(.11) = eq(.10, 0)
+    if .11 goto if_true.273 else if_false.274
+if_true.273:
+    Int32(.12) = neg(22)
+    return .12
+if_false.274:
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.7)
+    Int64(.15) = add(.14, 0)
+    Int64(.16) = load(.15)
+    Int32(.17) = uge(.13, .16)
+    if .17 goto if_true.275 else if_false.276
+if_true.275:
+    Int32(.18) = neg(34)
+    return .18
+if_false.276:
+    Int64(.20) = load(.7)
+    Int64(.21) = add(.20, 16)
+    Int64(.22) = load(.21)
+    Int64(.23) = call extern(luxrt_object_payload)(Int64(.22))
+    store(.23, .19)
+    Int64(.24) = load(.2)
+    Int64(.25) = call extern(luxrt_value_type)(Int64(.24))
+    Int32(.26) = eq(.25, 24)
+    if .26 goto cond_true.277 else cond_false.278
+cond_true.277:
+    Int64(.27) = load(.19)
+    Int64(.28) = add(.27, 16)
+    Int64(.29) = load(.4)
+    Int64(.30) = mul(.29, 1)
+    Int64(.31) = add(.28, .30)
+    Int32(.32) = load_u8(.31)
+    Int64(.33) = zext8(.32)
+    goto cond_join.279
+cond_false.278:
+    Int64(.34) = load(.19)
+    Int64(.35) = add(.34, 16)
+    Int64(.36) = load(.4)
+    Int64(.37) = mul(.36, 8)
+    Int64(.38) = add(.35, .37)
+    Int64(.39) = load(.38)
+cond_join.279:
+    Int64(.40) = phi(cond_true.277: .33, cond_false.278: .39)
+    Int64(.41) = load(.6)
+    store(.40, .41)
+    return 0
+end
+
+export function luxrt_array_set(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.280:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.19) = alloc8(8)
+    Int64(.28) = alloc8(8)
+body.281:
+    Int64(.8) = load(.2)
+    Int64(.9) = call get_array(Int64(.8))
+    store(.9, .7)
+    Int64(.10) = load(.7)
+    Int32(.11) = eq(.10, 0)
+    if .11 goto if_true.282 else if_false.283
+if_true.282:
+    Int32(.12) = neg(22)
+    return .12
+if_false.283:
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.7)
+    Int64(.15) = add(.14, 0)
+    Int64(.16) = load(.15)
+    Int32(.17) = uge(.13, .16)
+    if .17 goto if_true.284 else if_false.285
+if_true.284:
+    Int32(.18) = neg(34)
+    return .18
+if_false.285:
+    Int64(.20) = load(.2)
+    Int64(.21) = call extern(luxrt_value_type)(Int64(.20))
+    store(.21, .19)
+    Int64(.22) = load(.19)
+    Int32(.23) = eq(.22, 24)
+    if .23 goto logic_and.288 else if_false.287
+logic_and.288:
+    Int64(.24) = load(.6)
+    Int64(.25) = sext32(255)
+    Int32(.26) = ugt(.24, .25)
+    if .26 goto if_true.286 else if_false.287
+if_true.286:
+    Int32(.27) = neg(34)
+    return .27
+if_false.287:
+    Int64(.29) = load(.7)
+    Int64(.30) = add(.29, 16)
+    Int64(.31) = load(.30)
+    Int64(.32) = call extern(luxrt_object_payload)(Int64(.31))
+    store(.32, .28)
+    Int64(.33) = load(.19)
+    Int32(.34) = eq(.33, 24)
+    if .34 goto if_true.289 else if_false.290
+if_true.289:
+    Int64(.35) = load(.6)
+    Int64(.36) = load(.28)
+    Int64(.37) = add(.36, 16)
+    Int64(.38) = load(.4)
+    Int64(.39) = mul(.38, 1)
+    Int64(.40) = add(.37, .39)
+    store(Int8(.35), .40)
+    goto if_join.291
+if_false.290:
+    Int64(.41) = load(.6)
+    Int64(.42) = load(.28)
+    Int64(.43) = add(.42, 16)
+    Int64(.44) = load(.4)
+    Int64(.45) = mul(.44, 8)
+    Int64(.46) = add(.43, .45)
+    store(.41, .46)
+if_join.291:
+    return 0
+end
+
+export function luxrt_array_pop(Int64(.1), Int64(.3)) -> Int32:
+start.292:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+    Int64(.16) = alloc4(4)
+body.293:
+    Int64(.6) = load(.2)
+    Int64(.7) = call get_array(Int64(.6))
+    store(.7, .5)
+    Int64(.8) = load(.5)
+    Int32(.9) = eq(.8, 0)
+    if .9 goto if_true.294 else if_false.295
+if_true.294:
+    Int32(.10) = neg(22)
+    return .10
+if_false.295:
+    Int64(.11) = load(.5)
+    Int64(.12) = add(.11, 0)
+    Int64(.13) = load(.12)
+    Int32(.14) = ne(.13, 0)
+    if .14 goto if_false.297 else if_true.296
+if_true.296:
+    Int32(.15) = neg(34)
+    return .15
+if_false.297:
+    Int64(.17) = load(.2)
+    Int64(.18) = load(.5)
+    Int64(.19) = add(.18, 0)
+    Int64(.20) = load(.19)
+    Int64(.21) = sext32(1)
+    Int64(.22) = sub(.20, .21)
+    Int64(.23) = load(.4)
+    Int32(.24) = call extern(luxrt_array_get)(Int64(.17), Int64(.22), Int64(.23))
+    store(.24, .16)
+    Int32(.25) = load_i32(.16)
+    if .25 goto if_false.299 else if_true.298
+if_true.298:
+    Int64(.26) = load(.5)
+    Int64(.27) = add(.26, 0)
+    Int64(.28) = load(.27)
+    Int64(.29) = sub(.28, 1)
+    store(.29, .27)
+if_false.299:
+    Int32(.30) = load_i32(.16)
+    return .30
+end
+
+export function luxrt_string_split(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.300:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+    Int64(.12) = alloc8(8)
+    Int64(.30) = alloc8(32)
+    Int64(.38) = alloc8(24)
+    Int64(.39) = alloc4(4)
+    Int64(.51) = alloc8(8)
+    Int64(.53) = alloc8(8)
+    Int64(.61) = alloc4(4)
+    Int64(.67) = alloc4(4)
+body.301:
+    Int64(.10) = load(.4)
+    Int64(.11) = call get_string(Int64(.10))
+    store(.11, .9)
+    Int64(.13) = load(.6)
+    Int64(.14) = call get_string(Int64(.13))
+    store(.14, .12)
+    Int64(.15) = load(.9)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.302 else logic_or.307
+logic_or.307:
+    Int64(.17) = load(.12)
+    Int32(.18) = eq(.17, 0)
+    if .18 goto if_true.302 else logic_or.306
+logic_or.306:
+    Int64(.19) = load(.12)
+    Int64(.20) = add(.19, 0)
+    Int64(.21) = load(.20)
+    Int32(.22) = ne(.21, 0)
+    if .22 goto logic_or.305 else if_true.302
+logic_or.305:
+    Int64(.23) = load(.2)
+    Int64(.24) = load(.4)
+    Int32(.25) = call owned(Int64(.23), Int64(.24))
+    if .25 goto logic_or.304 else if_true.302
+logic_or.304:
+    Int64(.26) = load(.2)
+    Int64(.27) = load(.6)
+    Int32(.28) = call owned(Int64(.26), Int64(.27))
+    if .28 goto if_false.303 else if_true.302
+if_true.302:
+    Int32(.29) = neg(22)
+    return .29
+if_false.303:
+    Int64(.31) = load(.4)
+    store(.31, .30)
+    Int64(.32) = add(.30, 8)
+    Int64(.33) = load(.6)
+    store(.33, .32)
+    Int64(.34) = add(.30, 16)
+    Int64(.35) = sext32(0)
+    store(.35, .34)
+    Int64(.36) = add(.30, 24)
+    Int64(.37) = sext32(0)
+    store(.37, .36)
+    Int64(.40) = load(.2)
+    Int64(.41) = sext32(4)
+    Int32(.42) = call extern(luxrt_roots_push)(Int64(.40), Int64(.38), Int64(.30), Int64(.41))
+    store(.42, .39)
+    Int32(.43) = load_i32(.39)
+    if .43 goto if_true.308 else if_false.309
+if_true.308:
+    Int32(.44) = load_i32(.39)
+    return .44
+if_false.309:
+    Int64(.45) = load(.2)
+    Int64(.46) = sext32(0)
+    Int64(.47) = sext32(2)
+    Int64(.48) = mul(.47, 8)
+    Int64(.49) = add(.30, .48)
+    Int32(.50) = call extern(luxrt_values_new)(Int64(.45), Int64(.46), Int64(.49))
+    store(.50, .39)
+    Int64(.52) = sext32(0)
+    store(.52, .51)
+    Int64(.54) = sext32(0)
+    store(.54, .53)
+while_cond.310:
+    Int32(.55) = load_i32(.39)
+    if .55 goto while_join.312 else logic_and.313
+logic_and.313:
+    Int64(.56) = load(.53)
+    Int64(.57) = load(.9)
+    Int64(.58) = add(.57, 0)
+    Int64(.59) = load(.58)
+    Int32(.60) = ule(.56, .59)
+    if .60 goto while_body.311 else while_join.312
+while_body.311:
+    Int64(.62) = load(.53)
+    Int64(.63) = load(.9)
+    Int64(.64) = add(.63, 0)
+    Int64(.65) = load(.64)
+    Int32(.66) = eq(.62, .65)
+    store(.66, .61)
+    Int32(.68) = load_i32(.61)
+    if .68 goto logic_false.315 else logic_and.318
+logic_and.318:
+    Int64(.69) = load(.12)
+    Int64(.70) = add(.69, 0)
+    Int64(.71) = load(.70)
+    Int64(.72) = load(.9)
+    Int64(.73) = add(.72, 0)
+    Int64(.74) = load(.73)
+    Int64(.75) = load(.53)
+    Int64(.76) = sub(.74, .75)
+    Int32(.77) = ule(.71, .76)
+    if .77 goto logic_and.317 else logic_false.315
+logic_and.317:
+    Int64(.78) = load(.9)
+    Int64(.79) = add(.78, 24)
+    Int64(.80) = load(.53)
+    Int64(.81) = mul(.80, 1)
+    Int64(.82) = add(.79, .81)
+    Int64(.83) = load(.12)
+    Int64(.84) = add(.83, 24)
+    Int64(.85) = load(.12)
+    Int64(.86) = add(.85, 0)
+    Int64(.87) = load(.86)
+    Int32(.88) = call extern(luxrt_memcmp)(Int64(.82), Int64(.84), Int64(.87))
+    if .88 goto logic_false.315 else logic_true.314
+logic_true.314:
+    goto logic_join.316
+logic_false.315:
+logic_join.316:
+    Int32(.89) = phi(logic_true.314: 1, logic_false.315: 0)
+    store(.89, .67)
+    Int32(.90) = load_i32(.61)
+    if .90 goto if_true.319 else logic_or.321
+logic_or.321:
+    Int32(.91) = load_i32(.67)
+    if .91 goto if_true.319 else if_false.320
+if_true.319:
+    Int64(.92) = load(.2)
+    Int64(.93) = load(.9)
+    Int64(.94) = add(.93, 24)
+    Int64(.95) = load(.51)
+    Int64(.96) = mul(.95, 1)
+    Int64(.97) = add(.94, .96)
+    Int64(.98) = load(.53)
+    Int64(.99) = load(.51)
+    Int64(.100) = sub(.98, .99)
+    Int64(.101) = sext32(3)
+    Int64(.102) = mul(.101, 8)
+    Int64(.103) = add(.30, .102)
+    Int32(.104) = call extern(luxrt_string_new)(Int64(.92), Int64(.97), Int64(.100), Int64(.103))
+    store(.104, .39)
+    Int32(.105) = load_i32(.39)
+    if .105 goto if_false.323 else if_true.322
+if_true.322:
+    Int64(.106) = load(.2)
+    Int64(.107) = sext32(2)
+    Int64(.108) = mul(.107, 8)
+    Int64(.109) = add(.30, .108)
+    Int64(.110) = load(.109)
+    Int64(.111) = sext32(3)
+    Int64(.112) = mul(.111, 8)
+    Int64(.113) = add(.30, .112)
+    Int64(.114) = load(.113)
+    Int32(.115) = call extern(luxrt_values_append)(Int64(.106), Int64(.110), Int64(.114))
+    store(.115, .39)
+if_false.323:
+    Int64(.116) = sext32(0)
+    Int64(.117) = sext32(3)
+    Int64(.118) = mul(.117, 8)
+    Int64(.119) = add(.30, .118)
+    store(.116, .119)
+    Int32(.120) = load_i32(.61)
+    if .120 goto if_true.324 else if_false.325
+if_true.324:
+    goto while_join.312
+if_false.325:
+    Int64(.121) = load(.53)
+    Int64(.122) = load(.12)
+    Int64(.123) = add(.122, 0)
+    Int64(.124) = load(.123)
+    Int64(.125) = add(.121, .124)
+    store(.125, .53)
+    Int64(.126) = load(.53)
+    store(.126, .51)
+    goto if_join.326
+if_false.320:
+    Int64(.127) = load(.53)
+    Int64(.128) = add(.127, 1)
+    store(.128, .53)
+if_join.326:
+    goto while_cond.310
+while_join.312:
+    Int32(.129) = load_i32(.39)
+    if .129 goto if_false.328 else if_true.327
+if_true.327:
+    Int64(.130) = sext32(2)
+    Int64(.131) = mul(.130, 8)
+    Int64(.132) = add(.30, .131)
+    Int64(.133) = load(.132)
+    Int64(.134) = load(.8)
+    store(.133, .134)
+if_false.328:
+    Int64(.135) = load(.2)
+    Int32(.136) = call extern(luxrt_roots_pop)(Int64(.135), Int64(.38))
+    Int32(.137) = load_i32(.39)
+    return .137
+end
+

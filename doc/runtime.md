@@ -82,3 +82,46 @@ přes cproc commit `d1c53ddf56571573a7025324c8dd5c6d547a4d1f` a
 `qbe2lir.py`. Uložené `.lir` soubory při sestavení nepotřebují cproc/C.
 Freestanding LP64 typy jsou v `tools/runtime-include`, bez host libc
 struktur. `--check` ověří, že generovaný IR není zastaralý.
+
+## Managed řetězce a kolekce
+
+`collections.h/.c/.lir` a `map.h/.c/.lir` navazují na tento experimentální
+core. Driver s `--managed` je připojí automaticky; frontend inicializuje
+heap, propojí root frames a volá běžné `luxrt_*` funkce. Žádný nový C
+překladač ani cproc není potřeba pro sestavení z uloženého IR.
+
+String payload: byte_length, codepoint_length, cached_hash (3×UInt64),
+UTF-8 bajty a koncová nula. Bajtové NUL uvnitř jsou dovoleny; délka není
+strlen. String je immutable, konstrukce ověřuje strict UTF-8; slice je
+podle codepointů, concat/split udržují přesné kořeny během alokací. Split
+s explicitním nenulovým oddělovačem zachovává prázdné části. Hash se
+počítá jednou (FNV64 + avalanche); není kryptografickou obranou proti
+koliznímu DoS. Unicode case mapping/interning/views zatím nejsou hotové.
+
+Vector payload: length, capacity, managed backing Value. Backing má
+length/count, capacity a data. List má precise opakovanou mapu pouze
+živých Value slotů. IntArray/FloatArray mají raw 64bitové elementy,
+ByteArray 8bitové; GC jejich obsah nepovažuje za pointery. Podporováno
+new/zero, append, get/set, pop, length; List navíc clear. ByteArray
+nepřijme hodnotu nad 255. Indexy jsou UInt64 s kontrolou mezí; jazykové
+záporné indexy či coercion upraví frontend podle své sémantiky.
+
+Map/Set payload: length, used, entry_capacity, index_slots, flags,
+entries, hashes, index (8×64 bitů). Poslední tři fields jsou strong
+managed roots. Entry backing jsou key/value dvojice v pořadí vkládání;
+metadata a open-address index obsahují raw UInt64. Růst/kompaktování
+přesouvá entries podle pořadí a používá uložené hashe bez čtení klíčů.
+Delete vymaže strong Values, reinsert jde na konec; update zachová
+původní key a pozici. Tombstones se odstraní při rebuild.
+
+Default key policy rozlišuje typy. Volba `LUXRT_MAP_NUMERIC_KEYS` sdílí
+Bool, Int a přesně integrální Float; například Int 2^53+1 a Float 2^53
+zůstávají různé. Float +0/-0 jsou shodné, NaN pouze se stejným objektem.
+Podporované keys jsou immutable skaláry a String; List/Map/Array jako
+key jsou odmítnuty. API nemá implicitní LSL názvy ani chybové texty.
+Chybějící key/konec iteratoru je -2. Mutace během cursor iterace není
+povolená; invalidation/version tracking zatím není implementovaný.
+
+Tato sada není celá standardní knihovna: Tuple, komplexní slice/mutace,
+unicode case data, typové coercions a další funkce z požadavků prvního
+frontendu zůstávají otevřené.
