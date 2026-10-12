@@ -30,3 +30,10 @@ externí služby a sestavení přes assembler/linker. Neimplikují integrovaný
 GC, automatické safepointy, libc-kompatibilní raw threads nebo podporu
 Windows/macOS. IR `thread(symbol)` již existuje; nová služba poskytuje
 inicializované TLS bloky pro hlavní i nová raw vlákna.
+
+Nový plán standardního managed runtime je v TODO. Požadavky prvního
+frontendu jsou zaznamenány v [doc/lsl-runtime.md](lsl-runtime.md); nejde
+o závazné univerzální ABI názvů `lsl_*`/`qbe_*`. LuxIR bude definovat vlastní
+obecné standardní objektové ABI a implementovat jeho runtime; frontend
+převede jazykovou sémantiku na toto ABI a předá potřebná metadata. Přenos
+požadavků do dokumentace sám o sobě neznamená implementaci těchto služeb.

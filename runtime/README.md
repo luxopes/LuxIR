@@ -119,8 +119,10 @@ QEMU nepotvrzují výkon na skutečném CPU ani self-host cross LSL compileru.
 ## Obecné TLS, vlákna, registry a Linux signály
 
 Tyto služby nejsou vázané na jazyk LSL. Libovolný frontend může emitovat
-stejné IR a využít stejné ABI; typy, layout objektů, chybová politika a
-volba GC zůstávají explicitním kontraktem frontendu. Runtime ABI je stále
+stejné IR a využít stejné ABI; jazyková sémantika se předává
+přes explicitní kontrakt a metadata. Plánovaný standardní managed runtime
+a jeho objektové ABI spravuje LuxIR; frontend se tomuto ABI přizpůsobí,
+neimplementuje strojový GC ani platformní runtime. Runtime ABI je stále
 `none`: externí moduly se sestavují a linkují spolu s programem, nikoli
 automaticky příkazem LuxIR do hotové binárky.
 

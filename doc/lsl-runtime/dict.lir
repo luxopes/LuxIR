@@ -1,0 +1,500 @@
+# Runtime LSL v LuxIR: Dictionary.
+# Objekt: +0 tag (3), +8 počet, +16 kapacita, +24 klíče, +32 hodnoty,
+# +40 index (0 = malý slovník bez indexu), +48 počet slotů indexu (mocnina 2).
+# Položka indexu: bity 0-31 = pozice + 1 (0 = prázdný slot), bit 32 = klíč je
+# String, bity 33-63 = horních 31 bitů hashe. Slot se volí z týchž 31 bitů.
+# Formát je shodný s x86 runtime (contains, clear a GC ho dál čtou).
+ir_version "1"
+runtime_abi "none"
+
+data dict_key_error align 8 = [Int64(1), Int64(23), "KeyError: key not found", Int8(0)]
+
+# Je hodnota Any objekt na haldě? Bitmapa začátků objektů (stav +1328, kapacita
+# +1336) a hlavička bloku (-16 = 0 pro objekt). Kopie x86 runtime_is_heap_object.
+export function lsl_runtime_is_heap_object(Int64(value)) -> Int64:
+    Int64(low) = and(value, 7)
+    Int32(aligned) = eq(low, 0)
+    if aligned goto range else no
+range:
+    Ptr(state) = load(lsl_state)
+    Int64(offset) = sub(value, state)
+    Int64(index) = shr(offset, 3)
+    Int64(byte) = shr(index, 3)
+    Ptr(capacity_slot) = add(state, 1336)
+    Int64(capacity) = load(capacity_slot)
+    Int32(inside) = ult(byte, capacity)
+    if inside goto bit else no
+bit:
+    Ptr(bitmap_slot) = add(state, 1328)
+    Ptr(bitmap) = load(bitmap_slot)
+    Ptr(cell) = add(bitmap, byte)
+    Int64(bits) = load_u8(cell)
+    Int64(shift) = and(index, 7)
+    Int64(bits) = shr(bits, Int32(shift))
+    Int64(set) = and(bits, 1)
+    Int32(marked) = ne(set, 0)
+    if marked goto header else no
+header:
+    Ptr(kind_slot) = sub(value, 16)
+    Int64(kind) = load(kind_slot)
+    Int32(object) = eq(kind, 0)
+    if object goto yes else no
+yes:
+    return Int64(1)
+no:
+    return Int64(0)
+end
+
+# Šablona položky indexu pro klíč: (hash >> 33) << 33 | String << 32.
+# Hash je shodný s x86 runtime_key_hash (seed procesu, FNV-1a pro String,
+# payload pro zabalené skaláry, hodnota pro surové skaláry, pak SplitMix64).
+export function lsl_dict_key_template(Int64(key)) -> Int64:
+    Ptr(state) = load(lsl_state)
+    Ptr(seed_slot) = add(state, 120)
+    Int64(seed) = load(seed_slot)
+    Int64(heap) = call lsl_runtime_is_heap_object(key)
+    Int32(is_heap) = ne(heap, 0)
+    if is_heap goto object else scalar
+scalar:
+    Int64(raw) = xor(key, seed)
+    Int64(hash) = call lsl_runtime_hash_mix(raw)
+    Int64(flag) = 0
+    goto finish
+object:
+    Int64(tag) = load(key)
+    Int32(text) = eq(tag, 1)
+    if text goto string else boxed
+string:
+    Int64(hash) = call lsl_runtime_string_hash(key)
+    Int64(flag) = 1
+    goto finish
+boxed:
+    Ptr(payload_slot) = add(key, 8)
+    Int64(payload) = load(payload_slot)
+    Int64(raw) = xor(payload, seed)
+    Int64(hash) = call lsl_runtime_hash_mix(raw)
+    Int64(flag) = 0
+finish:
+    Int64(high) = shr(hash, 33)
+    Int64(high) = shl(high, 33)
+    Int64(flag) = shl(flag, 32)
+    Int64(template) = or(high, flag)
+    return template
+end
+
+# Rovnost klíčů se stejnou šablonou (stejný druh): String přímo, jinak obecně.
+function lsl_dict_keys_equal(Int64(left), Int64(right), Int64(template)) -> Int64:
+    Int32(same) = eq(left, right)
+    if same goto yes else compare
+compare:
+    Int64(flag) = shr(template, 32)
+    Int64(flag) = and(flag, 1)
+    Int32(text) = ne(flag, 0)
+    if text goto string else generic
+string:
+    Int64(equal) = call lsl_runtime_string_equal(left, right)
+    return equal
+generic:
+    Int64(equal) = call rt_runtime_equal_any(left, right)
+    return equal
+yes:
+    return Int64(1)
+end
+
+# Najde klíč: vrací pozici + 1, nebo 0. Při indexu uloží do slot_out slot
+# nalezeného klíče, nebo první prázdný slot pro vložení.
+function lsl_dict_find(Ptr(dict), Int64(key), Int64(template), Ptr(slot_out)) -> Int64:
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Int32(linear) = eq(index, 0)
+    if linear goto scan else hashed
+scan:
+    Ptr(count_slot) = add(dict, 8)
+    Int64(count) = load(count_slot)
+    Int64(position) = 0
+scan_loop:
+    Int32(more) = ult(position, count)
+    if more goto scan_step else missing
+scan_step:
+    Int64(offset) = shl(position, 3)
+    Ptr(cell) = add(keys, offset)
+    Int64(stored) = load(cell)
+    Int32(same) = eq(stored, key)
+    if same goto scan_hit else scan_compare
+scan_compare:
+    Int64(equal) = call rt_runtime_equal_any(stored, key)
+    Int32(found) = ne(equal, 0)
+    if found goto scan_hit else scan_next
+scan_next:
+    Int64(position) = add(position, 1)
+    goto scan_loop
+scan_hit:
+    Int64(result) = add(position, 1)
+    return result
+missing:
+    return Int64(0)
+hashed:
+    Ptr(slots_slot) = add(dict, 48)
+    Int64(slots) = load(slots_slot)
+    Int64(mask) = sub(slots, 1)
+    Int64(want) = shr(template, 32)
+    Int64(slot) = shr(template, 33)
+    Int64(slot) = and(slot, mask)
+probe:
+    Int64(offset) = shl(slot, 3)
+    Ptr(cell) = add(index, offset)
+    Int64(entry) = load(cell)
+    Int32(empty) = eq(entry, 0)
+    if empty goto absent else check
+check:
+    Int64(have) = shr(entry, 32)
+    Int32(match) = eq(have, want)
+    if match goto candidate else next
+candidate:
+    Int64(position) = and(entry, 4294967295)
+    Int64(position) = sub(position, 1)
+    Int64(key_offset) = shl(position, 3)
+    Ptr(key_cell) = add(keys, key_offset)
+    Int64(stored) = load(key_cell)
+    Int64(equal) = call lsl_dict_keys_equal(stored, key, template)
+    Int32(found) = ne(equal, 0)
+    if found goto hit else next
+next:
+    Int64(slot) = add(slot, 1)
+    Int64(slot) = and(slot, mask)
+    goto probe
+hit:
+    store(slot, slot_out)
+    Int64(result) = add(position, 1)
+    return result
+absent:
+    store(slot, slot_out)
+    return Int64(0)
+end
+
+# Vloží položku do prvního prázdného slotu podle šablony (index existuje).
+function lsl_dict_index_insert(Ptr(dict), Int64(template), Int64(position)) -> Int64:
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Ptr(slots_slot) = add(dict, 48)
+    Int64(slots) = load(slots_slot)
+    Int64(mask) = sub(slots, 1)
+    Int64(slot) = shr(template, 33)
+    Int64(slot) = and(slot, mask)
+probe:
+    Int64(offset) = shl(slot, 3)
+    Ptr(cell) = add(index, offset)
+    Int64(entry) = load(cell)
+    Int32(empty) = eq(entry, 0)
+    if empty goto store_entry else next
+next:
+    Int64(slot) = add(slot, 1)
+    Int64(slot) = and(slot, mask)
+    goto probe
+store_entry:
+    Int64(number) = add(position, 1)
+    Int64(entry) = or(template, number)
+    store(entry, cell)
+    return Int64(0)
+end
+
+# Vynuluje index a vloží všechny klíče znovu (po mazání a při vzniku indexu).
+function lsl_dict_reindex(Ptr(dict)) -> Int64:
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Ptr(slots_slot) = add(dict, 48)
+    Int64(slots) = load(slots_slot)
+    Int64(slot) = 0
+zero:
+    Int32(more) = ult(slot, slots)
+    if more goto zero_step else fill
+zero_step:
+    Int64(offset) = shl(slot, 3)
+    Ptr(cell) = add(index, offset)
+    store(Int64(0), cell)
+    Int64(slot) = add(slot, 1)
+    goto zero
+fill:
+    Ptr(count_slot) = add(dict, 8)
+    Int64(count) = load(count_slot)
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Int64(position) = 0
+fill_loop:
+    Int32(left) = ult(position, count)
+    if left goto fill_step else done
+fill_step:
+    Int64(key_offset) = shl(position, 3)
+    Ptr(key_cell) = add(keys, key_offset)
+    Int64(key) = load(key_cell)
+    Int64(template) = call lsl_dict_key_template(key)
+    call lsl_dict_index_insert(dict, template, position)
+    Int64(position) = add(position, 1)
+    goto fill_loop
+done:
+    return Int64(0)
+end
+
+# Zdvojnásobí kapacitu polí; index má dvojnásobek kapacity slotů. Existující
+# položky se přesunou podle uloženého hashe, první index se zahashuje.
+function lsl_dict_grow(Ptr(dict)) -> Int64:
+    Ptr(count_slot) = add(dict, 8)
+    Int64(count) = load(count_slot)
+    Ptr(capacity_slot) = add(dict, 16)
+    Int64(capacity) = load(capacity_slot)
+    Int64(capacity) = add(capacity, capacity)
+    Int64(bytes) = shl(capacity, 3)
+    Ptr(new_keys) = call rt_runtime_alloc_raw(bytes)
+    Ptr(new_values) = call rt_runtime_alloc_raw(bytes)
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Ptr(values_slot) = add(dict, 32)
+    Ptr(values) = load(values_slot)
+    Int64(position) = 0
+copy:
+    Int32(more) = ult(position, count)
+    if more goto copy_step else copied
+copy_step:
+    Int64(offset) = shl(position, 3)
+    Ptr(from_key) = add(keys, offset)
+    Ptr(to_key) = add(new_keys, offset)
+    Int64(key) = load(from_key)
+    store(key, to_key)
+    Ptr(from_value) = add(values, offset)
+    Ptr(to_value) = add(new_values, offset)
+    Int64(value) = load(from_value)
+    store(value, to_value)
+    Int64(position) = add(position, 1)
+    goto copy
+copied:
+    store(capacity, capacity_slot)
+    store(new_keys, keys_slot)
+    store(new_values, values_slot)
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(old_index) = load(index_slot)
+    Ptr(slots_slot) = add(dict, 48)
+    Int64(old_slots) = load(slots_slot)
+    Int64(slots) = add(capacity, capacity)
+    store(slots, slots_slot)
+    Int64(index_bytes) = shl(slots, 3)
+    Ptr(index) = call rt_runtime_alloc_raw(index_bytes)
+    store(index, index_slot)
+    Int32(first) = eq(old_index, 0)
+    if first goto rehash else move
+rehash:
+    call lsl_dict_reindex(dict)
+    return Int64(0)
+move:
+    Int64(slot) = 0
+zero:
+    Int32(zero_more) = ult(slot, slots)
+    if zero_more goto zero_step else zeroed
+zero_step:
+    Int64(zero_offset) = shl(slot, 3)
+    Ptr(zero_cell) = add(index, zero_offset)
+    store(Int64(0), zero_cell)
+    Int64(slot) = add(slot, 1)
+    goto zero
+zeroed:
+    Int64(mask) = sub(slots, 1)
+    Int64(old) = 0
+move_loop:
+    Int32(old_more) = ult(old, old_slots)
+    if old_more goto move_step else moved
+move_step:
+    Int64(old_offset) = shl(old, 3)
+    Ptr(old_cell) = add(old_index, old_offset)
+    Int64(entry) = load(old_cell)
+    Int32(used) = ne(entry, 0)
+    if used goto place else move_next
+place:
+    Int64(target) = shr(entry, 33)
+    Int64(target) = and(target, mask)
+place_probe:
+    Int64(target_offset) = shl(target, 3)
+    Ptr(target_cell) = add(index, target_offset)
+    Int64(occupant) = load(target_cell)
+    Int32(free) = eq(occupant, 0)
+    if free goto place_store else place_next
+place_next:
+    Int64(target) = add(target, 1)
+    Int64(target) = and(target, mask)
+    goto place_probe
+place_store:
+    store(entry, target_cell)
+move_next:
+    Int64(old) = add(old, 1)
+    goto move_loop
+moved:
+    return Int64(0)
+end
+
+export function rt_runtime_dict_new() -> Ptr:
+    Ptr(dict) = call rt_runtime_alloc(Int64(56))
+    store(Int64(3), dict)
+    Ptr(count_slot) = add(dict, 8)
+    store(Int64(0), count_slot)
+    Ptr(capacity_slot) = add(dict, 16)
+    store(Int64(16), capacity_slot)
+    Ptr(index_slot) = add(dict, 40)
+    store(Int64(0), index_slot)
+    Ptr(slots_slot) = add(dict, 48)
+    store(Int64(0), slots_slot)
+    Ptr(keys) = call rt_runtime_alloc_raw(Int64(128))
+    Ptr(keys_slot) = add(dict, 24)
+    store(keys, keys_slot)
+    Ptr(values) = call rt_runtime_alloc_raw(Int64(128))
+    Ptr(values_slot) = add(dict, 32)
+    store(values, values_slot)
+    return dict
+end
+
+export function rt_runtime_dict_get(Ptr(dict), Int64(key)) -> Int64:
+    Ptr(slot_out) = alloc8(8)
+    Int64(template) = 0
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Int32(indexed) = ne(index, 0)
+    if indexed goto hash else find
+hash:
+    Int64(template) = call lsl_dict_key_template(key)
+find:
+    Int64(found) = call lsl_dict_find(dict, key, template, slot_out)
+    Int32(present) = ne(found, 0)
+    if present goto value else missing
+value:
+    Int64(position) = sub(found, 1)
+    Int64(offset) = shl(position, 3)
+    Ptr(values_slot) = add(dict, 32)
+    Ptr(values) = load(values_slot)
+    Ptr(cell) = add(values, offset)
+    Int64(result) = load(cell)
+    return result
+missing:
+    call qbe_error_set(dict_key_error)
+    return Int64(0)
+end
+
+export function rt_runtime_dict_set(Ptr(dict), Int64(key), Int64(value)) -> Int64:
+    Ptr(slot_out) = alloc8(8)
+    Int64(template) = 0
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Int32(indexed) = ne(index, 0)
+    if indexed goto hash else find
+hash:
+    Int64(template) = call lsl_dict_key_template(key)
+find:
+    Int64(found) = call lsl_dict_find(dict, key, template, slot_out)
+    Int32(present) = ne(found, 0)
+    if present goto replace else append
+replace:
+    Int64(position) = sub(found, 1)
+    goto store_value
+append:
+    Ptr(count_slot) = add(dict, 8)
+    Int64(position) = load(count_slot)
+    Ptr(capacity_slot) = add(dict, 16)
+    Int64(capacity) = load(capacity_slot)
+    Int32(room) = ult(position, capacity)
+    Int64(grew) = 0
+    if room goto place else grow
+grow:
+    call lsl_dict_grow(dict)
+    Int64(grew) = 1
+place:
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Int64(key_offset) = shl(position, 3)
+    Ptr(key_cell) = add(keys, key_offset)
+    store(key, key_cell)
+    Ptr(index) = load(index_slot)
+    Int32(no_index) = eq(index, 0)
+    if no_index goto counted else entry
+entry:
+    Int32(reinsert) = ne(grew, 0)
+    if reinsert goto fresh else direct
+fresh:
+    Int64(template) = call lsl_dict_key_template(key)
+    call lsl_dict_index_insert(dict, template, position)
+    goto counted
+direct:
+    Int64(slot) = load(slot_out)
+    Int64(number) = add(position, 1)
+    Int64(entry_value) = or(template, number)
+    Int64(slot_offset) = shl(slot, 3)
+    Ptr(slot_cell) = add(index, slot_offset)
+    store(entry_value, slot_cell)
+counted:
+    Int64(count) = add(position, 1)
+    store(count, count_slot)
+store_value:
+    Ptr(values_slot) = add(dict, 32)
+    Ptr(values) = load(values_slot)
+    Int64(value_offset) = shl(position, 3)
+    Ptr(value_cell) = add(values, value_offset)
+    store(value, value_cell)
+    return Int64(0)
+end
+
+export function rt_runtime_dict_delete(Ptr(dict), Int64(key)) -> Int64:
+    Ptr(slot_out) = alloc8(8)
+    Int64(template) = 0
+    Ptr(index_slot) = add(dict, 40)
+    Ptr(index) = load(index_slot)
+    Int32(indexed) = ne(index, 0)
+    if indexed goto hash else find
+hash:
+    Int64(template) = call lsl_dict_key_template(key)
+find:
+    Int64(found) = call lsl_dict_find(dict, key, template, slot_out)
+    Int32(present) = ne(found, 0)
+    if present goto remove else missing
+remove:
+    Int64(position) = sub(found, 1)
+    Ptr(count_slot) = add(dict, 8)
+    Int64(count) = load(count_slot)
+    Int64(count) = sub(count, 1)
+    store(count, count_slot)
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Ptr(values_slot) = add(dict, 32)
+    Ptr(values) = load(values_slot)
+shift:
+    Int32(more) = ult(position, count)
+    if more goto shift_step else shifted
+shift_step:
+    Int64(offset) = shl(position, 3)
+    Int64(next_offset) = add(offset, 8)
+    Ptr(to_key) = add(keys, offset)
+    Ptr(from_key) = add(keys, next_offset)
+    Int64(moved_key) = load(from_key)
+    store(moved_key, to_key)
+    Ptr(to_value) = add(values, offset)
+    Ptr(from_value) = add(values, next_offset)
+    Int64(moved_value) = load(from_value)
+    store(moved_value, to_value)
+    Int64(position) = add(position, 1)
+    goto shift
+shifted:
+    Int32(no_index) = eq(index, 0)
+    if no_index goto done else rebuild
+rebuild:
+    call lsl_dict_reindex(dict)
+done:
+    return Int64(0)
+missing:
+    call qbe_error_set(dict_key_error)
+    return Int64(0)
+end
+
+export function rt_runtime_dict_keys(Ptr(dict)) -> Ptr:
+    Ptr(count_slot) = add(dict, 8)
+    Int64(count) = load(count_slot)
+    Ptr(keys_slot) = add(dict, 24)
+    Ptr(keys) = load(keys_slot)
+    Ptr(list) = call rt_runtime_list_new(count, keys)
+    return list
+end
