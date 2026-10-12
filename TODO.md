@@ -12,6 +12,23 @@ Zdrojem pravdy zůstává C reference v `src/`; `lsl/luxir.lsl` se přegeneruje
 stejný výstup) a s měřením: programy LSL přeložené přes LuxIR nesmí být
 pomalejší než předchozí vydání LSL, při překladu ani za běhu.
 
+## Standardní runtime pro frontendy (LSL) — 13. 10. 2026
+
+Rozhodnutí: LSL bude jen frontend (LSL → LuxIR). Celý runtime patří LuxIR:
+model objektů, alokace a GC, kolekce, řetězce, převody čísel, chyby, I/O,
+procesy, vlákna, pro každou architekturu a systém. Rozhraní standardizuje
+LuxIR, LSL se mu přizpůsobí. Požadavky a dnešní rozhraní (144 funkcí):
+`doc/lsl-runtime.md`; referenční kód slovníku a řetězců v LuxIR:
+`doc/lsl-runtime/`; referenční chování: x86 emitory runtime v repozitáři LSL.
+
+- [ ] **Návrh rozhraní:** standardní managed ABI (hodnoty, tagy, layouty,
+  chyby, GC kořeny) a seznam funkcí; verze v hlavičce `runtime_abi`.
+- [ ] **Implementace pro Linux x86_64** se stejným chováním a výkonem jako
+  dnešní runtime LSL (měřítka v `doc/lsl-runtime.md`).
+- [ ] **Linux arm64 a rv64**, pak Windows a macOS.
+- [ ] **Předání LSL:** jakmile je rozhraní hotové, LSL přepne `qbe_emit` na
+  něj a odstraní své x86 emitory, `runtime.o` a přímý backend.
+
 ## Požadavky LSL pro přesun runtime do LuxIR — 13. 10. 2026
 
 LSL přepisuje svůj runtime (dnes ~10 000 řádků ručně generovaného x86-64:

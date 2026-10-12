@@ -1,0 +1,91 @@
+# Runtime LSL v LuxIR: řetězcové primitivy (přenositelné, SysV ABI).
+# Zatím interní (lsl_*): horké x86 rutiny (equal_any, contains) volají své
+# x86 verze; rt_runtime_* jména dostanou, až budou přepsáni i jejich volající.
+# String objekt: +0 tag, +8 délka v bajtech, od +16 bajty UTF-8.
+# Stav runtime je na adrese v lsl_state (+120 = per-process seed hashe).
+ir_version "1"
+runtime_abi "none"
+
+# Rovnost dvou Stringů: stejný ukazatel, stejná délka a stejné bajty.
+export function lsl_runtime_string_equal(Ptr(left), Ptr(right)) -> Int64:
+    Int32(same) = eq(left, right)
+    if same goto yes else lengths
+lengths:
+    Ptr(left_length) = add(left, 8)
+    Ptr(right_length) = add(right, 8)
+    Int64(length) = load(left_length)
+    Int64(other) = load(right_length)
+    Int32(equal_length) = eq(length, other)
+    if equal_length goto start else no
+start:
+    Ptr(a) = add(left, 16)
+    Ptr(b) = add(right, 16)
+    Int64(left_bytes) = length
+words:
+    Int32(full) = uge(left_bytes, 8)
+    if full goto word else bytes
+word:
+    Int64(x) = load(a)
+    Int64(y) = load(b)
+    Int32(differs) = ne(x, y)
+    if differs goto no else word_next
+word_next:
+    Ptr(a) = add(a, 8)
+    Ptr(b) = add(b, 8)
+    Int64(left_bytes) = sub(left_bytes, 8)
+    goto words
+bytes:
+    Int32(more) = ne(left_bytes, 0)
+    if more goto byte else yes
+byte:
+    Int32(x8) = load_u8(a)
+    Int32(y8) = load_u8(b)
+    Int32(differs8) = ne(x8, y8)
+    if differs8 goto no else byte_next
+byte_next:
+    Ptr(a) = add(a, 1)
+    Ptr(b) = add(b, 1)
+    Int64(left_bytes) = sub(left_bytes, 1)
+    goto bytes
+yes:
+    return Int64(1)
+no:
+    return Int64(0)
+end
+
+# SplitMix64 finalizer (shodný s x86 runtime_hash_mix, která bere vstup v
+# rax; proto ji nenahrazuje, adaptér předává jen argumenty podle SysV).
+export function lsl_runtime_hash_mix(Int64(value)) -> Int64:
+    Int64(t) = shr(value, 30)
+    Int64(x) = xor(value, t)
+    Int64(x) = mul(x, -4658895280553007687)
+    Int64(t) = shr(x, 27)
+    Int64(x) = xor(x, t)
+    Int64(x) = mul(x, -7723592293110705685)
+    Int64(t) = shr(x, 31)
+    Int64(x) = xor(x, t)
+    return x
+end
+
+# FNV-1a nad bajty Stringu se seedem procesu, pak SplitMix64.
+export function lsl_runtime_string_hash(Ptr(text)) -> Int64:
+    Ptr(state) = load(lsl_state)
+    Ptr(seed) = add(state, 120)
+    Int64(h) = load(seed)
+    Ptr(length_slot) = add(text, 8)
+    Int64(length) = load(length_slot)
+    Ptr(p) = add(text, 16)
+    Ptr(end) = add(p, length)
+loop:
+    Int32(more) = ult(p, end)
+    if more goto step else done
+step:
+    Int64(b) = load_u8(p)
+    Int64(h) = xor(h, b)
+    Int64(h) = mul(h, 1099511628211)
+    Ptr(p) = add(p, 1)
+    goto loop
+done:
+    Int64(mixed) = call lsl_runtime_hash_mix(h)
+    return mixed
+end
