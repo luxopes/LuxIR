@@ -1,0 +1,15 @@
+{
+  "name": "luxir-011-native",
+  "cwd": "/workspace/scratch/602efea1b046/lsl-release-091",
+  "command": [
+    "/workspace/scratch/602efea1b046/lsl-release-091/compiler/lslc",
+    "/workspace/scratch/602efea1b046/luxir-remote-current/lsl/luxir.lsl",
+    "/workspace/scratch/602efea1b046/luxir-remote-current/build/luxir-0.1.1",
+    "/workspace/scratch/602efea1b046/luxir-remote-current/build/luxir"
+  ],
+  "address_space_limit": 3000000000,
+  "timeout_seconds": 120,
+  "exit_code": 0,
+  "elapsed_seconds": 49.766,
+  "peak_rss_kib": 1043600
+}

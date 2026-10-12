@@ -28,7 +28,7 @@ end
 ## Verze protokolu
 
 `luxir --version` (samostatný příkaz) vypíše podporovanou revizi IR a
-runtime kontrakt. Aktuálně: `LuxIR (IR 1; runtime ABI none)`.
+runtime kontrakt. Aktuálně: `LuxIR 0.1.1 (IR 1; runtime ABI none)`.
 Číslo původního QBE není verzí rozhraní LuxIR.
 
 Frontend může před všemi definicemi a direktivou `file` zapsat:

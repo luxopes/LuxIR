@@ -1,3 +1,15 @@
+# Release 0.1.1 — finální binárka
+
+`luxir --version`: `LuxIR 0.1.1 (IR 1; runtime ABI none)`.
+Finální bootstrap 49.766 s, self-host stage 2 52.864 s,
+stage 3 52.057 s; oba self-host překlady pod limitem
+60 s a všechny tři binárky bajtově stejné. SHA-256:
+`0b64ac50e0650858e344b9261d80b9ef46a446c1975f625afd0ec2a18eb34d02`.
+Finální `make check` a `make check-runtime` prošly; runtime execution
+arm64/rv64 v QEMU znovu prošel v C i LSL variantě.
+Použit existující frontend LSL 0.9.1 bez změn. Raw záznamy:
+`validation/release-0.1.1/`. Starší časy a hashe níže popisují dřívější checkpointy.
+
 # Aktuální checkpoint LuxIR — Linux runtime, rv64 PIE a self-host
 
 Stav 12. 10. 2026, pracovní větev `work/luxir-todo`. Navazuje na remote main
