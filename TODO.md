@@ -12,6 +12,49 @@ Zdrojem pravdy zůstává C reference v `src/`; `lsl/luxir.lsl` se přegeneruje
 stejný výstup) a s měřením: programy LSL přeložené přes LuxIR nesmí být
 pomalejší než předchozí vydání LSL, při překladu ani za běhu.
 
+## Požadavky LSL pro přesun runtime do LuxIR — 13. 10. 2026
+
+LSL přepisuje svůj runtime (dnes ~10 000 řádků ručně generovaného x86-64:
+GC, alokátor, řetězce, kolekce, převody, I/O, procesy, vlákna) do LSL/LuxIR
+nad luxrt, aby LSL generovalo jen přenositelný LuxIR. Ověřeno proti
+`doc/ir.md` a `runtime/` verze 0.1.1 a proti tomu, co runtime LSL používá.
+Bez blokujících položek nejde runtime na Linuxu přeportovat; ostatní mají
+pomalejší náhradu, kterou LSL do té doby použije.
+
+Blokující (Linux x86_64, arm64, rv64):
+- [ ] **TLS ve vláknech:** `thread` data fungují pro hlavní vlákno, ale
+  vlákna z luxrt nemají TLS blok. Runtime LSL drží v TLS čekající chybu a
+  její příznak (zapisuje se z I/O, procesů, haldy) a vrchol zásobníku vlákna.
+  Potřeba: vytvoření vlákna s inicializovaným statickým TLS (fs / tpidr_el0 /
+  tp), přístup přes `thread(x)` v obou vláknech.
+  Přijetí: test s 40 vlákny, každé zapisuje a čte vlastní `thread` proměnnou.
+- [ ] **Uložení registrů a ukazatel zásobníku:** konzervativní GC LSL musí
+  najít ukazatele i v registrech. Potřeba primitivum (instrukce nebo luxrt
+  funkce pro každou architekturu, obdoba setjmp), které uloží callee-saved
+  registry do paměti a vrátí aktuální ukazatel zásobníku; plus vrchol
+  zásobníku hlavního vlákna ze startu.
+  Přijetí: GC test, kde je jediný odkaz na objekt v callee-saved registru.
+- [ ] **Signály:** `rt_sigaction` s `sa_restorer` (návratová rutina pro každou
+  architekturu), maska signálů; runtime LSL instaluje obsluhu při startu.
+
+Výkonové (náhrada existuje, ale je pomalejší):
+- [ ] **Atomiky jako instrukce:** atomické add/xchg/cmpxchg/load/store a
+  bariéry v IR (dnes jen volání do `luxrt/*/atomic.S`). Používají je zámky,
+  vlákna, GC a vestavěné `atomic_add`, `atomic_xchg`, `atomic_cas`.
+- [ ] **`sqrt`** pro Float64 (a Float32) jako instrukce; vestavěné `sqrt`
+  a modul `math`.
+- [ ] **Horní polovina násobení 64×64 → 128** (`umulh`, `mulh`): přesný
+  převod textu na Float (Eisel-Lemire), hashe. Náhrada: čtyři 32bitová násobení.
+- [ ] **clz, ctz, popcount** jako instrukce: vestavěné `popcount`,
+  `trailing_zeros`, převody Float.
+- [ ] **Inlinování** malých funkcí (už v sekci Optimalizace): runtime volá
+  drobné pomocné funkce v horkých smyčkách (hash, porovnání, kontrola typu).
+
+Windows a macOS (navíc):
+- [ ] OS vrstva luxrt pro Win32 a libSystem, TLS na Windows (dnes odmítnuto),
+  výstup PE a Mach-O (vlastní linker nebo externí nástroje), testy na
+  skutečném systému.
+
 ## Rozhraní pro frontendy
 
 - [x] Základ verzování IR: `luxir --version`, volitelné hlavičky
