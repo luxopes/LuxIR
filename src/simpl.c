@@ -54,6 +54,61 @@ ispow2(uint64_t v)
 	return v && (v & (v - 1)) == 0;
 }
 
+/* RV64GC has no mandatory Zbb; x86-64 baseline has no POPCNT.
+ * Fixed-size SWAR lowering uses no runtime call and handles zero explicitly.
+ * ARM64 keeps all counts native; amd64 keeps baseline BSR/BSF. */
+static Ref
+bitstep(Ins *seq, int *n, int op, int k, Ref a, Ref b, Fn *fn)
+{
+	Ref r = newtmp("bit", k, fn);
+	seq[(*n)++] = (Ins){op, k, r, {a,b}};
+	return r;
+}
+
+static void
+bitlower(Ins *i, Fn *fn)
+{
+	Ins seq[64];
+	Ref x, y, z;
+	int n = 0, k = i->cls, width = k == Kl ? 64 : 32, shift;
+	uint64_t mask;
+
+	x = i->arg[0];
+	if (i->op == Oclz) {
+		for (shift=1; shift<width; shift*=2) {
+			y = bitstep(seq, &n, Oshr, k, x, getcon(shift, fn), fn);
+			x = bitstep(seq, &n, Oor, k, x, y, fn);
+		}
+	} else if (i->op == Octz) {
+		y = bitstep(seq, &n, Osub, k, x, getcon(1, fn), fn);
+		x = bitstep(seq, &n, Oxor, k, x, getcon(-1, fn), fn);
+		x = bitstep(seq, &n, Oand, k, x, y, fn);
+	}
+	mask = k == Kl ? 0x5555555555555555ull : 0x55555555;
+	y = bitstep(seq, &n, Oshr, k, x, getcon(1, fn), fn);
+	y = bitstep(seq, &n, Oand, k, y, getcon(mask, fn), fn);
+	x = bitstep(seq, &n, Osub, k, x, y, fn);
+	mask = k == Kl ? 0x3333333333333333ull : 0x33333333;
+	y = bitstep(seq, &n, Oshr, k, x, getcon(2, fn), fn);
+	y = bitstep(seq, &n, Oand, k, y, getcon(mask, fn), fn);
+	x = bitstep(seq, &n, Oand, k, x, getcon(mask, fn), fn);
+	x = bitstep(seq, &n, Oadd, k, x, y, fn);
+	y = bitstep(seq, &n, Oshr, k, x, getcon(4, fn), fn);
+	x = bitstep(seq, &n, Oadd, k, x, y, fn);
+	mask = k == Kl ? 0x0f0f0f0f0f0f0f0full : 0x0f0f0f0f;
+	x = bitstep(seq, &n, Oand, k, x, getcon(mask, fn), fn);
+	for (shift=8; shift<width; shift*=2) {
+		y = bitstep(seq, &n, Oshr, k, x, getcon(shift, fn), fn);
+		x = bitstep(seq, &n, Oadd, k, x, y, fn);
+	}
+	z = bitstep(seq, &n, Oand, k, x, getcon(127, fn), fn);
+	if (i->op == Oclz)
+		z = bitstep(seq, &n, Osub, k, getcon(width, fn), z, fn);
+	emit(Ocopy, k, i->to, z, R);
+	while (n)
+		emiti(seq[--n]);
+}
+
 static void
 ins(Ins **pi, int *new, Blk *b, Fn *fn)
 {
@@ -68,6 +123,22 @@ ins(Ins **pi, int *new, Blk *b, Fn *fn)
 	 * copy 0 into xor, bit rotations,
 	 * etc. */
 	switch (i->op) {
+	case Oclz:
+	case Octz:
+	case Opopcount:
+		if (strncmp(T.name, "arm64", 5) == 0)
+			break;
+		if (strncmp(T.name, "amd64", 5) == 0 && i->op != Opopcount)
+			break;
+		if (!*new) {
+			curi = &insb[NIns];
+			ni = &b->ins[b->nins] - (i+1);
+			curi -= ni;
+			icpy(curi, i+1, ni);
+			*new = 1;
+		}
+		bitlower(i, fn);
+		return;
 	case Oblit1:
 		assert(i > b->ins);
 		assert((i-1)->op == Oblit0);

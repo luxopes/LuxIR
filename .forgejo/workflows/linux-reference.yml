@@ -18,6 +18,7 @@ jobs:
           make c lsl check-dominance check-bitsets PYTHON=.venv/bin/python
       - name: Host programs and protocol
         run: |
+          python3 tests/numeric.py --backend src/luxir
           python3 tests/versioning.py --backend src/luxir
           python3 tests/run_tests.py --backend src/luxir
           python3 tests/fuzz.py --backend src/luxir --cases 300
@@ -39,6 +40,7 @@ jobs:
       - name: Linux cross execution
         run: |
           for target in arm64 rv64; do
+            python3 tests/numeric.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir
             python3 tests/runtime/tls_entry.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_platform.py --target "$target" --backend src/luxir

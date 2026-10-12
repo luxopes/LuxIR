@@ -269,6 +269,20 @@ sel(Ins i, Num *tn, Fn *fn)
 	i0 = curi;
 	k = i.cls;
 	switch (i.op) {
+	case Oumulh:
+	case Omulh:
+		emit(Ocopy, Kl, i.to, TMP(RDX), R);
+		emit(Ocopy, Kl, R, TMP(RAX), R);
+		r0 = i.arg[1];
+		if (rtype(r0) == RCon)
+			r0 = newtmp("isel", Kl, fn);
+		emit(i.op == Oumulh ? Oxumulh : Oxmulh, Kl, R, r0, R);
+		emit(Ocopy, Kl, TMP(RDX), CON_Z, R);
+		emit(Ocopy, Kl, TMP(RAX), i.arg[0], R);
+		fixarg(&curi->arg[0], Kl, curi, fn);
+		if (rtype(i.arg[1]) == RCon)
+			emit(Ocopy, Kl, r0, i.arg[1], R);
+		break;
 	case Odiv:
 	case Orem:
 	case Oudiv:
@@ -438,6 +452,9 @@ sel(Ins i, Num *tn, Fn *fn)
 	case Osltof:
 	case Oexts:
 	case Otruncd:
+	case Osqrt:
+	case Oclz:
+	case Octz:
 	case Ocast:
 	case_Oxsel:
 	case_Oext:

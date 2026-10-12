@@ -71,12 +71,16 @@ Výkonové (náhrada existuje, ale je pomalejší):
 - [ ] **Atomiky jako instrukce:** atomické add/xchg/cmpxchg/load/store a
   bariéry v IR (dnes jen volání do `luxrt/*/atomic.S`). Používají je zámky,
   vlákna, GC a vestavěné `atomic_add`, `atomic_xchg`, `atomic_cas`.
-- [ ] **`sqrt`** pro Float64 (a Float32) jako instrukce; vestavěné `sqrt`
-  a modul `math`.
-- [ ] **Horní polovina násobení 64×64 → 128** (`umulh`, `mulh`): přesný
-  převod textu na Float (Eisel-Lemire), hashe. Náhrada: čtyři 32bitová násobení.
-- [ ] **clz, ctz, popcount** jako instrukce: vestavěné `popcount`,
-  `trailing_zeros`, převody Float.
+- [x] **`sqrt`** pro Float64 (a Float32) jako instrukce; vestavěné `sqrt`
+  a modul `math`. C/LSL execution a zaokrouhlování ověřeno na Linux
+  x86_64/arm64/rv64; assembler validní pro všech šest cílů.
+- [x] **Horní polovina násobení 64×64 → 128** (`umulh`, `mulh`): přesný
+  převod textu na Float (Eisel-Lemire), hashe. Implementované nativně;
+  izolovaný x86_64 umulh loop je 2,96× rychlejší než čtyřnásobení fallback.
+  Nejde o měření celého Float parseru ani skutečného programu LSL.
+- [x] **clz, ctz, popcount** jako instrukce: vestavěné `popcount`,
+  `trailing_zeros`, převody Float. Zero výsledky definované; baseline ISA
+  nevyžaduje POPCNT/Zbb. C/LSL shoda, 1 110 145 kontrol na každý Linux cíl.
 - [ ] **Inlinování** malých funkcí (už v sekci Optimalizace): runtime volá
   drobné pomocné funkce v horkých smyčkách (hash, porovnání, kontrola typu).
 

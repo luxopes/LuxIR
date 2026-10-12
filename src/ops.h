@@ -45,6 +45,14 @@ O(sar,     T(w,l,e,e, w,w,e,e), F(1,1,0,0,0,0,0,0,0,0)) X(1,1,0) V(1)
 O(shr,     T(w,l,e,e, w,w,e,e), F(1,1,0,0,0,0,0,0,0,0)) X(1,1,0) V(1)
 O(shl,     T(w,l,e,e, w,w,e,e), F(1,1,0,0,0,0,0,0,0,0)) X(1,1,0) V(1)
 
+/* Portable numeric intrinsics; rounding follows the target FP environment. */
+O(sqrt,    T(e,e,s,d, x,x,x,x), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(umulh,   T(e,l,e,e, e,l,e,e), F(0,0,0,1,0,0,0,0,0,0)) X(0,0,0) V(0)
+O(mulh,    T(e,l,e,e, e,l,e,e), F(0,0,0,1,0,0,0,0,0,0)) X(0,0,0) V(0)
+O(clz,     T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(ctz,     T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(popcount,T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
+
 /* Comparisons */
 O(ceqw,    T(w,w,e,e, w,w,e,e), F(1,1,1,1,0,0,1,0,1,0)) X(0,1,0) V(0)
 O(cnew,    T(w,w,e,e, w,w,e,e), F(1,1,0,1,0,0,1,0,0,0)) X(0,1,0) V(0)
@@ -152,6 +160,8 @@ O(sign,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(salloc,  T(e,l,e,e, e,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(xidiv,   T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
 O(xdiv,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(xumulh,  T(l,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(xmulh,   T(l,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
 O(xcmp,    T(w,l,s,d, w,l,s,d), F(0,0,0,0,0,0,0,0,0,0)) X(1,1,0) V(0)
 O(xtest,   T(w,l,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,1,0) V(0)
 O(acmp,    T(w,l,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)

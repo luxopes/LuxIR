@@ -81,6 +81,9 @@ static struct {
 	{ Omul,     Ki, "+imul%k %1, %=" },
 	{ Omul,     Ks, "+mulss %1, %=" },
 	{ Omul,     Kd, "+mulsd %1, %=" },
+	{ Osqrt,    Ka, "sqrt%k %0, %=" },
+	{ Oxumulh,  Kl, "mulq %L0" },
+	{ Oxmulh,   Kl, "imulq %L0" },
 	{ Odiv,     Ka, "-div%k %1, %=" },
 	{ Ostorel,  Ka, "movq %L0, %M1" },
 	{ Ostorew,  Ka, "movl %W0, %M1" },
@@ -405,6 +408,7 @@ static bits negmask[4] = {
 static void
 emitins(Ins i, E *e)
 {
+	static int bitlabel;
 	Ref r;
 	int64_t val;
 	int o, t0;
@@ -476,6 +480,20 @@ emitins(Ins i, E *e)
 				stashbits(negmask[i.cls], 16),
 				regtoa(i.to.val, SLong)
 			);
+		break;
+	case Oclz:
+	case Octz:
+		emitf(i.op == Oclz ? "bsr%k %0, %=" : "bsf%k %0, %=", &i, e);
+		fprintf(e->f, "\tjnz %sbit%d\n", T.asloc, bitlabel);
+		fprintf(e->f, "\tmov%c $%d, %%%s\n", i.cls == Kl ? 'q' : 'l',
+			i.cls == Kl ? 64 : 32, regtoa(i.to.val, i.cls == Kl ? SLong : SWord));
+		if (i.op == Oclz) {
+			fprintf(e->f, "\tjmp %sbit%d\n%sbit%d:\n", T.asloc, bitlabel+1, T.asloc, bitlabel);
+			fprintf(e->f, "\txor%c $%d, %%%s\n", i.cls == Kl ? 'q' : 'l',
+				i.cls == Kl ? 63 : 31, regtoa(i.to.val, i.cls == Kl ? SLong : SWord));
+			bitlabel++;
+		}
+		fprintf(e->f, "%sbit%d:\n", T.asloc, bitlabel++);
 		break;
 	case Odiv:
 		/* use xmm15 to adjust the instruction when the

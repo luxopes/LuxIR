@@ -298,3 +298,24 @@ interpozici symbolů sdílené knihovny ani dynamické TLS. Backend neprovádí
 relokace dat obsahujících absolutní pointery při startu statického PIE;
 ty vyžadují vlastní linker/relokátor a zůstávají otevřené. Na ostatních
 cílech volba zatím adresování nemění.
+
+
+### Matematické a bitové instrukce
+
+`Float32/Float64(x) = sqrt(value)` používá hardwarovou odmocninu. Vrací
+IEEE výsledek podle zaokrouhlování prostředí cíle; zachovává signed zero,
+pro záporné hodnoty vrací NaN, nevyvolává jazykovou chybu a nenastavuje
+libc errno. Není to obecná garance strict-fenv pro ostatní optimalizace IR.
+
+`Int64(x) = umulh(a,b)` vrací horních 64 bitů unsigned 128bitového součinu;
+`mulh` totéž pro signed vstupy v dvojkovém doplňku. Spodní polovinu vrací
+existující `mul`. Výsledek není kontrolovaná aritmetika.
+
+`Int32/Int64(x) = clz(value)`, `ctz(value)` a `popcount(value)` vracejí počet
+vedoucích nul, koncových nul a jedniček ve 32/64bitovém vstupu stejné třídy.
+`clz(0)` a `ctz(0)` jsou definované jako šířka vstupu (32 nebo 64);
+`popcount(0)` je 0. Znaménko není relevantní: počítá se bitový vzor.
+Na ARM64 jsou počty nativní (popcount používá rezervovaný V31); x86-64
+využívá základní BSR/BSF s explicitním zero výsledkem a SWAR popcount.
+RV64GC má inline SWAR fallback, bez požadavku na nepovinné Zbb. Žádná
+z těchto instrukcí nevolá externí runtime helper.

@@ -201,7 +201,7 @@ static char *pseudoname[NPseudo] = {
 
 /* přímé instrukce: jméno v LuxIR a operace backendu */
 static char *opname[] = {
-	"add", "sub", "neg", "div", "rem", "udiv", "urem", "mul",
+	"add", "sub", "neg", "div", "rem", "udiv", "urem", "mul", "sqrt", "umulh", "mulh", "clz", "ctz", "popcount",
 	"and", "or", "xor", "sar", "shr", "shl", "copy",
 	"load", "load_i8", "load_u8", "load_i16", "load_u16",
 	"load_i32", "load_u32",
@@ -212,7 +212,7 @@ static char *opname[] = {
 	0
 };
 static int opcode[] = {
-	Oadd, Osub, Oneg, Odiv, Orem, Oudiv, Ourem, Omul,
+	Oadd, Osub, Oneg, Odiv, Orem, Oudiv, Ourem, Omul, Osqrt, Oumulh, Omulh, Oclz, Octz, Opopcount,
 	Oand, Oor, Oxor, Osar, Oshr, Oshl, Ocopy,
 	Oload, Oloadsb, Oloadub, Oloadsh, Oloaduh,
 	Oloadsw, Oloaduw,

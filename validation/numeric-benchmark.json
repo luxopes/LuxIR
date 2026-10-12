@@ -1,0 +1,42 @@
+{
+  "target": "amd64_sysv",
+  "backend": "build/luxir",
+  "items": 1000000,
+  "repetitions": 16,
+  "trials": [
+    {
+      "intrinsic_seconds": 0.000788231,
+      "fallback_seconds": 0.002172234
+    },
+    {
+      "intrinsic_seconds": 0.000788087,
+      "fallback_seconds": 0.002171175
+    },
+    {
+      "intrinsic_seconds": 0.000727744,
+      "fallback_seconds": 0.002337356
+    },
+    {
+      "intrinsic_seconds": 0.000761378,
+      "fallback_seconds": 0.002272452
+    },
+    {
+      "intrinsic_seconds": 0.000740789,
+      "fallback_seconds": 0.002359832
+    },
+    {
+      "intrinsic_seconds": 0.000771751,
+      "fallback_seconds": 0.00228439
+    },
+    {
+      "intrinsic_seconds": 0.001076499,
+      "fallback_seconds": 0.003082739
+    }
+  ],
+  "intrinsic_median_seconds": 0.000771751,
+  "fallback_median_seconds": 0.00228439,
+  "speedup": 2.9600091221132203,
+  "correctness": "every trial checked against uint128 oracle",
+  "allocation_and_input_generation_timed": false,
+  "scope": "isolated umulh loop; not whole LSL runtime or compiler"
+}

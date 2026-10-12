@@ -32,6 +32,7 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	chmod +x build/luxir
 
 check: c native
+	$(PYTHON) tests/numeric.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir
 	$(MAKE) check-dominance check-bitsets
 	$(PYTHON) tests/run_tests.py --backend src/luxir --backend build/luxir

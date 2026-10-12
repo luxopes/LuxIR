@@ -1,0 +1,9 @@
+{
+  "target": "arm64",
+  "output": "1110145 numeric checks passed (128-bit oracle, 32/64-bit counts, FP edge cases and four rounding modes)",
+  "assembly_parity": true,
+  "runner": [
+    "qemu-aarch64"
+  ],
+  "invalid_forms": 7
+}

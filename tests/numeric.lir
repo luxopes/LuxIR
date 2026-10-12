@@ -1,0 +1,115 @@
+ir_version "1"
+runtime_abi "none"
+export function numeric_umulh(Int64(x), Int64(y)) -> Int64:
+    Int64(v) = umulh(x, y)
+    return v
+end
+export function numeric_mulh(Int64(x), Int64(y)) -> Int64:
+    Int64(v) = mulh(x, y)
+    return v
+end
+export function numeric_clz32(Int32(x)) -> Int32:
+    Int32(v) = clz(x)
+    return v
+end
+export function numeric_ctz32(Int32(x)) -> Int32:
+    Int32(v) = ctz(x)
+    return v
+end
+export function numeric_popcount32(Int32(x)) -> Int32:
+    Int32(v) = popcount(x)
+    return v
+end
+export function numeric_clz64(Int64(x)) -> Int64:
+    Int64(v) = clz(x)
+    return v
+end
+export function numeric_ctz64(Int64(x)) -> Int64:
+    Int64(v) = ctz(x)
+    return v
+end
+export function numeric_popcount64(Int64(x)) -> Int64:
+    Int64(v) = popcount(x)
+    return v
+end
+export function numeric_sqrt32(Float32(x)) -> Float32:
+    Float32(v) = sqrt(x)
+    return v
+end
+export function numeric_sqrt64(Float64(x)) -> Float64:
+    Float64(v) = sqrt(x)
+    return v
+end
+export function numeric_stress(Int64(a), Int64(b), Int64(c), Int64(d), Int64(e), Int64(f), Int64(g), Int64(h)) -> Int64:
+    Int64(p) = umulh(a, b)
+    Int64(q) = mulh(c, d)
+    Int64(r) = umulh(e, e)
+    Int64(s) = mulh(f, -1)
+    Int64(t) = popcount(g)
+    Int64(u) = clz(h)
+    Int64(v) = ctz(h)
+    Int64(sum) = add(p, q)
+    Int64(sum) = add(sum, r)
+    Int64(sum) = add(sum, s)
+    Int64(sum) = add(sum, t)
+    Int64(sum) = add(sum, u)
+    Int64(sum) = add(sum, v)
+    return sum
+end
+
+export function numeric_bulk_high(Ptr(data), Int64(n)) -> Int64:
+    Int64(i) = 0
+    Int64(sum) = 0
+    goto test
+test:
+    Int32(more) = ult(i, n)
+    if more goto loop else done
+loop:
+    Int64(offset) = mul(i, 16)
+    Ptr(slot) = add(data, offset)
+    Int64(x) = load(slot)
+    Ptr(slot) = add(slot, 8)
+    Int64(y) = load(slot)
+    Int64(high) = umulh(x, y)
+    Int64(sum) = add(sum, high)
+    Int64(i) = add(i, 1)
+    goto test
+done:
+    return sum
+end
+
+export function numeric_bulk_high_fallback(Ptr(data), Int64(n)) -> Int64:
+    Int64(i) = 0
+    Int64(sum) = 0
+    goto test
+test:
+    Int32(more) = ult(i, n)
+    if more goto loop else done
+loop:
+    Int64(offset) = mul(i, 16)
+    Ptr(slot) = add(data, offset)
+    Int64(x) = load(slot)
+    Ptr(slot) = add(slot, 8)
+    Int64(y) = load(slot)
+    Int64(x0) = and(x, 4294967295)
+    Int64(x1) = shr(x, 32)
+    Int64(y0) = and(y, 4294967295)
+    Int64(y1) = shr(y, 32)
+    Int64(t) = mul(x0, y0)
+    Int64(carry) = shr(t, 32)
+    Int64(t) = mul(x1, y0)
+    Int64(t) = add(t, carry)
+    Int64(w1) = and(t, 4294967295)
+    Int64(w2) = shr(t, 32)
+    Int64(t) = mul(x0, y1)
+    Int64(t) = add(t, w1)
+    Int64(carry) = shr(t, 32)
+    Int64(high) = mul(x1, y1)
+    Int64(high) = add(high, w2)
+    Int64(high) = add(high, carry)
+    Int64(sum) = add(sum, high)
+    Int64(i) = add(i, 1)
+    goto test
+done:
+    return sum
+end
