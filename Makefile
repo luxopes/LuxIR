@@ -60,6 +60,7 @@ check-bitsets:
 
 check-runtime: c native
 	$(PYTHON) tests/build_driver.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/data_sections.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_relocate.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_tls.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/tls_entry.py --backend src/luxir --backend build/luxir

@@ -212,3 +212,23 @@ prvků, C/LSL assembler shodný pro šest targetů, 14 correctness kontrol.
 Numeric 4,622 ms C -O2 / 6,409 ms LuxIR, text 47,753 / 65,903 ms.
 Experimentální loop layout byl vyřazen pro neprokázaný přínos. Ověřený
 backend a self-host hash se nezměnily; tento commit přidává benchmark a TODO.
+
+## Oddělené ELF sekce — 12. 10. 2026
+
+Backend `-s` a driver vyřazují nepoužitá data, BSS, TLS a numerické
+literály podle relokací GNU linkeru. `tests/data_sections.py`: 36 kontrol
+pro C a LSL na každý Linux cíl, včetně callbacku uchovaného pointerem,
+transitivních dat, mrtvého pointerového cyklu, offsetů, běžného BSS a TLS
+inicializace/BSS. Explicitní sekce sdílí životnost a zůstávají společné.
+Kontrolní x86-64 obraz: 120 120 → 13 576 bajtů. ARM64 a RV64 skutečně
+spuštěny v QEMU; C/LSL binárky shodné. Dosavadních 30 build-driver kontrol
+na každý cíl také prošlo. Bez `-s` výstup dosavadního demo obrazu nezměněn.
+
+Obnovený toolchain: LSL 0.9.1 release compiler, 465/465 generovaných funkcí.
+Bootstrap 65,60 s. Povinný selfhost test s limitem 60 s skončil timeoutem;
+diagnosticky s limitem 90 s dokončeny dvě generace za 64,42 a 69,51 s,
+obě shodné se stage 1 (SHA256
+`1e5308aca51dfaea18c76636799a0513e1bd741ee392f814157dc666a4fdb3df`).
+Minutová brána v tomto prostředí tedy **neprošla**; výsledky staršího
+prostředí nejsou důkazem aktuálního výkonu. Protokol 108 kontrol a všechny
+základní programy/72 negativních případů C+LSL prošly.

@@ -32,6 +32,7 @@ jobs:
           python3 tests/runtime/run_startup.py --backend src/luxir
           python3 tests/runtime/run_io.py --backend src/luxir
           python3 tests/build_driver.py --backend src/luxir
+          python3 tests/data_sections.py --backend src/luxir
           python3 tests/runtime/run_relocate.py --backend src/luxir
           python3 tests/runtime/run_tls.py --backend src/luxir
           python3 tests/runtime/tls_entry.py --backend src/luxir
@@ -45,6 +46,7 @@ jobs:
           for target in arm64 rv64; do
             python3 tests/atomic_ir.py --target "$target" --backend src/luxir
             python3 tests/build_driver.py --target "$target" --backend src/luxir
+            python3 tests/data_sections.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_relocate.py --target "$target" --backend src/luxir
             python3 tests/numeric.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir

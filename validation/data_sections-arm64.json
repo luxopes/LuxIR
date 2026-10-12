@@ -1,0 +1,25 @@
+{
+  "target": "arm64",
+  "checks": 36,
+  "backends": [
+    {
+      "backend": "src/luxir",
+      "bytes": 66888,
+      "bytes_without_dce": 132472,
+      "sha256": "96d5a6379c124c6f6540ac0bd297889c95aa0347de04b72846b613e3cec9f310"
+    },
+    {
+      "backend": "build/luxir",
+      "bytes": 66888,
+      "bytes_without_dce": 132472,
+      "sha256": "96d5a6379c124c6f6540ac0bd297889c95aa0347de04b72846b613e3cec9f310"
+    }
+  ],
+  "binary_identical": true,
+  "data_tls_bss_literal_dce": true,
+  "transitive_pointer_and_callback_roots": true,
+  "explicit_sections_preserved": true,
+  "runner": [
+    "qemu-aarch64"
+  ]
+}

@@ -9,6 +9,7 @@ make check-runtime
 for target in arm64 rv64; do
     python3 tests/atomic_ir.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/build_driver.py --target "$target" --backend src/luxir --backend build/luxir
+    python3 tests/data_sections.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_relocate.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/numeric.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir --backend build/luxir

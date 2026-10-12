@@ -193,7 +193,8 @@ python3 tools/luxir_build.py --backend build/luxir -t amd64_sysv -o program prog
 
 Frontend dodá `main(argc,argv,envp) -> Int32` (nepoužité argumenty lze vynechat).
 Driver připojí raw luxrt, kernel entry, PIE relokace, RELRO a main TLS, sestaví
-statický PIE bez libc/loaderu a odstraní nepoužívané funkční sekce. Podporuje
+statický PIE bez libc/loaderu a odstraní nepoužívané funkce, data, TLS a
+numerické literály. Explicitní sekce frontendu zůstanou společné. Podporuje
 Linux amd64_sysv, arm64 a rv64; cross GNU binutils musejí být na PATH.
 Používá externí GNU as/ld a Python při sestavení. Hotová binárka je nepotřebuje.
 Nejde ještě o standardní managed runtime, libovolné libc/dlopen volání nebo

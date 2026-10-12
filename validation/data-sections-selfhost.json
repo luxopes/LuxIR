@@ -1,0 +1,17 @@
+{
+  "initial_sha256": "1e5308aca51dfaea18c76636799a0513e1bd741ee392f814157dc666a4fdb3df",
+  "generations": [
+    {
+      "generation": 2,
+      "seconds": 60.04227062899997,
+      "limit_seconds": 60,
+      "exit_code": "timeout",
+      "backend": "/workspace/scratch/602efea1b046/luxir/build/luxir",
+      "log": "/workspace/scratch/602efea1b046/luxir/build/selfhost/stage2.log"
+    }
+  ],
+  "complete": false,
+  "fixed_point": false,
+  "time_gate_passed": false,
+  "target": "amd64_sysv"
+}

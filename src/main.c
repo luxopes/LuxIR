@@ -6,6 +6,7 @@
 
 Target T;
 int pic;
+int splitsections;
 
 char debug['Z'+1] = {
 	['P'] = 0, /* parsing */
@@ -145,8 +146,11 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpVd:o:t:")) != -1)
+	while ((c = getopt(ac, av, "hspVd:o:t:")) != -1)
 		switch (c) {
+		case 's':
+			splitsections = 1;
+			break;
 		case 'p':
 			pic = 1;
 			break;
@@ -193,6 +197,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
+			fprintf(hf, "\t%-11s separate ELF function/data/literal sections\n", "-s");
 			fprintf(hf, "\t%-11s generate for a target among:\n", "-t <target>");
 			fprintf(hf, "\t%-11s ", "");
 			for (t=tlist, sep=""; *t; t++, sep=", ") {
@@ -205,6 +210,10 @@ main(int ac, char *av[])
 			exit(c != 'h');
 		}
 
+	if (splitsections && (T.apple || strcmp(T.name, "amd64_win") == 0)) {
+		fprintf(stderr, "-s requires an ELF target\n");
+		exit(1);
+	}
 	do {
 		f = av[optind];
 		if (!f || strcmp(f, "-") == 0) {

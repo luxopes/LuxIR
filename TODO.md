@@ -121,8 +121,11 @@ Windows a macOS (navíc):
   do RELRO a zachování existujícího outputu po neúspěšném překladu.
   Používá Python a GNU as/ld při sestavení; výsledná binárka je nepotřebuje.
   Není tím hotový managed runtime, vlastní object writer nebo linker.
-- [ ] Odstranění nepoužitých jednotlivých datových tabulek a litěrálů:
-  driver zatím rozdělí funkce, nikoli všechny datové sekce.
+- [x] Odstranění nepoužitých jednotlivých datových tabulek, BSS, TLS a
+  numerických literálů: ELF backend `-s`, driver a GNU ld `--gc-sections`.
+  Relokace zachovají živé řetězce pointerů i callbacky; explicitní sekce
+  frontendu zůstávají společné. Common symboly ponechány GNU linkeru.
+  Vlastní linker a vyřazování uvnitř explicitních sekcí tím hotové nejsou.
 
 ## Výstup objektů a linkování (bez binutils)
 

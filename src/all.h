@@ -634,6 +634,7 @@ void pe_emitfin(FILE *);
 
 /* main.c: explicit static-PIE address mode (currently rv64). */
 extern int pic;
+extern int splitsections;
 
 /* Fixed-register target lowering, preserving explicit SC memory barriers. */
 void atomicisel(Ins, Fn *, int [6]);

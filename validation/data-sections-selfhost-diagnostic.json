@@ -1,0 +1,30 @@
+{
+  "initial_sha256": "1e5308aca51dfaea18c76636799a0513e1bd741ee392f814157dc666a4fdb3df",
+  "generations": [
+    {
+      "generation": 2,
+      "seconds": 64.421232326,
+      "limit_seconds": 90.0,
+      "exit_code": 0,
+      "backend": "/workspace/scratch/602efea1b046/luxir/build/luxir",
+      "log": "/workspace/scratch/602efea1b046/luxir/build/selfhost/stage2.log",
+      "sha256": "1e5308aca51dfaea18c76636799a0513e1bd741ee392f814157dc666a4fdb3df"
+    },
+    {
+      "generation": 3,
+      "seconds": 69.50687078500005,
+      "limit_seconds": 90.0,
+      "exit_code": 0,
+      "backend": "/workspace/scratch/602efea1b046/luxir/build/selfhost/luxir-stage2",
+      "log": "/workspace/scratch/602efea1b046/luxir/build/selfhost/stage3.log",
+      "sha256": "1e5308aca51dfaea18c76636799a0513e1bd741ee392f814157dc666a4fdb3df"
+    }
+  ],
+  "complete": true,
+  "fixed_point": true,
+  "time_gate_passed": true,
+  "target": "amd64_sysv",
+  "required_limit_seconds": 60,
+  "required_time_gate_passed": false,
+  "note": "Diagnostic completion with 90-second timeout; the required 60-second gate failed separately."
+}

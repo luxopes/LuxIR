@@ -1,0 +1,23 @@
+{
+  "target": "amd64_sysv",
+  "checks": 36,
+  "backends": [
+    {
+      "backend": "src/luxir",
+      "bytes": 13576,
+      "bytes_without_dce": 120120,
+      "sha256": "88c1ef7db06986991a9fd5432068042b69b9ff153347d1029059af620b0f15a1"
+    },
+    {
+      "backend": "build/luxir",
+      "bytes": 13576,
+      "bytes_without_dce": 120120,
+      "sha256": "88c1ef7db06986991a9fd5432068042b69b9ff153347d1029059af620b0f15a1"
+    }
+  ],
+  "binary_identical": true,
+  "data_tls_bss_literal_dce": true,
+  "transitive_pointer_and_callback_roots": true,
+  "explicit_sections_preserved": true,
+  "runner": []
+}

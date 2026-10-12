@@ -345,3 +345,18 @@ nutná externí atomická knihovna, ARM LSE ani RV Zacas. CAS zatím používá
 soukromý stack packet k převodu tří operandů do interní dvouoperandové IR
 reprezentace. Výsledná smyčka/CMPXCHG je inline; nejde o runtime volání ani
 alokaci haldy. Minimalizace CAS pomocných přesunů zůstává optimalizační práce.
+
+## Oddělené sekce ELF (`-s`)
+
+Backend s `-s` vytvoří samostatnou ELF sekci pro každou běžnou funkci,
+datovou definici, BSS, TLS a numerický literál. GNU linker s
+`--gc-sections` je odstraní podle dosažitelnosti relokací z entrypointu
+a dalších kořenů určených linkerem. `export` sám o sobě není kořen
+statického programu: nepoužitý exportovaný symbol může být odstraněn.
+
+Explicitní `section` zůstává přesně podle frontendu; všechny její položky
+sdílejí životnost. `common` se nadále emituje jako `.comm` a rozhoduje
+o něm linker. Adresy získané numericky, bez symbolické relokace, nejsou
+kořeny: taková data musí uživatel uchovat linkerovým skriptem. Bez `-s`
+je dosavadní formát assembleru zachován. Volba platí jen pro ELF cíle
+`amd64_sysv`, `arm64` a `rv64`; ostatní cíle vrátí diagnostiku.

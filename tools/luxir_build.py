@@ -31,7 +31,7 @@ failed:
 end
 '''
 def sections(assembly,module,target,gates=False):
-    """Give each function a section so ld can discard unreferenced helpers."""
+    """Split assembler gates; backend -s handles IR linkage precisely."""
     kind='%progbits' if target=='arm64' else '@progbits';counter=0
     def replace(m):
         nonlocal counter
@@ -40,6 +40,7 @@ def sections(assembly,module,target,gates=False):
         return section+'\n'+m.group(0) if gates else section
     pattern=r'(?m)^\.globl\s+\w+\s*$' if gates else r'(?m)^\.text$'
     return re.sub(pattern,replace,assembly)
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('inputs',type=Path,nargs='+');ap.add_argument('-o','--output',type=Path,required=True)
@@ -60,7 +61,7 @@ def main():
         tmp=Path(tmp);adapter=tmp/'entry.lir';adapter.write_text(ADAPTER.replace('ENTRY',a.entry))
         objects=[]
         for n,source in enumerate(a.inputs+[adapter]+sources):
-            cmd=[str(a.backend.resolve()),'-t',a.target]+(['-p'] if a.target=='rv64' else [])+[str(source.resolve())]
+            cmd=[str(a.backend.resolve()),'-t',a.target,'-s']+(['-p'] if a.target=='rv64' else [])+[str(source.resolve())]
             r=subprocess.run(cmd,capture_output=True,timeout=60)
             if r.returncode:raise SystemExit(r.stderr.decode(errors='replace'))
             asm=tmp/(str(n)+'.s');asm.write_text(sections(r.stdout.decode(),str(n),a.target));obj=asm.with_suffix('.o')

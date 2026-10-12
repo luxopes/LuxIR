@@ -18,6 +18,7 @@ emitlnk(char *n, Lnk *l, int s, FILE *f)
 		[1][SecBss] = ".section .tbss,\"awT\"",
 	};
 	char *pfx, *sfx;
+	static uint sectionid;
 
 	pfx = n[0] == '"' ? "" : T.assym;
 	sfx = "";
@@ -42,6 +43,13 @@ emitlnk(char *n, Lnk *l, int s, FILE *f)
 		fprintf(f, ".section %s", l->sec);
 		if (l->secf)
 			fprintf(f, ",%s", l->secf);
+	} else if (splitsections) {
+		fprintf(f, ".section %s.luxir_%u,\"%s\",%s%s",
+			l->thread ? (s == SecBss ? ".tbss" : ".tdata") :
+			(s == SecText ? ".text" : s == SecBss ? ".bss" : ".data"),
+			sectionid++, s == SecText ? "ax" : l->thread ? "awT" : "aw",
+			strcmp(T.name, "arm64") == 0 ? "%" : "@",
+			s == SecBss ? "nobits" : "progbits");
 	} else
 		fputs(sec[l->thread != 0][s], f);
 	fputc('\n', f);
@@ -167,11 +175,15 @@ emitfin(FILE *f, char *sec[3])
 	for (lg=4; lg>=2; lg--)
 		for (b=stash, i=0; b; b=b->link, i++) {
 			if (b->size == (1<<lg)) {
+				if (splitsections)
+					fprintf(f, ".section .rodata.luxir_fp%d,\"a\",%sprogbits\n",
+						i, strcmp(T.name, "arm64") == 0 ? "%" : "@");
+				else
+					fprintf(f, ".section %s\n", sec[lg-2]);
 				fprintf(f,
-					".section %s\n"
 					".p2align %d\n"
 					"%sfp%d:",
-					sec[lg-2], lg, T.asloc, i
+					lg, T.asloc, i
 				);
 				if (lg == 4)
 					fprintf(f,
