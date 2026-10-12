@@ -1,0 +1,137 @@
+{
+  "cpu": 0,
+  "rows": 100000,
+  "columns": 100,
+  "elements": 10000000,
+  "trials": 7,
+  "lsl_end_to_end": false,
+  "parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "modes": {
+    "numeric": {
+      "samples_seconds": {
+        "C-O2": [
+          0.004512146,
+          0.00475233,
+          0.004490664,
+          0.004364066,
+          0.004168869,
+          0.004230239,
+          0.004266783
+        ],
+        "C-O3": [
+          0.004392188,
+          0.004984153,
+          0.004352018,
+          0.004518805,
+          0.004421162,
+          0.004868903,
+          0.004108849
+        ],
+        "C-O3-native": [
+          0.002713859,
+          0.002691566,
+          0.002482437,
+          0.003227878,
+          0.002401698,
+          0.002765355,
+          0.003007903
+        ],
+        "LuxIR": [
+          0.005716093,
+          0.005739338,
+          0.005295022,
+          0.00645797,
+          0.006282361,
+          0.005526354,
+          0.005967665
+        ]
+      },
+      "medians_seconds": {
+        "C-O2": 0.004364066,
+        "C-O3": 0.004421162,
+        "C-O3-native": 0.002713859,
+        "LuxIR": 0.005739338
+      },
+      "checksum": 9523478,
+      "text_bytes": 34295316,
+      "LuxIR_over_C_O2": 1.3151354722866246,
+      "LuxIR_over_C_O3_native": 2.114825420185795
+    },
+    "text": {
+      "samples_seconds": {
+        "C-O2": [
+          0.046571465,
+          0.046690091,
+          0.045888026,
+          0.047984263,
+          0.04640479,
+          0.050120815,
+          0.049557704
+        ],
+        "C-O3": [
+          0.047625292,
+          0.045969947,
+          0.046620157,
+          0.04712991,
+          0.048094535,
+          0.051069587,
+          0.048293025
+        ],
+        "C-O3-native": [
+          0.044742103,
+          0.044783955,
+          0.050274426,
+          0.045516017,
+          0.047228126,
+          0.04865479,
+          0.045629331
+        ],
+        "LuxIR": [
+          0.065141217,
+          0.066265087,
+          0.06656472,
+          0.068925527,
+          0.067751822,
+          0.070177311,
+          0.065545739
+        ]
+      },
+      "medians_seconds": {
+        "C-O2": 0.046690091,
+        "C-O3": 0.047625292,
+        "C-O3-native": 0.045629331,
+        "LuxIR": 0.06656472
+      },
+      "checksum": 9523478,
+      "text_bytes": 34295316,
+      "LuxIR_over_C_O2": 1.4256712414632045,
+      "LuxIR_over_C_O3_native": 1.4588142876782477
+    }
+  },
+  "disassembly": {
+    "C-O2": {
+      "vector_registers": false,
+      "text": "\n/tmp/luxir-opera-m7_4u5of/C-O2.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <opera_numeric>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\t48 85 f6             \ttest   %rsi,%rsi\n   7:\t74 7a                \tje     83 <opera_numeric+0x83>\n   9:\t4c 8d 1c d5 00 00 00 \tlea    0x0(,%rdx,8),%r11\n  10:\t00 \n  11:\t45 31 c9             \txor    %r9d,%r9d\n  14:\t45 31 d2             \txor    %r10d,%r10d\n  17:\t66 0f 1f 84 00 00 00 \tnopw   0x0(%rax,%rax,1)\n  1e:\t00 00 \n  20:\t31 c9                \txor    %ecx,%ecx\n  22:\t48 c7 c0 9b ff ff ff \tmov    $0xffffffffffffff9b,%rax\n  29:\t48 85 d2             \ttest   %rdx,%rdx\n  2c:\t74 45                \tje     73 <opera_numeric+0x73>\n  2e:\tf6 c2 01             \ttest   $0x1,%dl\n  31:\t74 1d                \tje     50 <opera_numeric+0x50>\n  33:\t48 8b 0f             \tmov    (%rdi),%rcx\n  36:\t48 39 c8             \tcmp    %rcx,%rax\n  39:\t48 0f 4c c1          \tcmovl  %rcx,%rax\n  3d:\tb9 01 00 00 00       \tmov    $0x1,%ecx\n  42:\t48 83 fa 01          \tcmp    $0x1,%rdx\n  46:\t74 28                \tje     70 <opera_numeric+0x70>\n  48:\t0f 1f 84 00 00 00 00 \tnopl   0x0(%rax,%rax,1)\n  4f:\t00 \n  50:\t4c 8b 04 cf          \tmov    (%rdi,%rcx,8),%r8\n  54:\t4c 39 c0             \tcmp    %r8,%rax\n  57:\t49 0f 4c c0          \tcmovl  %r8,%rax\n  5b:\t4c 8b 44 cf 08       \tmov    0x8(%rdi,%rcx,8),%r8\n  60:\t4c 39 c0             \tcmp    %r8,%rax\n  63:\t49 0f 4c c0          \tcmovl  %r8,%rax\n  67:\t48 83 c1 02          \tadd    $0x2,%rcx\n  6b:\t48 39 ca             \tcmp    %rcx,%rdx\n  6e:\t75 e0                \tjne    50 <opera_numeric+0x50>\n  70:\t4c 01 df             \tadd    %r11,%rdi\n  73:\t49 83 c1 01          \tadd    $0x1,%r9\n  77:\t49 01 c2             \tadd    %rax,%r10\n  7a:\t4c 39 ce             \tcmp    %r9,%rsi\n  7d:\t75 a1                \tjne    20 <opera_numeric+0x20>\n  7f:\t4c 89 d0             \tmov    %r10,%rax\n  82:\tc3                   \tret\n  83:\t45 31 d2             \txor    %r10d,%r10d\n  86:\t4c 89 d0             \tmov    %r10,%rax\n  89:\tc3                   \tret\n"
+    },
+    "C-O3": {
+      "vector_registers": false,
+      "text": "\n/tmp/luxir-opera-m7_4u5of/C-O3.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <opera_numeric>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\t48 85 f6             \ttest   %rsi,%rsi\n   7:\t74 7a                \tje     83 <opera_numeric+0x83>\n   9:\t4c 8d 1c d5 00 00 00 \tlea    0x0(,%rdx,8),%r11\n  10:\t00 \n  11:\t45 31 c9             \txor    %r9d,%r9d\n  14:\t45 31 d2             \txor    %r10d,%r10d\n  17:\t66 0f 1f 84 00 00 00 \tnopw   0x0(%rax,%rax,1)\n  1e:\t00 00 \n  20:\t31 c9                \txor    %ecx,%ecx\n  22:\t48 c7 c0 9b ff ff ff \tmov    $0xffffffffffffff9b,%rax\n  29:\t48 85 d2             \ttest   %rdx,%rdx\n  2c:\t74 45                \tje     73 <opera_numeric+0x73>\n  2e:\tf6 c2 01             \ttest   $0x1,%dl\n  31:\t74 1d                \tje     50 <opera_numeric+0x50>\n  33:\t48 8b 0f             \tmov    (%rdi),%rcx\n  36:\t48 39 c8             \tcmp    %rcx,%rax\n  39:\t48 0f 4c c1          \tcmovl  %rcx,%rax\n  3d:\tb9 01 00 00 00       \tmov    $0x1,%ecx\n  42:\t48 83 fa 01          \tcmp    $0x1,%rdx\n  46:\t74 28                \tje     70 <opera_numeric+0x70>\n  48:\t0f 1f 84 00 00 00 00 \tnopl   0x0(%rax,%rax,1)\n  4f:\t00 \n  50:\t4c 8b 04 cf          \tmov    (%rdi,%rcx,8),%r8\n  54:\t4c 39 c0             \tcmp    %r8,%rax\n  57:\t49 0f 4c c0          \tcmovl  %r8,%rax\n  5b:\t4c 8b 44 cf 08       \tmov    0x8(%rdi,%rcx,8),%r8\n  60:\t4c 39 c0             \tcmp    %r8,%rax\n  63:\t49 0f 4c c0          \tcmovl  %r8,%rax\n  67:\t48 83 c1 02          \tadd    $0x2,%rcx\n  6b:\t48 39 ca             \tcmp    %rcx,%rdx\n  6e:\t75 e0                \tjne    50 <opera_numeric+0x50>\n  70:\t4c 01 df             \tadd    %r11,%rdi\n  73:\t49 83 c1 01          \tadd    $0x1,%r9\n  77:\t49 01 c2             \tadd    %rax,%r10\n  7a:\t4c 39 ce             \tcmp    %r9,%rsi\n  7d:\t75 a1                \tjne    20 <opera_numeric+0x20>\n  7f:\t4c 89 d0             \tmov    %r10,%rax\n  82:\tc3                   \tret\n  83:\t45 31 d2             \txor    %r10d,%r10d\n  86:\t4c 89 d0             \tmov    %r10,%rax\n  89:\tc3                   \tret\n"
+    },
+    "C-O3-native": {
+      "vector_registers": true,
+      "text": "\n/tmp/luxir-opera-m7_4u5of/C-O3-native.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <opera_numeric>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\t49 89 f1             \tmov    %rsi,%r9\n   7:\t48 85 f6             \ttest   %rsi,%rsi\n   a:\t0f 84 85 01 00 00    \tje     195 <opera_numeric+0x195>\n  10:\t55                   \tpush   %rbp\n  11:\t48 89 f9             \tmov    %rdi,%rcx\n  14:\t49 89 d3             \tmov    %rdx,%r11\n  17:\t48 89 d7             \tmov    %rdx,%rdi\n  1a:\t48 89 e5             \tmov    %rsp,%rbp\n  1d:\t49 83 e3 f8          \tand    $0xfffffffffffffff8,%r11\n  21:\t41 57                \tpush   %r15\n  23:\t41 56                \tpush   %r14\n  25:\t48 c1 ef 03          \tshr    $0x3,%rdi\n  29:\tc5 e9 ef d2          \tvpxor  %xmm2,%xmm2,%xmm2\n  2d:\t41 55                \tpush   %r13\n  2f:\t41 54                \tpush   %r12\n  31:\t53                   \tpush   %rbx\n  32:\t48 89 d3             \tmov    %rdx,%rbx\n  35:\t48 89 d6             \tmov    %rdx,%rsi\n  38:\t4c 8d 52 ff          \tlea    -0x1(%rdx),%r10\n  3c:\t4e 8d 3c dd 00 00 00 \tlea    0x0(,%r11,8),%r15\n  43:\t00 \n  44:\t4c 8d 34 d5 00 00 00 \tlea    0x0(,%rdx,8),%r14\n  4b:\t00 \n  4c:\t45 31 c0             \txor    %r8d,%r8d\n  4f:\t49 c7 c4 9b ff ff ff \tmov    $0xffffffffffffff9b,%r12\n  56:\t83 e3 07             \tand    $0x7,%ebx\n  59:\t0f 1f 80 00 00 00 00 \tnopl   0x0(%rax)\n  60:\tc5 f9 6f 05 00 00 00 \tvmovdqa 0x0(%rip),%xmm0        # 68 <opera_numeric+0x68>\n  67:\t00 \n  68:\t48 85 f6             \ttest   %rsi,%rsi\n  6b:\t0f 84 ef 00 00 00    \tje     160 <opera_numeric+0x160>\n  71:\t49 83 fa 06          \tcmp    $0x6,%r10\n  75:\t0f 86 08 01 00 00    \tjbe    183 <opera_numeric+0x183>\n  7b:\t62 d2 fd 48 7c c4    \tvpbroadcastq %r12,%zmm0\n  81:\t31 c0                \txor    %eax,%eax\n  83:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  8a:\t00 00 00 00 \n  8e:\t66 90                \txchg   %ax,%ax\n  90:\t48 89 c2             \tmov    %rax,%rdx\n  93:\t48 ff c0             \tinc    %rax\n  96:\t48 c1 e2 06          \tshl    $0x6,%rdx\n  9a:\t62 f2 fd 48 3d 04 11 \tvpmaxsq (%rcx,%rdx,1),%zmm0,%zmm0\n  a1:\t48 39 c7             \tcmp    %rax,%rdi\n  a4:\t75 ea                \tjne    90 <opera_numeric+0x90>\n  a6:\t62 f3 fd 48 3b c1 01 \tvextracti64x4 $0x1,%zmm0,%ymm1\n  ad:\t4a 8d 14 39          \tlea    (%rcx,%r15,1),%rdx\n  b1:\t62 f2 f5 28 3d c8    \tvpmaxsq %ymm0,%ymm1,%ymm1\n  b7:\t62 f3 fd 28 39 c8 01 \tvextracti64x2 $0x1,%ymm1,%xmm0\n  be:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n  c4:\tc5 f1 73 d8 08       \tvpsrldq $0x8,%xmm0,%xmm1\n  c9:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n  cf:\t48 85 db             \ttest   %rbx,%rbx\n  d2:\t0f 84 85 00 00 00    \tje     15d <opera_numeric+0x15d>\n  d8:\t4c 89 d8             \tmov    %r11,%rax\n  db:\tc5 fa 7e 0a          \tvmovq  (%rdx),%xmm1\n  df:\t4c 8d 68 01          \tlea    0x1(%rax),%r13\n  e3:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n  e9:\t49 39 f5             \tcmp    %rsi,%r13\n  ec:\t73 6f                \tjae    15d <opera_numeric+0x15d>\n  ee:\tc5 fa 7e 4a 08       \tvmovq  0x8(%rdx),%xmm1\n  f3:\t4c 8d 68 02          \tlea    0x2(%rax),%r13\n  f7:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n  fd:\t49 39 f5             \tcmp    %rsi,%r13\n 100:\t73 5b                \tjae    15d <opera_numeric+0x15d>\n 102:\tc5 fa 7e 4a 10       \tvmovq  0x10(%rdx),%xmm1\n 107:\t4c 8d 68 03          \tlea    0x3(%rax),%r13\n 10b:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n 111:\t49 39 f5             \tcmp    %rsi,%r13\n 114:\t73 47                \tjae    15d <opera_numeric+0x15d>\n 116:\tc5 fa 7e 4a 18       \tvmovq  0x18(%rdx),%xmm1\n 11b:\t4c 8d 68 04          \tlea    0x4(%rax),%r13\n 11f:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n 125:\t49 39 f5             \tcmp    %rsi,%r13\n 128:\t73 33                \tjae    15d <opera_numeric+0x15d>\n 12a:\tc5 fa 7e 4a 20       \tvmovq  0x20(%rdx),%xmm1\n 12f:\t4c 8d 68 05          \tlea    0x5(%rax),%r13\n 133:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n 139:\t49 39 f5             \tcmp    %rsi,%r13\n 13c:\t73 1f                \tjae    15d <opera_numeric+0x15d>\n 13e:\tc5 fa 7e 4a 28       \tvmovq  0x28(%rdx),%xmm1\n 143:\t48 83 c0 06          \tadd    $0x6,%rax\n 147:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n 14d:\t48 39 f0             \tcmp    %rsi,%rax\n 150:\t73 0b                \tjae    15d <opera_numeric+0x15d>\n 152:\tc5 fa 7e 4a 30       \tvmovq  0x30(%rdx),%xmm1\n 157:\t62 f2 fd 08 3d c1    \tvpmaxsq %xmm1,%xmm0,%xmm0\n 15d:\t4c 01 f1             \tadd    %r14,%rcx\n 160:\tc5 e9 d4 d0          \tvpaddq %xmm0,%xmm2,%xmm2\n 164:\t49 ff c0             \tinc    %r8\n 167:\tc4 e1 f9 7e d0       \tvmovq  %xmm2,%rax\n 16c:\t4d 39 c1             \tcmp    %r8,%r9\n 16f:\t0f 85 eb fe ff ff    \tjne    60 <opera_numeric+0x60>\n 175:\tc5 f8 77             \tvzeroupper\n 178:\t5b                   \tpop    %rbx\n 179:\t41 5c                \tpop    %r12\n 17b:\t41 5d                \tpop    %r13\n 17d:\t41 5e                \tpop    %r14\n 17f:\t41 5f                \tpop    %r15\n 181:\t5d                   \tpop    %rbp\n 182:\tc3                   \tret\n 183:\tc5 f9 6f 05 00 00 00 \tvmovdqa 0x0(%rip),%xmm0        # 18b <opera_numeric+0x18b>\n 18a:\t00 \n 18b:\t48 89 ca             \tmov    %rcx,%rdx\n 18e:\t31 c0                \txor    %eax,%eax\n 190:\te9 46 ff ff ff       \tjmp    db <opera_numeric+0xdb>\n 195:\t31 c0                \txor    %eax,%eax\n 197:\tc3                   \tret\n"
+    },
+    "LuxIR": {
+      "vector_registers": false,
+      "text": "\n/tmp/luxir-opera-m7_4u5of/LuxIR.o:     file format elf64-x86-64\n\n\nDisassembly of section .text:\n\n0000000000000000 <opera_numeric>:\n   0:\tf3 0f 1e fa          \tendbr64\n   4:\t41 b8 00 00 00 00    \tmov    $0x0,%r8d\n   a:\t41 b9 00 00 00 00    \tmov    $0x0,%r9d\n  10:\t4c 39 c6             \tcmp    %r8,%rsi\n  13:\t74 3d                \tje     52 <opera_numeric+0x52>\n  15:\t48 c7 c0 9b ff ff ff \tmov    $0xffffffffffffff9b,%rax\n  1c:\tb9 00 00 00 00       \tmov    $0x0,%ecx\n  21:\t66 66 2e 0f 1f 84 00 \tdata16 cs nopw 0x0(%rax,%rax,1)\n  28:\t00 00 00 00 \n  2c:\t0f 1f 40 00          \tnopl   0x0(%rax)\n  30:\t48 39 ca             \tcmp    %rcx,%rdx\n  33:\t74 14                \tje     49 <opera_numeric+0x49>\n  35:\t4c 8b 17             \tmov    (%rdi),%r10\n  38:\t49 39 c2             \tcmp    %rax,%r10\n  3b:\t49 0f 4f c2          \tcmovg  %r10,%rax\n  3f:\t48 83 c1 01          \tadd    $0x1,%rcx\n  43:\t48 83 c7 08          \tadd    $0x8,%rdi\n  47:\teb e7                \tjmp    30 <opera_numeric+0x30>\n  49:\t49 01 c1             \tadd    %rax,%r9\n  4c:\t49 83 c0 01          \tadd    $0x1,%r8\n  50:\teb be                \tjmp    10 <opera_numeric+0x10>\n  52:\t4c 89 c8             \tmov    %r9,%rax\n  55:\tc3                   \tret\n"
+    }
+  },
+  "correctness": "14 opera correctness checks passed"
+}

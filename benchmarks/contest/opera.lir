@@ -1,0 +1,125 @@
+ir_version "1"
+runtime_abi "none"
+# Same bounded raw-memory contracts as opera.c. This is NOT LSL end-to-end.
+export function opera_numeric(Ptr(values), Int64(rows), Int64(columns)) -> Int64:
+    Int64(row) = 0
+    Int64(total) = 0
+    goto rows
+rows:
+    Int32(done) = eq(row, rows)
+    if done goto finish else begin
+begin:
+    Int64(best) = -101
+    Int64(column) = 0
+    goto columns
+columns:
+    Int32(done) = eq(column, columns)
+    if done goto next else value
+value:
+    Int64(value) = load(values)
+    Ptr(values) = add(values, 8)
+    Int32(better) = gt(value, best)
+    if better goto update else advance
+update:
+    Int64(best) = value
+    goto advance
+advance:
+    Int64(column) = add(column, 1)
+    goto columns
+next:
+    Int64(total) = add(total, best)
+    Int64(row) = add(row, 1)
+    goto rows
+finish:
+    return total
+end
+export function opera_text(Ptr(text), Int64(length), Int64(rows), Int64(columns)) -> Int64:
+    Int64(index) = 0
+    Int64(row) = 0
+    Int64(total) = 0
+    goto rows
+rows:
+    Int32(done) = eq(row, rows)
+    if done goto finish else begin
+begin:
+    Int64(best) = -101
+    Int64(column) = 0
+    goto columns
+columns:
+    Int32(done) = eq(column, columns)
+    if done goto next else whitespace
+whitespace:
+    Int32(eof) = eq(index, length)
+    if eof goto error else byte
+byte:
+    Ptr(at) = add(text, index)
+    Int32(byte) = load_u8(at)
+    Int32(space) = eq(byte, 32)
+    Int32(low) = uge(byte, 9)
+    Int32(high) = ule(byte, 13)
+    Int32(control) = and(low, high)
+    Int32(blank) = or(space, control)
+    if blank goto skip else sign
+skip:
+    Int64(index) = add(index, 1)
+    goto whitespace
+sign:
+    Int32(negative) = eq(byte, 45)
+    if negative goto minus else init
+minus:
+    Int64(index) = add(index, 1)
+    goto init
+init:
+    Int32(value) = 0
+    Int32(digits) = 0
+    goto digits
+digits:
+    Int32(eof) = eq(index, length)
+    if eof goto number else digit_byte
+digit_byte:
+    Ptr(at) = add(text, index)
+    Int32(byte) = load_u8(at)
+    Int32(digit) = sub(byte, 48)
+    Int32(valid) = ule(digit, 9)
+    if valid goto accumulate else delimiter
+accumulate:
+    Int32(value) = mul(value, 10)
+    Int32(value) = add(value, digit)
+    Int32(digits) = add(digits, 1)
+    Int64(index) = add(index, 1)
+    Int32(overflow) = ugt(value, 100)
+    if overflow goto error else digits
+delimiter:
+    Int32(space) = eq(byte, 32)
+    Int32(low) = uge(byte, 9)
+    Int32(high) = ule(byte, 13)
+    Int32(control) = and(low, high)
+    Int32(blank) = or(space, control)
+    if blank goto number else error
+number:
+    Int32(empty) = eq(digits, 0)
+    if empty goto error else widen
+widen:
+    Int64(signed_value) = zext32(value)
+    if negative goto negate else compare
+negate:
+    Int64(signed_value) = sub(0, signed_value)
+    goto compare
+compare:
+    Int32(better) = gt(signed_value, best)
+    if better goto update else advance
+update:
+    Int64(best) = signed_value
+    goto advance
+advance:
+    Int64(column) = add(column, 1)
+    goto columns
+next:
+    Int64(total) = add(total, best)
+    Int64(row) = add(row, 1)
+    goto rows
+finish:
+    return total
+error:
+    return -9223372036854775808
+end

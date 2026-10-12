@@ -192,3 +192,11 @@ qemu-riscv64 ani Wine; skutečný macOS/Windows není dostupný. To je blokér
 konkrétní platformní/integrační akceptace, nikoli tvrzení, že zbývající
 implementace už existují. Přesný GC, kontejnery/tagované hodnoty, Float
 převody, assembler/linker a optimalizační průchody stále vyžadují vývoj.
+
+## Další soutěžní benchmark — opery
+
+Viz `benchmarks/contest/README.md` a `results/final.json`: 10 milionů Int64
+prvků, C/LSL assembler shodný pro šest targetů, 14 correctness kontrol.
+Numeric 4,622 ms C -O2 / 6,409 ms LuxIR, text 47,753 / 65,903 ms.
+Experimentální loop layout byl vyřazen pro neprokázaný přínos. Ověřený
+backend a self-host hash se nezměnily; tento commit přidává benchmark a TODO.

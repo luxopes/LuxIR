@@ -176,6 +176,10 @@ zastávek a `IntArray` místo slovníků: 1,48 s. Cíl: řetězcová verze nejv�
   `qbe_emit` v LSL. Dále LICM, strength reduction a odstranění kontrol mezí.
 - [ ] Propagace konstant a specializace přes volání (dnes guarded
   specializace ve frontendu LSL), odstranění mrtvých větví.
+- [ ] Rozvíjení redukčních smyček a vektorizace: nový kontrolovaný opera
+  benchmark `benchmarks/contest/` potvrzuje scalar/unroll/SIMD rezervu.
+  Backend numeric 1,39× a text parse 1,38× C -O2; není to LSL end-to-end.
+  Samotná změna block layoutu nepomohla a byla vyřazena.
 - [ ] Ke každé optimalizaci: diferenční test proti verzi bez ní a benchmark LSL.
 
 ## Cíle a testy
