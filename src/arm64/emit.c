@@ -53,6 +53,8 @@ static struct {
 	{ Oshl,    Ki, "lsl %=, %0, %1" },
 	{ Omul,    Ki, "mul %=, %0, %1" },
 	{ Omul,    Ka, "fmul %=, %0, %1" },
+	{ Oaload,   Ki, "dmb ish\n\tldar %=, [%L0]\n\tdmb ish" },
+	{ Oastore,  Ki, "dmb ish\n\tstlr %1, [%L0]\n\tdmb ish" },
 	{ Osqrt,   Ka, "fsqrt %=, %0" },
 	{ Oumulh,  Kl, "umulh %=, %0, %1" },
 	{ Omulh,   Kl, "smulh %=, %0, %1" },
@@ -388,6 +390,7 @@ fixarg(Ref *pr, int sz, int t, E *e)
 static void
 emitins(Ins *i, E *e)
 {
+	static int atomiclabel;
 	char *l, *p, *rn;
 	uint64_t s;
 	int o, t;
@@ -395,6 +398,31 @@ emitins(Ins *i, E *e)
 	Con *c;
 
 	switch (i->op) {
+	case Oafence:
+		fputs("\tdmb ish\n", e->f);
+		break;
+	case Oaadd:
+	case Oaxchg:
+	case Oncas:
+		if (i->op == Oncas)
+			i->to = TMP(R0);
+		fprintf(e->f, "\tdmb ish\n%satomic%d:\n", T.asloc, atomiclabel);
+		emitf("ldaxr %=, [%L0]", i, e);
+		if (i->op == Oncas) {
+			emitf(i->cls == Kw ? "cmp %=, w1" : "cmp %=, x1", i, e);
+			fprintf(e->f, "\tb.ne %satomic%d\n", T.asloc, atomiclabel+1);
+			emitf(i->cls == Kw ? "stlxr w4, w2, [%L0]" : "stlxr w4, x2, [%L0]", i, e);
+		} else if (i->op == Oaadd) {
+			emitf(i->cls == Kw ? "add w1, %=, %1" : "add x1, %=, %1", i, e);
+			emitf(i->cls == Kw ? "stlxr w4, w1, [%L0]" : "stlxr w4, x1, [%L0]", i, e);
+		} else
+			emitf("stlxr w4, %1, [%L0]", i, e);
+		fprintf(e->f, "\tcbnz w4, %satomic%d\n", T.asloc, atomiclabel);
+		if (i->op == Oncas)
+			fprintf(e->f, "%satomic%d:\n\tclrex\n", T.asloc, atomiclabel+1);
+		fputs("\tdmb ish\n", e->f);
+		atomiclabel += 2;
+		break;
 	default:
 		if (isload(i->op))
 			fixarg(&i->arg[0], loadsz(i), IP1, e);

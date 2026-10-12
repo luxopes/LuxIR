@@ -200,6 +200,17 @@ callable(Ref r, Fn *fn)
 static void
 sel(Ins i, Fn *fn)
 {
+	if (isatomic(i.op)) {
+		int regs[6] = {R0, R1, R2, R3, R4, R5};
+		Ins *end = curi, *a;
+		atomicisel(i, fn, regs);
+		for (a=curi; a<end; a++) {
+			fixarg(&a->arg[0], argcls(a, 0), 0, fn);
+			fixarg(&a->arg[1], argcls(a, 1), 0, fn);
+		}
+		return;
+	}
+
 	Ref *iarg;
 	Ins *i0;
 	int ck, cc;

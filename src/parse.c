@@ -202,6 +202,7 @@ static char *pseudoname[NPseudo] = {
 /* přímé instrukce: jméno v LuxIR a operace backendu */
 static char *opname[] = {
 	"add", "sub", "neg", "div", "rem", "udiv", "urem", "mul", "sqrt", "umulh", "mulh", "clz", "ctz", "popcount",
+	"atomic_load", "atomic_store", "atomic_add", "atomic_xchg", "atomic_cas", "atomic_fence",
 	"and", "or", "xor", "sar", "shr", "shl", "copy",
 	"load", "load_i8", "load_u8", "load_i16", "load_u16",
 	"load_i32", "load_u32",
@@ -213,6 +214,7 @@ static char *opname[] = {
 };
 static int opcode[] = {
 	Oadd, Osub, Oneg, Odiv, Orem, Oudiv, Ourem, Omul, Osqrt, Oumulh, Omulh, Oclz, Octz, Opopcount,
+	Oaload, Oastore, Oaadd, Oaxchg, Oacas, Oafence,
 	Oand, Oor, Oxor, Osar, Oshr, Oshl, Ocopy,
 	Oload, Oloadsb, Oloadub, Oloadsh, Oloaduh,
 	Oloadsw, Oloaduw,
@@ -1325,8 +1327,8 @@ nopds(Opd *o, int max)
 static void
 parseop(int w, Ref r, int k)
 {
-	Opd o[2];
-	Ref a[2];
+	Opd o[3];
+	Ref a[2], packet, slot;
 	int op, n, i, ak, kc, want;
 
 	a[0] = R;
@@ -1370,6 +1372,25 @@ parseop(int w, Ref r, int k)
 		return;
 	}
 	op = w - WOp;
+	if (op == Oastore || op == Oafence)
+		err("%s does not return a value", optab[op].name);
+	if (op == Oacas) {
+		if (k != Kw && k != Kl)
+			err("atomic_cas requires Int32 or Int64 result");
+		if (nopds(o, 3) != 3)
+			err("atomic_cas expects pointer, expected and desired");
+		for (i=0; i<3; i++)
+			plain(&o[i]);
+		a[0] = mkref(&o[0], Km);
+		packet = newtmp("casargs", Kl, curf);
+		slot = newtmp("casargs", Kl, curf);
+		emitins(Oalloc8, Kl, packet, getcon(16, curf), R);
+		emitins(Oadd, Kl, slot, packet, getcon(k == Kl ? 8 : 4, curf));
+		emitins(k == Kl ? Ostorel : Ostorew, Kw, R, mkref(&o[1], k), packet);
+		emitins(k == Kl ? Ostorel : Ostorew, Kw, R, mkref(&o[2], k), slot);
+		emitins(Oacas, k, r, a[0], packet);
+		return;
+	}
 	n = nopds(o, 2);
 	for (i=0; i<n; i++) {
 		plain(&o[i]);
@@ -1585,6 +1606,23 @@ parseline(PState ps)
 		emitins(Odbgloc, Kw, R, a0, a1);
 		break;
 	default:
+		if (w == WOp+Oafence) {
+			if (nopds(o, 0) != 0)
+				err("atomic_fence expects no operands");
+			emitins(Oafence, Kw, R, R, R);
+			break;
+		}
+		if (w == WOp+Oastore) {
+			if (nopds(o, 2) != 2)
+				err("atomic_store expects pointer and value");
+			plain(&o[0]);
+			plain(&o[1]);
+			k = opdcls(&o[1]);
+			if (k != Kw && k != Kl)
+				err("atomic_store value needs Int32 or Int64 type");
+			emitins(Oastore, k, R, mkref(&o[0], Km), mkref(&o[1], k));
+			break;
+		}
 		/* Type(jméno) = ... */
 		k = typeclsid(tid, &tyn);
 		if (k == Kx || k == Kenv) {

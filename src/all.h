@@ -192,6 +192,7 @@ enum {
 };
 
 #define INRANGE(x, l, u) ((unsigned)(x) - l <= u - l) /* linear in x */
+#define isatomic(o) INRANGE(o, Oaload, Oafence)
 #define isstore(o) INRANGE(o, Ostoreb, Ostored)
 #define isload(o) INRANGE(o, Oloadsb, Oload)
 #define isalloc(o) INRANGE(o, Oalloc4, Oalloc16)
@@ -633,3 +634,6 @@ void pe_emitfin(FILE *);
 
 /* main.c: explicit static-PIE address mode (currently rv64). */
 extern int pic;
+
+/* Fixed-register target lowering, preserving explicit SC memory barriers. */
+void atomicisel(Ins, Fn *, int [6]);

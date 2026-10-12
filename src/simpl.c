@@ -193,3 +193,59 @@ simpl(Fn *fn)
 			idup(b, curi, &insb[NIns]-curi);
 	}
 }
+
+/* Registers: result, expected scratch, desired, address, status, packet.
+ * Copies protect virtual values and track implicit machine clobbers.
+ * CAS expected input is explicit; output uses physical-register markers. */
+void
+atomicisel(Ins i, Fn *fn, int regs[6])
+{
+	int k = i.cls, n, cas = i.op == Oacas;
+	int rmw = i.op == Oaadd || i.op == Oaxchg;
+	int arm = strncmp(T.name, "arm64", 5) == 0;
+	Ref arg = i.arg[1], slot;
+	Ins native = i;
+
+	if (i.op == Oafence) {
+		emiti(i);
+		return;
+	}
+	if (!req(i.to, R) && fn->tmp[i.to.val].nuse)
+		emit(Ocopy, k, i.to, TMP(regs[0]), R);
+	for (n=1; n<6; n++) {
+		if (n == 1 && !(cas || (arm && i.op == Oaadd)))
+			continue;
+		if (n == 2 && i.op == Oaload)
+			continue;
+		if (n == 4 && !(cas || (arm && rmw)))
+			continue;
+		if (n == 5 && !cas)
+			continue;
+		emit(Ocopy, n == 1 || n == 2 ? k : Kl, R, TMP(regs[n]), R);
+	}
+	native.to = i.op == Oastore ? R : TMP(regs[0]);
+	native.arg[0] = TMP(regs[3]);
+	native.arg[1] = i.op == Oaload ? R : TMP(regs[2]);
+	if (cas) {
+		native.op = Oncas;
+		native.to = R;
+		native.arg[1] = TMP(regs[0]);
+	}
+	if (i.op != Oastore && !fn->tmp[i.to.val].nuse)
+		emit(Ocopy, k, R, TMP(regs[0]), R);
+	emiti(native);
+	if (cas) {
+		emit(Oadd, k, TMP(regs[1]), TMP(regs[0]), CON_Z);
+		slot = newtmp("casptr", Kl, fn);
+		emit(Oload, k, TMP(regs[2]), slot, R);
+		emit(Oadd, Kl, slot, TMP(regs[5]), getcon(k == Kl ? 8 : 4, fn));
+		emit(Oload, k, TMP(regs[0]), TMP(regs[5]), R);
+		emit(Ocopy, Kl, TMP(regs[5]), arg, R);
+	} else if (i.op != Oaload)
+		emit(Ocopy, k, TMP(regs[2]), arg, R);
+	if (cas || (arm && rmw))
+		emit(Ocopy, Kl, TMP(regs[4]), CON_Z, R);
+	if (arm && i.op == Oaadd)
+		emit(Ocopy, k, TMP(regs[1]), CON_Z, R);
+	emit(Ocopy, Kl, TMP(regs[3]), i.arg[0], R);
+}

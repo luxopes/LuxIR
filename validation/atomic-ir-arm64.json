@@ -1,0 +1,11 @@
+{
+  "target": "arm64",
+  "output": "1202047 atomic checks passed (4-thread counters, 2000 SC ordering rounds)",
+  "assembly_parity": true,
+  "runtime_calls": false,
+  "ordinary_memory_barrier_checks": 2,
+  "runner": [
+    "qemu-aarch64"
+  ],
+  "invalid_forms": 8
+}

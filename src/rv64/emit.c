@@ -16,6 +16,14 @@ static struct {
 	{ Osub,    Ka, "fsub.%k %=, %0, %1" },
 	{ Oneg,    Ki, "neg%k %=, %0" },
 	{ Oneg,    Ka, "fneg.%k %=, %0" },
+	{ Oaload,   Kw, "fence rw,rw\n\tlw %=, 0(%0)\n\tfence rw,rw" },
+	{ Oaload,   Kl, "fence rw,rw\n\tld %=, 0(%0)\n\tfence rw,rw" },
+	{ Oastore,  Kw, "fence rw,rw\n\tsw %1, 0(%0)\n\tfence rw,rw" },
+	{ Oastore,  Kl, "fence rw,rw\n\tsd %1, 0(%0)\n\tfence rw,rw" },
+	{ Oaadd,    Kw, "amoadd.w.aqrl %=, %1, (%0)" },
+	{ Oaadd,    Kl, "amoadd.d.aqrl %=, %1, (%0)" },
+	{ Oaxchg,   Kw, "amoswap.w.aqrl %=, %1, (%0)" },
+	{ Oaxchg,   Kl, "amoswap.d.aqrl %=, %1, (%0)" },
 	{ Osqrt,   Ka, "fsqrt.%k %=, %0" },
 	{ Oumulh,  Kl, "mulhu %=, %0, %1" },
 	{ Omulh,   Kl, "mulh %=, %0, %1" },
@@ -321,12 +329,27 @@ fixmem(Ref *pr, Fn *fn, FILE *f)
 static void
 emitins(Ins *i, Fn *fn, FILE *f)
 {
+	static int atomiclabel;
 	int o;
 	char *rn;
 	int64_t s;
 	Con *con;
 
 	switch (i->op) {
+	case Oafence:
+		fputs("\tfence rw,rw\n", f);
+		break;
+	case Oncas:
+		i->to = TMP(A0);
+		if (i->cls == Kw)
+			fputs("\tsext.w a1,a1\n", f);
+		fprintf(f, "%satomic%d:\n", T.asloc, atomiclabel);
+		emitf(i->cls == Kw ? "lr.w.aqrl %=, (%0)" : "lr.d.aqrl %=, (%0)", i, fn, f);
+		fprintf(f, "\tbne a0,a1,%satomic%d\n", T.asloc, atomiclabel+1);
+		emitf(i->cls == Kw ? "sc.w.aqrl a4,a2,(%0)" : "sc.d.aqrl a4,a2,(%0)", i, fn, f);
+		fprintf(f, "\tbnez a4,%satomic%d\n%satomic%d:\n", T.asloc, atomiclabel, T.asloc, atomiclabel+1);
+		atomiclabel += 2;
+		break;
 	default:
 		if (isload(i->op))
 			fixmem(&i->arg[0], fn, f);

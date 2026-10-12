@@ -255,6 +255,17 @@ selcmp(Ref arg[2], int k, int swap, Fn *fn)
 static void
 sel(Ins i, Num *tn, Fn *fn)
 {
+	if (isatomic(i.op)) {
+		int regs[6] = {RAX, RCX, RDX, R10, R11, R8};
+		Ins *end = curi, *a;
+		atomicisel(i, fn, regs);
+		for (a=curi; a<end; a++) {
+			fixarg(&a->arg[0], argcls(a, 0), a, fn);
+			fixarg(&a->arg[1], argcls(a, 1), a, fn);
+		}
+		return;
+	}
+
 	Ref r0, r1, tmp[7];
 	int x, j, k, kc, sh, swap;
 	Ins *i0, *i1;

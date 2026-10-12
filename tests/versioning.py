@@ -36,7 +36,7 @@ def main():
         source = Path(directory) / 'input.lir'
         for backend in backends:
             r = run(backend, ['--version'])
-            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.1 (IR 1; runtime ABI none)\n', b''), r
+            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.2-dev (IR 1; runtime ABI none)\n', b''), r
             checks += 1
         # Headers must leave every target's code byte-identical to legacy IR.
         for target in TARGETS:

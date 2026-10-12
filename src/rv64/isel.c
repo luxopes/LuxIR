@@ -175,6 +175,17 @@ selcmp(Ins i, int k, int op, Fn *fn)
 static void
 sel(Ins i, Fn *fn)
 {
+	if (isatomic(i.op)) {
+		int regs[6] = {A0, A1, A2, A3, A4, A5};
+		Ins *end = curi, *a;
+		atomicisel(i, fn, regs);
+		for (a=curi; a<end; a++) {
+			fixarg(&a->arg[0], argcls(a, 0), a, fn);
+			fixarg(&a->arg[1], argcls(a, 1), a, fn);
+		}
+		return;
+	}
+
 	Ins *i0;
 	int ck, cc;
 

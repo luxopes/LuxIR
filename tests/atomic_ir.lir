@@ -1,0 +1,112 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_atomic_load32(Ptr(p)) -> Int32:
+    Int32(v) = atomic_load(p)
+    return v
+end
+export function luxrt_atomic_add32(Ptr(p), Int32(value)) -> Int32:
+    Int32(v) = atomic_add(p, value)
+    return v
+end
+export function luxrt_atomic_swap32(Ptr(p), Int32(value)) -> Int32:
+    Int32(v) = atomic_xchg(p, value)
+    return v
+end
+export function luxrt_atomic_cas32(Ptr(p), Int32(value), Int32(desired)) -> Int32:
+    Int32(v) = atomic_cas(p, value, desired)
+    return v
+end
+export function luxrt_atomic_store32(Ptr(p), Int32(value)):
+    atomic_store(p, value)
+    return
+end
+export function luxrt_atomic_load64(Ptr(p)) -> Int64:
+    Int64(v) = atomic_load(p)
+    return v
+end
+export function luxrt_atomic_add64(Ptr(p), Int64(value)) -> Int64:
+    Int64(v) = atomic_add(p, value)
+    return v
+end
+export function luxrt_atomic_swap64(Ptr(p), Int64(value)) -> Int64:
+    Int64(v) = atomic_xchg(p, value)
+    return v
+end
+export function luxrt_atomic_cas64(Ptr(p), Int64(value), Int64(desired)) -> Int64:
+    Int64(v) = atomic_cas(p, value, desired)
+    return v
+end
+export function luxrt_atomic_store64(Ptr(p), Int64(value)):
+    atomic_store(p, value)
+    return
+end
+export function luxrt_atomic_fence():
+    atomic_fence()
+    return
+end
+export function atomic_barrier_check(Ptr(p)) -> Int64:
+    Int64(old) = load(p)
+    Int64(prior) = atomic_add(p, Int64(1))
+    Int64(now) = load(p)
+    Int64(delta) = sub(now, old)
+    return delta
+end
+export function atomic_store_barrier_check(Ptr(p)) -> Int64:
+    store(Int64(17), p)
+    atomic_fence()
+    Int64(old) = atomic_xchg(p, Int64(23))
+    Int64(value) = load(p)
+    Int64(sum) = add(old, value)
+    return sum
+end
+
+export data atomic_global64 = Int64(0)
+export function atomic_drop_result(Ptr(p)):
+    Int64(unused) = atomic_add(p, Int64(1))
+    Int64(unused_load) = atomic_load(p)
+    return
+end
+export function atomic_global_add() -> Int64:
+    Int64(v) = atomic_add(atomic_global64, Int64(1))
+    return v
+end
+
+export function atomic_drop_cas_result(Ptr(p)):
+    Int64(unused) = atomic_cas(p, Int64(24), Int64(25))
+    return
+end
+export function atomic_cas_worker(Ptr(p)) -> Ptr:
+    Int64(i) = 0
+    goto test
+test:
+    Int32(more) = ult(i, 100000)
+    if more goto retry else done
+retry:
+    Int64(old) = atomic_load(p)
+    Int64(next) = add(old, 1)
+    Int64(prior) = atomic_cas(p, old, next)
+    Int32(ok) = eq(prior, old)
+    if ok goto advance else retry
+advance:
+    Int64(i) = add(i, 1)
+    goto test
+done:
+    return Ptr(0)
+end
+export function atomic_register_stress(Ptr(p), Int64(a), Int64(b), Int64(c), Int64(d), Int64(e), Int64(f), Int64(g), Int64(h)) -> Int64:
+    Int64(old) = atomic_load(p)
+    Int64(value) = atomic_cas(p, old, a)
+    Int64(x) = atomic_add(p, b)
+    Int64(y) = atomic_xchg(p, c)
+    Int64(sum) = add(value, x)
+    Int64(sum) = add(sum, y)
+    Int64(sum) = add(sum, a)
+    Int64(sum) = add(sum, b)
+    Int64(sum) = add(sum, c)
+    Int64(sum) = add(sum, d)
+    Int64(sum) = add(sum, e)
+    Int64(sum) = add(sum, f)
+    Int64(sum) = add(sum, g)
+    Int64(sum) = add(sum, h)
+    return sum
+end

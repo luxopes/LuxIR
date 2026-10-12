@@ -81,6 +81,10 @@ static struct {
 	{ Omul,     Ki, "+imul%k %1, %=" },
 	{ Omul,     Ks, "+mulss %1, %=" },
 	{ Omul,     Kd, "+mulsd %1, %=" },
+	{ Oaload,   Ki, "mov%k %M0, %=" },
+	{ Oastore,  Ki, "xchg%k %1, %M0" },
+	{ Oaadd,    Ki, "lock xadd%k %1, %M0\n\tmov%k %1, %=" },
+	{ Oaxchg,   Ki, "xchg%k %1, %M0\n\tmov%k %1, %=" },
 	{ Osqrt,    Ka, "sqrt%k %0, %=" },
 	{ Oxumulh,  Kl, "mulq %L0" },
 	{ Oxmulh,   Kl, "imulq %L0" },
@@ -480,6 +484,13 @@ emitins(Ins i, E *e)
 				stashbits(negmask[i.cls], 16),
 				regtoa(i.to.val, SLong)
 			);
+		break;
+	case Oafence:
+		fputs("\tmfence\n", e->f);
+		break;
+	case Oncas:
+		i.arg[1] = TMP(RDX);
+		emitf("lock cmpxchg%k %1, %M0", &i, e);
 		break;
 	case Oclz:
 	case Octz:

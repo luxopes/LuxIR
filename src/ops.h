@@ -94,6 +94,14 @@ O(cned,    T(d,d,e,e, d,d,e,e), F(1,0,0,1,0,0,0,0,0,0)) X(0,1,0) V(0)
 O(cod,     T(d,d,e,e, d,d,e,e), F(1,0,0,1,0,0,0,0,0,0)) X(0,1,0) V(0)
 O(cuod,    T(d,d,e,e, d,d,e,e), F(1,0,0,1,0,0,0,0,0,0)) X(0,1,0) V(0)
 
+/* Sequentially consistent atomics; natural alignment is a precondition. */
+O(aload,   T(m,m,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(astore,  T(m,m,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(aadd,    T(m,m,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(axchg,   T(m,m,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(acas,    T(m,m,e,e, m,m,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(afence,  T(x,e,e,e, x,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+
 /* Memory */
 O(storeb,  T(w,e,e,e, m,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,1) V(0)
 O(storeh,  T(w,e,e,e, m,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,1) V(0)
@@ -160,6 +168,7 @@ O(sign,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(salloc,  T(e,l,e,e, e,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(xidiv,   T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
 O(xdiv,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
+O(ncas,    T(m,m,e,e, w,l,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
 O(xumulh,  T(l,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
 O(xmulh,   T(l,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(1,0,0) V(0)
 O(xcmp,    T(w,l,s,d, w,l,s,d), F(0,0,0,0,0,0,0,0,0,0)) X(1,1,0) V(0)

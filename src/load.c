@@ -250,7 +250,7 @@ def(Slice sl, bits msk, Blk *b, Ins *i, Loc *il)
 
 	while (i > b->ins) {
 		--i;
-		if (killsl(i->to, sl)
+		if (isatomic(i->op) || killsl(i->to, sl)
 		|| (i->op == Ocall && escapes(sl.ref, curf)))
 			goto Load;
 		ld = isload(i->op);
