@@ -1,0 +1,180 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_startup_relocate(Ptr(stack), Ptr(base), Ptr(dynamic), Int64(relative)) -> Int64:
+    Int64(addr) = 0
+    Int64(size) = 0
+    Int64(ent) = 0
+    Int64(n) = 0
+    goto dynamic_loop
+dynamic_loop:
+    Int64(tag) = load(dynamic)
+    Ptr(slot) = add(dynamic, 8)
+    Int64(value) = load(slot)
+    Int32(done) = eq(tag, 0)
+    if done goto relocation_test else dynamic_item
+dynamic_item:
+    Int32(large) = uge(n, 4096)
+    if large goto invalid else tag_rela
+tag_rela:
+    Int32(match) = eq(tag, 7)
+    if match goto save_addr else tag_size
+save_addr:
+    Int64(addr) = value
+    goto dynamic_next
+tag_size:
+    Int32(match) = eq(tag, 8)
+    if match goto save_size else tag_ent
+save_size:
+    Int64(size) = value
+    goto dynamic_next
+tag_ent:
+    Int32(match) = eq(tag, 9)
+    if match goto save_ent else tag_rel
+save_ent:
+    Int64(ent) = value
+    goto dynamic_next
+tag_rel:
+    Int32(is_rel) = eq(tag, 17)
+    Int32(is_size) = eq(tag, 18)
+    Int32(is_rel) = or(is_rel, is_size)
+    Int32(nonzero) = ne(value, 0)
+    Int32(unsupported) = and(is_rel, nonzero)
+    if unsupported goto unsupported else dynamic_next
+dynamic_next:
+    Ptr(dynamic) = add(dynamic, 16)
+    Int64(n) = add(n, 1)
+    goto dynamic_loop
+relocation_test:
+    Int32(empty) = eq(size, 0)
+    if empty goto auxiliary_begin else validate
+validate:
+    Int64(remainder) = urem(size, 24)
+    Int32(bad1) = ne(remainder, 0)
+    Int32(bad2) = ne(ent, 24)
+    Int32(bad3) = eq(addr, 0)
+    Int32(bad) = or(bad1, bad2)
+    Int32(bad) = or(bad, bad3)
+    if bad goto invalid else relocate_begin
+relocate_begin:
+    Ptr(rela) = add(base, addr)
+    Int64(n) = 0
+    goto relocate_loop
+relocate_loop:
+    Int32(done) = eq(n, size)
+    if done goto auxiliary_begin else relocate_item
+relocate_item:
+    Ptr(slot) = add(rela, 8)
+    Int64(info) = load(slot)
+    Int32(skip) = eq(info, 0)
+    if skip goto relocate_next else relocate_check
+relocate_check:
+    Int32(supported) = eq(info, relative)
+    if supported goto relocate_write else unsupported
+relocate_write:
+    Int64(target) = load(rela)
+    Ptr(slot) = add(rela, 16)
+    Int64(addend) = load(slot)
+    Ptr(target) = add(base, target)
+    Ptr(pointer) = add(base, addend)
+    store(pointer, target)
+    goto relocate_next
+relocate_next:
+    Ptr(rela) = add(rela, 24)
+    Int64(n) = add(n, 24)
+    goto relocate_loop
+auxiliary_begin:
+    Ptr(env) = call luxrt_startup_env(stack)
+    goto environment
+environment:
+    Ptr(value_ptr) = load(env)
+    Ptr(env) = add(env, 8)
+    Int32(done) = eq(value_ptr, 0)
+    if done goto auxiliary_init else environment
+auxiliary_init:
+    Ptr(ph) = 0
+    Int64(phent) = 0
+    Int64(count) = 0
+    Int64(page) = call luxrt_startup_pagesize(stack)
+    goto auxiliary
+auxiliary:
+    Int64(tag) = load(env)
+    Ptr(slot) = add(env, 8)
+    Int64(value) = load(slot)
+    Int32(done) = eq(tag, 0)
+    if done goto ph_validate else aux_ph
+aux_ph:
+    Int32(match) = eq(tag, 3)
+    if match goto save_ph else aux_ent
+save_ph:
+    Ptr(ph) = value
+    goto aux_next
+aux_ent:
+    Int32(match) = eq(tag, 4)
+    if match goto save_phent else aux_count
+save_phent:
+    Int64(phent) = value
+    goto aux_next
+aux_count:
+    Int32(match) = eq(tag, 5)
+    if match goto save_count else aux_next
+save_count:
+    Int64(count) = value
+    goto aux_next
+aux_next:
+    Ptr(env) = add(env, 16)
+    goto auxiliary
+ph_validate:
+    Int64(mask) = sub(page, 1)
+    Int64(bits) = and(page, mask)
+    Int32(bad1) = eq(ph, 0)
+    Int32(bad2) = ne(phent, 56)
+    Int32(bad3) = eq(count, 0)
+    Int32(bad4) = ugt(count, 4096)
+    Int32(bad5) = eq(page, 0)
+    Int32(bad6) = ne(bits, 0)
+    Int32(bad) = or(bad1, bad2)
+    Int32(bad) = or(bad, bad3)
+    Int32(bad) = or(bad, bad4)
+    Int32(bad) = or(bad, bad5)
+    Int32(bad) = or(bad, bad6)
+    if bad goto invalid else ph_begin
+ph_begin:
+    Int64(n) = 0
+    Int64(inverse) = xor(mask, -1)
+    goto ph_loop
+ph_loop:
+    Int32(done) = eq(n, count)
+    if done goto done else ph_item
+ph_item:
+    Int32(type) = load_u32(ph)
+    Int32(relro) = eq(type, 0x6474e552)
+    if relro goto protect else ph_next
+protect:
+    Ptr(slot) = add(ph, 16)
+    Int64(addr) = load(slot)
+    Ptr(start) = add(base, addr)
+    Ptr(slot) = add(ph, 40)
+    Int64(memsz) = load(slot)
+    Ptr(end) = add(start, memsz)
+    Ptr(start) = and(start, inverse)
+    Ptr(end) = and(end, inverse)
+    Int32(nonempty) = ugt(end, start)
+    if nonempty goto protect_call else ph_next
+protect_call:
+    Int64(bytes) = sub(end, start)
+    Int64(rc) = call luxrt_os_protect(start, bytes, Int64(1))
+    Int32(ok) = eq(rc, 0)
+    if ok goto ph_next else error
+ph_next:
+    Ptr(ph) = add(ph, 56)
+    Int64(n) = add(n, 1)
+    goto ph_loop
+done:
+    return 0
+invalid:
+    return -22
+unsupported:
+    return -95
+error:
+    return rc
+end

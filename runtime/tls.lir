@@ -183,6 +183,7 @@ export function luxrt_tls_allocate(Ptr(template), Int64(model), Ptr(out)) -> Int
     Int64(memsz) = load(slot)
     Ptr(slot) = add(template, 24)
     Int64(align) = load(slot)
+    Int64(template_align) = align
     Int64(mask) = sub(align, 1)
     Int64(bits) = and(align, mask)
     Int32(zero) = eq(align, 0)
@@ -216,7 +217,7 @@ capacity:
     Int32(too_big) = ugt(memsz, limit)
     if too_big goto range else span
 span:
-    Int64(mask) = sub(align, 1)
+    Int64(mask) = sub(template_align, 1)
     Int64(inverted) = xor(mask, -1)
     Int64(span) = add(memsz, mask)
     Int64(span) = and(span, inverted)

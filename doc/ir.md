@@ -319,3 +319,29 @@ Na ARM64 jsou počty nativní (popcount používá rezervovaný V31); x86-64
 využívá základní BSR/BSF s explicitním zero výsledkem a SWAR popcount.
 RV64GC má inline SWAR fallback, bez požadavku na nepovinné Zbb. Žádná
 z těchto instrukcí nevolá externí runtime helper.
+
+
+### Atomické instrukce
+
+| Zápis | Význam |
+|---|---|
+| `Int32/Int64(old) = atomic_load(p)` | SC načtení |
+| `atomic_store(p, Int32/Int64(value))` | SC uložení, bez výsledku |
+| `Int32/Int64(old) = atomic_add(p, value)` | fetch-add modulo šířka; vrací původní hodnotu |
+| `Int32/Int64(old) = atomic_xchg(p, value)` | exchange; vrací původní hodnotu |
+| `Int32/Int64(old) = atomic_cas(p, expected, desired)` | strong CAS; vrací původní hodnotu i při neúspěchu |
+| `atomic_fence()` | SC bariéra, bez výsledku |
+
+Paměť musí být platná, sdílená a přirozeně zarovnaná (4/8 bajtů), s platnou
+životností do dokončení všech přístupů. Hodnoty CAS/add/xchg mají šířku
+výsledku; store potřebuje typ hodnoty (proměnnou známého typu nebo anotaci).
+Nejsou dostupné relaxed/acquire-only/release-only varianty ani atomické Float.
+Atomic load/RMW a fence nejsou CSE, nepřesouvají se spekulativně a blokují
+forwarding běžných načtení přes atomický bod. Nejde o odstranění datových
+závodů při ostatních současných neatomických přístupech.
+
+Instrukce se rozloží inline na základní x86-64, ARM64 nebo RV64GC; není
+nutná externí atomická knihovna, ARM LSE ani RV Zacas. CAS zatím používá
+soukromý stack packet k převodu tří operandů do interní dvouoperandové IR
+reprezentace. Výsledná smyčka/CMPXCHG je inline; nejde o runtime volání ani
+alokaci haldy. Minimalizace CAS pomocných přesunů zůstává optimalizační práce.

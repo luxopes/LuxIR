@@ -68,9 +68,12 @@ Blokující (Linux x86_64, arm64, rv64):
   Implementován Linux kontrakt, nikoli přenositelná správa signálů všech OS.
 
 Výkonové (náhrada existuje, ale je pomalejší):
-- [ ] **Atomiky jako instrukce:** atomické add/xchg/cmpxchg/load/store a
+- [x] **Atomiky jako instrukce:** atomické add/xchg/cmpxchg/load/store a
   bariéry v IR (dnes jen volání do `luxrt/*/atomic.S`). Používají je zámky,
-  vlákna, GC a vestavěné `atomic_add`, `atomic_xchg`, `atomic_cas`.
+  vlákna, GC a vestavěné `atomic_add`, `atomic_xchg`, `atomic_cas`. Nové
+  SC instrukce jsou inline pro šest cílů; C/LSL execution na třech Linux
+  cílech, souběžný CAS, store-buffering a bariéry běžné paměti. Varianta
+  s jemnějšími memory orders a optimalizace CAS packetu zůstávají otevřené.
 - [x] **`sqrt`** pro Float64 (a Float32) jako instrukce; vestavěné `sqrt`
   a modul `math`. C/LSL execution a zaokrouhlování ověřeno na Linux
   x86_64/arm64/rv64; assembler validní pro všech šest cílů.
@@ -108,6 +111,18 @@ Windows a macOS (navíc):
 - [ ] Kontrolovaná aritmetika jako instrukce (přetečení Int, dělení nulou,
   kontrola mezí) s cílem chyby; backend kontroly slučuje a odstraňuje.
 - [ ] Dokumentovat celé rozhraní v `doc/runtime.md` vedle `doc/ir.md`.
+
+## Sestavení přes externí nástroje — vývojová 0.1.2
+
+- [x] `tools/luxir_build.py`: raw IR main → static PIE na třech Linux cílech,
+  automaticky raw luxrt, main TLS, relativní datové/TLS pointer relokace,
+  skutečná ochrana RELRO, NX stack a GC nepoužitých funkčních sekcí.
+  C/LSL binárky shodné; 30 kontrol na každý cíl včetně selhání při zápisu
+  do RELRO a zachování existujícího outputu po neúspěšném překladu.
+  Používá Python a GNU as/ld při sestavení; výsledná binárka je nepotřebuje.
+  Není tím hotový managed runtime, vlastní object writer nebo linker.
+- [ ] Odstranění nepoužitých jednotlivých datových tabulek a litěrálů:
+  driver zatím rozdělí funkce, nikoli všechny datové sekce.
 
 ## Výstup objektů a linkování (bez binutils)
 

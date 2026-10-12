@@ -1,0 +1,6 @@
+{
+  "target": "amd64_sysv",
+  "output": "23 PIE relocation/RELRO checks passed (three relative types, invalid tables and protect failure)",
+  "assembly_parity": true,
+  "runner": []
+}

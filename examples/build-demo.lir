@@ -1,0 +1,26 @@
+ir_version "1"
+runtime_abi "none"
+thread data counter = Int64(41)
+data message = "42\n"
+data message_pointer = Ptr(message)
+thread data tls_pointer = Ptr(message)
+export function main(Int32(argc), Ptr(argv), Ptr(envp)) -> Int32:
+    Int64(value) = load(thread(counter))
+    Int64(value) = add(value, 1)
+    store(value, thread(counter))
+    Int32(ok) = eq(value, 42)
+    if ok goto write else fail
+write:
+    Ptr(pointer) = load(message_pointer)
+    Ptr(tls_pointer_value) = load(thread(tls_pointer))
+    Int32(same) = eq(pointer, tls_pointer_value)
+    if same goto output else fail
+output:
+    Int64(count) = call luxrt_os_write(Int64(1), pointer, Int64(3))
+    Int32(ok) = eq(count, 3)
+    if ok goto done else fail
+done:
+    return 0
+fail:
+    return 1
+end

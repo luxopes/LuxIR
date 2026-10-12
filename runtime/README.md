@@ -167,3 +167,16 @@ Windows/macOS signal politika zatím nejsou součástí tohoto modulu.
 Kontroly: `tests/runtime/run_tls.py`, `tls_entry.py`, `run_platform.py`;
 `--backend src/luxir --backend build/luxir --target amd64_sysv|arm64|rv64`.
 ARM64/RV64 execution je v QEMU, nikoli měření výkonu skutečného CPU.
+
+
+`relocate.c/.lir` a `entry-relocate.S` poskytují startup pro trusted ELF64
+static PIE: RELA s architekturním R_RELATIVE (žádné symbol/IFUNC relokace)
+a následný mprotect GNU_RELRO na celé pokryté stránky. Musí běžet před TLS
+kopírováním a před prvním aplikačním kódem/vláknem. Driver je automaticky
+připojuje. Původní `entry.S` bez tohoto kroku zůstává pro dosavadní omezené
+programy bez dynamických datových relokací. Nejde o obecný dynamický loader.
+
+Oprava malých TLS bloků: zarovnání TCB a velikost variant-II obrazu jsou
+odlišné veličiny. Obraz se zaokrouhluje podle původního PT_TLS alignment,
+TP nejméně na 16 bajtů. Zvýšení alignment obrazu z 8 na 16 posouvalo data
+oproti linkerovým TPOFF offsetům. Driver testuje align 1..64 a krátký BSS.

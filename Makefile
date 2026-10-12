@@ -32,6 +32,7 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	chmod +x build/luxir
 
 check: c native
+	$(PYTHON) tests/atomic_ir.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/numeric.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir
 	$(MAKE) check-dominance check-bitsets
@@ -58,6 +59,8 @@ check-bitsets:
 	build/bitset-count-test
 
 check-runtime: c native
+	$(PYTHON) tests/build_driver.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_relocate.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_tls.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/tls_entry.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_platform.py --backend src/luxir --backend build/luxir

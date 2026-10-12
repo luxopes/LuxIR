@@ -28,12 +28,12 @@ int64_t luxrt_tls_template_from_stack(const uint64_t *stack,struct luxrt_tls_tem
  out->image=image;out->filesz=filesz;out->memsz=memsz;out->align=align;return 0;
 }
 int64_t luxrt_tls_allocate(const struct luxrt_tls_template *t,uint64_t model,struct luxrt_tls_block *out){
- uint64_t align=t->align;
+ uint64_t align=t->align,template_align=align;
  if(!align||(align&(align-1)))return -22;
  if(align<16)align=16;
  if(model<1||model>3||t->filesz>t->memsz||(t->filesz&&!t->image)||align>1048576||(align&(align-1)))return -22;
  if(t->memsz>INT64_MAX-align*3-64)return -34;
- uint64_t span=(t->memsz+align-1)&~(align-1),offset=model==2?((16+align-1)&~(align-1)):0;
+ uint64_t span=(t->memsz+template_align-1)&~(template_align-1),offset=model==2?((16+align-1)&~(align-1)):0;
  uint64_t size=span+align*2+64;int64_t raw=luxrt_os_map(size);if(raw<0)return raw;
  uintptr_t base=(uintptr_t)raw,tp;void *data;
  if(model==1){tp=(base+span+align-1)&~(uintptr_t)(align-1);data=(void*)(tp-span);*(uintptr_t*)tp=tp;*(uintptr_t*)(tp+16)=tp;}

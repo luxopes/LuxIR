@@ -179,3 +179,22 @@ Managed ABI, stack mapy a GC zůstávají otevřené a nejsou označené jako ho
 Self-host a limit celé kompilace: `python3 tests/selfhost.py --compiler
 /cesta/lslc --compiler-cwd /cesta/k/resource-root --backend build/luxir
 --limit 60`. Test ověřuje dvě další generace, identitu binárek a čas každé.
+
+
+Vývojová větev nyní hlásí `0.1.2-dev`; vydaná 0.1.1 zůstává samostatný tag.
+Nové matematické a SC atomické IR instrukce jsou popsány v `doc/ir.md`.
+
+Pro raw Linux program lze už použít sestavovací driver:
+
+```sh
+python3 tools/luxir_build.py --backend build/luxir -t amd64_sysv -o program program.lir
+./program
+```
+
+Frontend dodá `main(argc,argv,envp) -> Int32` (nepoužité argumenty lze vynechat).
+Driver připojí raw luxrt, kernel entry, PIE relokace, RELRO a main TLS, sestaví
+statický PIE bez libc/loaderu a odstraní nepoužívané funkční sekce. Podporuje
+Linux amd64_sysv, arm64 a rv64; cross GNU binutils musejí být na PATH.
+Používá externí GNU as/ld a Python při sestavení. Hotová binárka je nepotřebuje.
+Nejde ještě o standardní managed runtime, libovolné libc/dlopen volání nebo
+vlastní assembler/linker. Testovaný příklad je `examples/build-demo.lir`.

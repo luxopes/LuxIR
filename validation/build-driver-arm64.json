@@ -1,0 +1,44 @@
+{
+  "target": "arm64",
+  "checks": 30,
+  "backends": [
+    {
+      "backend": "src/luxir",
+      "sha256": "a70636ede983555b0b2860aedd06a97391bf25a2974062c1fa2e3ceb0ad13471",
+      "bytes": 66520,
+      "bytes_without_gc_sections": 66520,
+      "text_bytes": 3856,
+      "text_bytes_without_gc_sections": 11040
+    },
+    {
+      "backend": "build/luxir",
+      "sha256": "a70636ede983555b0b2860aedd06a97391bf25a2974062c1fa2e3ceb0ad13471",
+      "bytes": 66520,
+      "bytes_without_gc_sections": 66520,
+      "text_bytes": 3856,
+      "text_bytes_without_gc_sections": 11040
+    }
+  ],
+  "binary_identical": true,
+  "small_tls_alignments": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "relative_data_and_tls_pointers": true,
+  "relro_write_fault": true,
+  "failed_build_preserves_output": true,
+  "libc": false,
+  "dynamic_loader": false,
+  "external_tools": [
+    "GNU as",
+    "GNU ld"
+  ],
+  "runner": [
+    "qemu-aarch64"
+  ]
+}
