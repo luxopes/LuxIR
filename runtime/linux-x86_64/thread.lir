@@ -57,3 +57,37 @@ success:
 invalid:
     return -22
 end
+
+export function luxrt_thread_spawn_tls(Ptr(fn), Ptr(arg), Ptr(stack), Int64(size), Ptr(tid), Ptr(tp)) -> Int64:
+    Int32(no_fn) = eq(fn, 0)
+    Int32(no_stack) = eq(stack, 0)
+    Int32(no_tid) = eq(tid, 0)
+    Int64(bits) = and(tid, 3)
+    Int32(unaligned) = ne(bits, 0)
+    Int32(small) = ult(size, 4096)
+    Int64(available) = sub(-1, stack)
+    Int32(overflow) = ult(available, size)
+    Int32(bad1) = or(no_fn, no_stack)
+    Int32(bad2) = or(no_tid, unaligned)
+    Int32(bad3) = or(small, overflow)
+    Int32(bad4) = or(bad1, bad2)
+    Int32(bad5) = or(bad4, bad3)
+    Int32(no_tls) = eq(tp, 0)
+    Int32(bad) = or(bad5, no_tls)
+    if bad goto invalid else alignment
+alignment:
+    Ptr(end) = add(stack, size)
+    Ptr(end) = and(end, -16)
+    Int64(capacity) = sub(end, stack)
+    Int32(small) = ult(capacity, 4096)
+    if small goto invalid else occupied
+occupied:
+    Int32(current) = call luxrt_atomic_load32(tid)
+    Int32(busy) = ne(current, 0)
+    if busy goto invalid else spawn
+spawn:
+    Int64(result) = call luxrt_thread_clone_tls(fn, arg, end, tid, tp)
+    return result
+invalid:
+    return -22
+end

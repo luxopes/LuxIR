@@ -1,0 +1,10 @@
+{
+  "target": "amd64_sysv",
+  "results": {
+    "signal": "16 signal checks passed (blocked delivery, native handler return, restored action/mask)",
+    "context": "8 context checks passed (register-only fixture root, caller SP, snapshot bounds)"
+  },
+  "assembly_parity": true,
+  "runner": [],
+  "production_gc": false
+}

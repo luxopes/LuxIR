@@ -1,7 +1,7 @@
 # LuxIR TODO
 
-Cíl: frontend (LSL) řeší jen jazyk a zapíše jednotný LuxIR. Vše strojové a
-platformní řeší LuxIR: optimalizace, generování kódu, runtime jazyka,
+Cíl: frontend libovolného jazyka (LSL je první uživatel) řeší jen jazyk a zapíše jednotný LuxIR. Vše strojové a
+platformní řeší LuxIR: optimalizace, generování kódu, obecné runtime služby,
 přístup k operačnímu systému, formát binárky a linkování. Jeden `.lir` z LSL
 pak dá spustitelný program pro Linux, Windows, macOS i Android.
 Navazující plán frontendu: sekce „Plán 0.10“ v `TODO.md` repozitáře
@@ -21,21 +21,32 @@ nad luxrt, aby LSL generovalo jen přenositelný LuxIR. Ověřeno proti
 Bez blokujících položek nejde runtime na Linuxu přeportovat; ostatní mají
 pomalejší náhradu, kterou LSL do té doby použije.
 
+Tyto služby jsou obecné: nevyžadují layout objektů ani chybový model LSL.
+
 Blokující (Linux x86_64, arm64, rv64):
-- [ ] **TLS ve vláknech:** `thread` data fungují pro hlavní vlákno, ale
+- [x] **TLS ve vláknech:** `thread` data fungují pro hlavní vlákno, ale
   vlákna z luxrt nemají TLS blok. Runtime LSL drží v TLS čekající chybu a
   její příznak (zapisuje se z I/O, procesů, haldy) a vrchol zásobníku vlákna.
   Potřeba: vytvoření vlákna s inicializovaným statickým TLS (fs / tpidr_el0 /
   tp), přístup přes `thread(x)` v obou vláknech.
-  Přijetí: test s 40 vlákny, každé zapisuje a čte vlastní `thread` proměnnou.
-- [ ] **Uložení registrů a ukazatel zásobníku:** konzervativní GC LSL musí
+  Ověřeno: 40 raw vláken čte/zapisuje vlastní IR `thread(...)`, inicializovaná
+  data + zarovnaná BSS; C/LSL shoda na všech třech cílech. Standalone
+  static PIE také inicializuje TLS hlavního vlákna bez libc/loaderu.
+  Jde o statické local-exec ELF TLS; nikoli libc TLS/DTV nebo dlopen.
+- [x] **Uložení registrů a ukazatel zásobníku:** konzervativní GC LSL musí
   najít ukazatele i v registrech. Potřeba primitivum (instrukce nebo luxrt
   funkce pro každou architekturu, obdoba setjmp), které uloží callee-saved
   registry do paměti a vrátí aktuální ukazatel zásobníku; plus vrchol
   zásobníku hlavního vlákna ze startu.
-  Přijetí: GC test, kde je jediný odkaz na objekt v callee-saved registru.
-- [ ] **Signály:** `rt_sigaction` s `sa_restorer` (návratová rutina pro každou
+  Ověřeno: `luxrt_capture_regs`, caller SP a kernel stack top; konzervativní
+  testovací scanner najde alokaci, jejíž jediný root v assemblerovém fixture
+  je v callee-saved registru. Není tím implementován produkční GC ani
+  stop-the-world; scanner musí procházet snapshot i živý zásobník.
+- [x] **Signály:** `rt_sigaction` s `sa_restorer` (návratová rutina pro každou
   architekturu), maska signálů; runtime LSL instaluje obsluhu při startu.
+  Ověřeno: C i IR handler se vrátí, blokovaný signál se doručí po odmaskování,
+  původní action/maska se obnoví. RV64 používá kernel/VDSO restorer ABI.
+  Implementován Linux kontrakt, nikoli přenositelná správa signálů všech OS.
 
 Výkonové (náhrada existuje, ale je pomalejší):
 - [ ] **Atomiky jako instrukce:** atomické add/xchg/cmpxchg/load/store a
@@ -124,7 +135,8 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   a assembler pro Linux x86_64/arm64/rv64, 2 032 kontrol na každém cíli.
   Stále nejde o IR instrukce, nezávislý plnohodnotný memory model frontendu.
 - [x] Raw clone/join Linux x86_64: 40 guarded-stack vláken, 4 000 000
-  inkrementů; C/LSL shoda. Callback nesmí používat libc/TLS/managed objekty.
+  inkrementů; C/LSL shoda. Legacy callback nesmí používat libc/TLS/managed objekty; nový
+  TLS spawn na třech architekturách podporuje pouze statické local-exec TLS.
 - [x] rv64 PC-relative adresy pro static PIE přes explicitní `-p`:
   lokální i externí symboly + offset, C/LSL shoda a spuštění v QEMU.
   Dynamické datové relokace a vlastní linker tím nejsou implementovány.

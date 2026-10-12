@@ -57,6 +57,9 @@ check-bitsets:
 	build/bitset-count-test
 
 check-runtime: c native
+	$(PYTHON) tests/runtime/run_tls.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/tls_entry.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_platform.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_io.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/entry.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_atomic.py

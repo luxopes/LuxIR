@@ -1,0 +1,60 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_signal_action(Int64(sig), Ptr(action), Ptr(old)) -> Int64:
+    Ptr(in) = alloc8(32)
+    Ptr(out) = alloc8(32)
+    Int32(has_action) = ne(action, 0)
+    if has_action goto prepare else no_action
+prepare:
+    Ptr(handler) = load(action)
+    Ptr(slot) = add(action, 8)
+    Int64(flags) = load(slot)
+    Int64(flags) = or(flags, 67108864)
+    Ptr(slot) = add(action, 16)
+    Int64(mask) = load(slot)
+    store(handler, in)
+    Ptr(slot) = add(in, 8)
+    store(flags, slot)
+    Ptr(slot) = add(in, 16)
+    store(Ptr(luxrt_sigreturn), slot)
+    Ptr(slot) = add(in, 24)
+    store(mask, slot)
+    goto old_test
+no_action:
+    Ptr(in) = 0
+    goto old_test
+old_test:
+    Int32(has_old) = ne(old, 0)
+    if has_old goto call else no_old
+no_old:
+    Ptr(out) = 0
+    goto call
+call:
+    Int64(result) = call luxrt_syscall6(Int64(13), sig, in, out, Int64(8), Int64(0), Int64(0))
+    Int32(ok) = eq(result, 0)
+    Int32(copy) = and(ok, has_old)
+    if copy goto copy else done
+copy:
+    Ptr(handler) = load(out)
+    Ptr(slot) = add(out, 8)
+    Int64(flags) = load(slot)
+    Int64(flags) = and(flags, -67108865)
+    Ptr(slot) = add(out, 24)
+    Int64(mask) = load(slot)
+    store(handler, old)
+    Ptr(slot) = add(old, 8)
+    store(flags, slot)
+    Ptr(slot) = add(old, 16)
+    store(mask, slot)
+    goto done
+done:
+    return result
+end
+export function luxrt_signal_mask(Int64(how), Ptr(mask), Ptr(old)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(14), how, mask, old, Int64(8), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_signal_thread(Int64(pid), Int64(tid), Int64(sig)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(234), pid, tid, sig, Int64(0), Int64(0), Int64(0))
+    return result
+end

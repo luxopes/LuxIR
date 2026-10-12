@@ -1,0 +1,9 @@
+{
+  "target": "amd64_sysv",
+  "output": "",
+  "binary_identical": true,
+  "libc": false,
+  "dynamic_loader": false,
+  "native": true,
+  "emulator": []
+}

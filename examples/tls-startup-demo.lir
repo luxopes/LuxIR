@@ -1,0 +1,41 @@
+ir_version "1"
+runtime_abi "none"
+thread data initialized = Int64(1234567)
+thread data zeros align 64 = zero(103)
+export function luxrt_entry_main(Ptr(stack)) -> Int32:
+    Ptr(block) = alloc8(24)
+    Int64(rc) = call luxrt_tls_main(stack, block)
+    Int32(ok) = eq(rc, 0)
+    if ok goto tls else fail
+tls:
+    Int64(value) = load(thread(initialized))
+    Int32(ok) = eq(value, 1234567)
+    if ok goto check_zero else fail
+check_zero:
+    Int32(byte) = load_u8(thread(zeros))
+    Int32(ok) = eq(byte, 0)
+    if ok goto write else fail
+write:
+    store(Int64(42), thread(initialized))
+    Int64(value) = load(thread(initialized))
+    Int32(ok) = eq(value, 42)
+    if ok goto current else fail
+current:
+    Ptr(tp) = call luxrt_tls_get()
+    Ptr(slot) = add(block, 16)
+    Ptr(expected) = load(slot)
+    Int32(ok) = eq(tp, expected)
+    if ok goto busy else fail
+busy:
+    Int64(rc) = call luxrt_tls_release(block)
+    Int32(ok) = eq(rc, -16)
+    if ok goto stack else fail
+stack:
+    Ptr(top) = call luxrt_startup_stack_top(stack)
+    Int32(ok) = eq(top, stack)
+    if ok goto done else fail
+done:
+    return 0
+fail:
+    return 1
+end

@@ -1,0 +1,6 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_tls_allocate_native(Ptr(template), Ptr(out)) -> Int64:
+    Int64(result) = call luxrt_tls_allocate(template, Int64(3), out)
+    return result
+end

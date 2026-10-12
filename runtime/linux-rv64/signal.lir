@@ -1,0 +1,14 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_signal_action(Int64(sig), Ptr(action), Ptr(old)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(134), sig, action, old, Int64(8), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_signal_mask(Int64(how), Ptr(mask), Ptr(old)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(135), how, mask, old, Int64(8), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_signal_thread(Int64(pid), Int64(tid), Int64(sig)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(131), pid, tid, sig, Int64(0), Int64(0), Int64(0))
+    return result
+end

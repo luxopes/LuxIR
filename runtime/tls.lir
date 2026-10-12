@@ -1,0 +1,319 @@
+ir_version "1"
+runtime_abi "none"
+function tls_bias(Ptr(ph), Int64(count)) -> Int64:
+    Int64(i) = 0
+    goto phdr
+phdr:
+    Int32(done) = eq(i, count)
+    if done goto fallback else item
+item:
+    Int64(offset) = mul(i, 56)
+    Ptr(p) = add(ph, offset)
+    Int32(type) = load_u32(p)
+    Int32(match) = eq(type, 6)
+    if match goto found else next
+next:
+    Int64(i) = add(i, 1)
+    goto phdr
+found:
+    Ptr(slot) = add(p, 16)
+    Int64(addr) = load(slot)
+    Int64(bias) = sub(ph, addr)
+    return bias
+fallback:
+    Ptr(eh) = sub(ph, 64)
+    Int32(magic) = load_u32(eh)
+    Ptr(slot) = add(eh, 4)
+    Int32(class) = load_u8(slot)
+    Ptr(slot) = add(eh, 32)
+    Int64(phoff) = load(slot)
+    Int32(valid1) = eq(magic, 0x464c457f)
+    Int32(valid2) = eq(class, 2)
+    Int32(valid3) = eq(phoff, 64)
+    Int32(valid4) = and(valid1, valid2)
+    Int32(valid) = and(valid4, valid3)
+    if valid goto loads_begin else error
+loads_begin:
+    Int64(i) = 0
+    goto loads
+loads:
+    Int32(done) = eq(i, count)
+    if done goto error else load_item
+load_item:
+    Int64(offset) = mul(i, 56)
+    Ptr(p) = add(ph, offset)
+    Int32(type) = load_u32(p)
+    Ptr(slot) = add(p, 8)
+    Int64(file_offset) = load(slot)
+    Int32(load) = eq(type, 1)
+    Int32(zero) = eq(file_offset, 0)
+    Int32(match) = and(load, zero)
+    if match goto load_found else load_next
+load_next:
+    Int64(i) = add(i, 1)
+    goto loads
+load_found:
+    Ptr(slot) = add(p, 16)
+    Int64(addr) = load(slot)
+    Int64(bias) = sub(eh, addr)
+    return bias
+error:
+    return -9223372036854775808
+end
+export function luxrt_tls_template_from_stack(Ptr(stack), Ptr(out)) -> Int64:
+    Ptr(env) = call luxrt_startup_env(stack)
+    goto env_loop
+env_loop:
+    Ptr(value) = load(env)
+    Ptr(env) = add(env, 8)
+    Int32(done) = eq(value, 0)
+    if done goto auxiliary_begin else env_loop
+auxiliary_begin:
+    Ptr(ph) = 0
+    Int64(count) = 0
+    Int64(ent) = 0
+    goto auxiliary
+auxiliary:
+    Int64(tag) = load(env)
+    Ptr(slot) = add(env, 8)
+    Int64(value) = load(slot)
+    Int32(done) = eq(tag, 0)
+    if done goto validate else ph_tag
+ph_tag:
+    Int32(match) = eq(tag, 3)
+    if match goto ph_store else ent_tag
+ph_store:
+    Ptr(ph) = add(value, 0)
+    goto aux_next
+ent_tag:
+    Int32(match) = eq(tag, 4)
+    if match goto ent_store else count_tag
+ent_store:
+    Int64(ent) = value
+    goto aux_next
+count_tag:
+    Int32(match) = eq(tag, 5)
+    if match goto count_store else aux_next
+count_store:
+    Int64(count) = value
+    goto aux_next
+aux_next:
+    Ptr(env) = add(env, 16)
+    goto auxiliary
+validate:
+    Int32(no_ph) = eq(ph, 0)
+    Int32(no_count) = eq(count, 0)
+    Int32(too_many) = ugt(count, 4096)
+    Int32(bad_ent) = ne(ent, 56)
+    Int32(bad1) = or(no_ph, no_count)
+    Int32(bad2) = or(too_many, bad_ent)
+    Int32(bad) = or(bad1, bad2)
+    if bad goto invalid else bias
+bias:
+    Int64(base) = call tls_bias(ph, count)
+    Int32(unsupported) = eq(base, -9223372036854775808)
+    if unsupported goto unsupported else tls_begin
+tls_begin:
+    Ptr(image) = 0
+    Int64(filesz) = 0
+    Int64(memsz) = 0
+    Int64(align) = 16
+    Int64(i) = 0
+    goto tls_loop
+tls_loop:
+    Int32(done) = eq(i, count)
+    if done goto output else tls_item
+tls_item:
+    Int64(offset) = mul(i, 56)
+    Ptr(p) = add(ph, offset)
+    Int32(type) = load_u32(p)
+    Int32(match) = eq(type, 7)
+    if match goto tls_found else tls_next
+tls_next:
+    Int64(i) = add(i, 1)
+    goto tls_loop
+tls_found:
+    Ptr(slot) = add(p, 16)
+    Int64(addr) = load(slot)
+    Ptr(slot) = add(p, 32)
+    Int64(filesz) = load(slot)
+    Ptr(slot) = add(p, 40)
+    Int64(memsz) = load(slot)
+    Ptr(slot) = add(p, 48)
+    Int64(align) = load(slot)
+    Int32(zero) = eq(align, 0)
+    if zero goto one else tls_validate
+one:
+    Int64(align) = 1
+    goto tls_validate
+tls_validate:
+    Int64(mask) = sub(align, 1)
+    Int64(power_bits) = and(align, mask)
+    Int64(address_bits) = and(addr, mask)
+    Int32(bad1) = ugt(filesz, memsz)
+    Int32(bad2) = ugt(align, 1048576)
+    Int32(bad3) = ne(power_bits, 0)
+    Int32(bad4) = ne(address_bits, 0)
+    Int32(bad5) = or(bad1, bad2)
+    Int32(bad6) = or(bad3, bad4)
+    Int32(bad) = or(bad5, bad6)
+    if bad goto invalid else image
+image:
+    Ptr(image) = add(base, addr)
+    goto output
+output:
+    store(image, out)
+    Ptr(slot) = add(out, 8)
+    store(filesz, slot)
+    Ptr(slot) = add(out, 16)
+    store(memsz, slot)
+    Ptr(slot) = add(out, 24)
+    store(align, slot)
+    return 0
+invalid:
+    return -22
+unsupported:
+    return -95
+end
+export function luxrt_tls_allocate(Ptr(template), Int64(model), Ptr(out)) -> Int64:
+    Ptr(image) = load(template)
+    Ptr(slot) = add(template, 8)
+    Int64(filesz) = load(slot)
+    Ptr(slot) = add(template, 16)
+    Int64(memsz) = load(slot)
+    Ptr(slot) = add(template, 24)
+    Int64(align) = load(slot)
+    Int64(mask) = sub(align, 1)
+    Int64(bits) = and(align, mask)
+    Int32(zero) = eq(align, 0)
+    Int32(power_bad) = ne(bits, 0)
+    Int32(bad) = or(zero, power_bad)
+    if bad goto invalid else minimum
+minimum:
+    Int32(small) = ult(align, 16)
+    if small goto sixteen else validate
+sixteen:
+    Int64(align) = 16
+    goto validate
+validate:
+    Int32(bad1) = ult(model, 1)
+    Int32(bad2) = ugt(model, 3)
+    Int32(bad3) = ugt(filesz, memsz)
+    Int32(bad4) = ugt(align, 1048576)
+    Int32(bad5) = or(bad1, bad2)
+    Int32(bad6) = or(bad3, bad4)
+    Int32(nonempty_image) = ne(filesz, 0)
+    Int32(null_image) = eq(image, 0)
+    Int32(bad_image) = and(nonempty_image, null_image)
+    Int32(bad7) = or(bad5, bad6)
+    Int32(bad) = or(bad7, bad_image)
+    if bad goto invalid else capacity
+capacity:
+    Int64(twice) = mul(align, 2)
+    Int64(thrice) = mul(align, 3)
+    Int64(limit) = sub(9223372036854775807, thrice)
+    Int64(limit) = sub(limit, 64)
+    Int32(too_big) = ugt(memsz, limit)
+    if too_big goto range else span
+span:
+    Int64(mask) = sub(align, 1)
+    Int64(inverted) = xor(mask, -1)
+    Int64(span) = add(memsz, mask)
+    Int64(span) = and(span, inverted)
+    Int64(size) = add(span, twice)
+    Int64(size) = add(size, 64)
+    Int64(raw) = call luxrt_os_map(size)
+    Int32(failed) = lt(raw, 0)
+    if failed goto map_error else layout
+layout:
+    Int32(variant_two) = eq(model, 1)
+    if variant_two goto variant_two else variant_one
+variant_two:
+    Ptr(tp) = add(raw, span)
+    Ptr(tp) = add(tp, mask)
+    Ptr(tp) = and(tp, inverted)
+    Ptr(data) = sub(tp, span)
+    store(tp, tp)
+    Ptr(slot) = add(tp, 16)
+    store(tp, slot)
+    goto copy
+variant_one:
+    Ptr(tp) = add(raw, mask)
+    Ptr(tp) = and(tp, inverted)
+    Int32(arm) = eq(model, 2)
+    if arm goto arm else riscv
+arm:
+    Int64(offset) = add(16, mask)
+    Int64(offset) = and(offset, inverted)
+    Ptr(data) = add(tp, offset)
+    goto copy
+riscv:
+    Ptr(data) = tp
+    goto copy
+copy:
+    Int32(nonempty) = ne(filesz, 0)
+    if nonempty goto copying else output
+copying:
+    call luxrt_memcpy(data, image, filesz)
+    goto output
+output:
+    Ptr(mapping) = add(raw, 0)
+    store(mapping, out)
+    Ptr(slot) = add(out, 8)
+    store(size, slot)
+    Ptr(slot) = add(out, 16)
+    store(tp, slot)
+    return 0
+invalid:
+    return -22
+range:
+    return -34
+map_error:
+    return raw
+end
+export function luxrt_tls_release(Ptr(block)) -> Int64:
+    Ptr(slot) = add(block, 16)
+    Ptr(tp) = load(slot)
+    Ptr(current) = call luxrt_tls_get()
+    Int32(active) = eq(current, tp)
+    if active goto busy else release
+release:
+    Ptr(mapping) = load(block)
+    Ptr(slot) = add(block, 8)
+    Int64(size) = load(slot)
+    Int64(result) = call luxrt_os_unmap(mapping, size)
+    Int32(ok) = eq(result, 0)
+    if ok goto clear else done
+clear:
+    store(Ptr(0), block)
+    Ptr(slot) = add(block, 8)
+    store(Int64(0), slot)
+    Ptr(slot) = add(block, 16)
+    store(Ptr(0), slot)
+    goto done
+done:
+    return result
+busy:
+    return -16
+end
+export function luxrt_tls_main(Ptr(stack), Ptr(out)) -> Int64:
+    Ptr(template) = alloc8(32)
+    Int64(result) = call luxrt_tls_template_from_stack(stack, template)
+    Int32(failed) = ne(result, 0)
+    if failed goto done else allocate
+allocate:
+    Int64(result) = call luxrt_tls_allocate_native(template, out)
+    Int32(failed) = ne(result, 0)
+    if failed goto done else set
+set:
+    Ptr(slot) = add(out, 16)
+    Ptr(tp) = load(slot)
+    Int64(result) = call luxrt_tls_set(tp)
+    Int32(failed) = ne(result, 0)
+    if failed goto cleanup else done
+cleanup:
+    call luxrt_tls_release(out)
+    goto done
+done:
+    return result
+end

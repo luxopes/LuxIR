@@ -18,3 +18,12 @@ int64_t luxrt_thread_join(void *tid){
   if(rc<0&&rc!=-4&&rc!=-11)return rc;
  }
 }
+
+extern int64_t luxrt_thread_clone_tls(void (*fn)(void *),void *,void *,void *,void *);
+int64_t luxrt_thread_spawn_tls(void (*fn)(void *),void *arg,void *stack,uint64_t size,void *tid,void *tp){
+ uintptr_t base=(uintptr_t)stack,slot=(uintptr_t)tid;
+ if(!fn||!base||!slot||!tp||(slot&3)||size<4096||UINTPTR_MAX-base<size)return -22;
+ uintptr_t end=(base+size)&~(uintptr_t)15;
+ if(end-base<4096||luxrt_atomic_load32(tid))return -22;
+ return luxrt_thread_clone_tls(fn,arg,(void *)end,tid,tp);
+}

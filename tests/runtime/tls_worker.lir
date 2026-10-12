@@ -1,0 +1,53 @@
+ir_version "1"
+runtime_abi "none"
+export thread data private_value = Int64(7)
+export thread data initial = Int64(1234567)
+export thread data pad align 64 = zero(103)
+export function worker(Ptr(result)):
+    Int64(id) = load(result)
+    Int64(value) = load(thread(private_value))
+    Int64(init) = load(thread(initial))
+    Int32(ok) = eq(value, 7)
+    Int32(check) = eq(init, 1234567)
+    Int32(ok) = and(ok, check)
+    Int64(i) = 0
+    goto zeros
+zeros:
+    Ptr(slot) = add(thread(pad), i)
+    Int32(byte) = load_u8(slot)
+    Int32(check) = eq(byte, 0)
+    Int32(ok) = and(ok, check)
+    Int64(i) = add(i, 1)
+    Int32(more) = ult(i, 103)
+    if more goto zeros else init
+init:
+    store(id, thread(private_value))
+    Int64(init) = add(id, 1000)
+    store(init, thread(initial))
+    Int64(i) = 0
+    goto loop
+loop:
+    Int64(value) = load(thread(private_value))
+    Int64(value) = add(value, 1)
+    store(value, thread(private_value))
+    Int64(offset) = urem(i, 103)
+    Ptr(slot) = add(thread(pad), offset)
+    store(Int8(id), slot)
+    Int64(i) = add(i, 1)
+    Int32(more) = ult(i, 10000)
+    if more goto loop else done
+done:
+    Int64(value) = load(thread(private_value))
+    Int64(expected) = add(id, 10000)
+    Int32(check) = eq(value, expected)
+    Int32(ok) = and(ok, check)
+    Int64(init) = load(thread(initial))
+    Int64(expected) = add(id, 1000)
+    Int32(check) = eq(init, expected)
+    Int32(ok) = and(ok, check)
+    Ptr(slot) = add(result, 16)
+    store(value, slot)
+    Ptr(slot) = add(result, 8)
+    call luxrt_atomic_store32(slot, ok)
+    return
+end

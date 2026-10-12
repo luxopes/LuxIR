@@ -1,0 +1,11 @@
+{
+  "target": "rv64",
+  "output": "",
+  "binary_identical": true,
+  "libc": false,
+  "dynamic_loader": false,
+  "native": false,
+  "emulator": [
+    "qemu-riscv64"
+  ]
+}

@@ -108,10 +108,60 @@ CAS a store-buffering litmus. Všechny tři Linux implementace prošly spuštěn
 
 `linux-x86_64/thread.c/.lir/.S`: raw clone na stacku volajícího a join přes
 CLONE_CHILD_CLEARTID/futex. Stack, callback a tid slot musejí žít do join.
-Callback nesmí používat libc, compiler TLS, unwinding nebo managed objekty;
-TLS ani GC neexistuje. Tento modul není plnohodnotné vlákno jazyka LSL.
+Legacy callback nesmí používat libc, compiler TLS, unwinding nebo managed
+objekty. Nový TLS spawn níže podporuje statické TLS; GC není implementován. Tento modul není plnohodnotné vlákno jazyka LSL.
 Guard page poskytuje caller; test má guarded stacky a čtyři miliony inkrementů.
 
 Cross kontrola: `tests/runtime/cross_linux.py --target arm64|rv64 --backend
 src/luxir --backend build/luxir`; vyžaduje cross GCC a qemu-user. Výsledky
 QEMU nepotvrzují výkon na skutečném CPU ani self-host cross LSL compileru.
+
+## Obecné TLS, vlákna, registry a Linux signály
+
+Tyto služby nejsou vázané na jazyk LSL. Libovolný frontend může emitovat
+stejné IR a využít stejné ABI; typy, layout objektů, chybová politika a
+volba GC zůstávají explicitním kontraktem frontendu. Runtime ABI je stále
+`none`: externí moduly se sestavují a linkují spolu s programem, nikoli
+automaticky příkazem LuxIR do hotové binárky.
+
+`tls.c/.lir`, `tls.h` a `linux-*/tls.S`: statické ELF local-exec TLS pro
+x86_64, arm64 a rv64. `luxrt_tls_template_from_stack` čte PT_TLS z auxv
+platného kernel stacku; podporuje PT_PHDR nebo standardní ELF64 obraz s
+phdr hned za 64bajtovou hlavičkou a PT_LOAD od offsetu 0. Jiný layout vrací
+-ENOTSUP. Není to parser nedůvěryhodných ELF souborů. Segment TLS musí mít
+zarovnanou vaddr, filesz <= memsz a power-of-two align nejvýše 1 MiB.
+`allocate_native` mapuje vlastní blok, kopíruje inicializovaná data a
+ponechá zero-fill; hlavní vlákno programu bez libc volá `luxrt_tls_main`
+před prvním `thread(symbol)`. Neměňte TLS hlavního vlákna programu s libc:
+libc má vlastní TCB, DTV, errno a další interní data.
+
+`thread_spawn_tls(fn,arg,stack,size,tid,tp)` nastavuje CLONE_SETTLS; TP
+pochází z `allocate_native`. Caller spravuje stack/guard, tid slot a TLS
+blok; žádnou z těchto pamětí neuvolní před join. `tls_release` odmítá
+uvolnění TLS právě běžícího vlákna (-EBUSY), ale nekontroluje ostatní
+vlákna: jejich životnost je povinnost volajícího. Nejsou podporovány
+dlopen, dynamic TLS, TLS destructors, libc v raw callbacku ani unwinding.
+Legacy spawn nemění původní kontrakt. Testy spouštějí 40 callbacků z IR
+s initialized a 64-byte-aligned zero-fill TLS a samostatný static PIE bez libc.
+
+`context.h`, `linux-*/context.S`: `luxrt_capture_regs(snapshot)` ukládá
+callee-saved GP registry, callee-saved floating raw bits (ARM64/RV64) a
+caller SP; reserve 25 uint64 words, skutečný počet vrací `context_words`.
+Nejde o longjmp, unwinding ani hotový GC. Caller prochází uložené registry
+**i živý stack**, řeší zastavení ostatních vláken a uchování snapshotu.
+`startup_stack_top` vrací původní kernel stack pointer, který caller
+předá z entry (nevytváří stack mapy). Testovací conservative mark scanner
+ověřuje alokaci zachovanou v jediném callee-saved registru fixture.
+
+`signal.h`, `linux-*/signal.c/.lir/.S`: descriptor 24 bytes (handler,
+Linux flags, 64b kernel mask) nezávislý na libc struct sigaction. Action
+0 znamená default, 1 ignore; query používá NULL action. X86/ARM vkládají
+vlastní restorer, RV64 používá kernel/VDSO návrat. Vrací raw negativní
+errno, při chybě action output nemění. Handler musí být async-signal-safe;
+SA_SIGINFO vyžaduje callback odpovídající Linux tříargumentové signatuře
+(a vhodný cast v C), nikoli obyčejný handler(int). Sigaltstack a přenosná
+Windows/macOS signal politika zatím nejsou součástí tohoto modulu.
+
+Kontroly: `tests/runtime/run_tls.py`, `tls_entry.py`, `run_platform.py`;
+`--backend src/luxir --backend build/luxir --target amd64_sysv|arm64|rv64`.
+ARM64/RV64 execution je v QEMU, nikoli měření výkonu skutečného CPU.

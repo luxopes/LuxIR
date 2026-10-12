@@ -1,0 +1,11 @@
+{
+  "target": "arm64",
+  "output": "513 static TLS checks passed (40 private threads, initialized + zero-fill + aligned TLS)",
+  "assembly_parity": true,
+  "threads": 40,
+  "worker_libc": false,
+  "managed_gc": false,
+  "runner": [
+    "qemu-aarch64"
+  ]
+}
