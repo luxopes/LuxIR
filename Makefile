@@ -72,6 +72,7 @@ check-runtime: c native
 	$(PYTHON) tests/runtime/run_memory.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_integer.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_checked.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_arena.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_os.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_startup.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/standalone.py --backend src/luxir --backend build/luxir

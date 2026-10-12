@@ -1,0 +1,71 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_arena_init(Ptr(arena), Ptr(base), Int64(capacity)) -> Int32:
+    Int32(null) = eq(base, 0)
+    Int32(nonempty) = ne(capacity, 0)
+    Int32(bad) = and(null, nonempty)
+    if bad goto invalid else range
+range:
+    Int64(limit) = sub(-1, base)
+    Int32(wrap) = ugt(capacity, limit)
+    if wrap goto overflow else ready
+ready:
+    store(base, arena)
+    Ptr(slot) = add(arena, 8)
+    store(capacity, slot)
+    Ptr(slot) = add(arena, 16)
+    store(Int64(0), slot)
+    return 0
+invalid:
+    return -22
+overflow:
+    return -75
+end
+export function luxrt_arena_alloc(Ptr(arena), Int64(size), Int64(alignment), Ptr(out)) -> Int32:
+    Int32(zero_size) = eq(size, 0)
+    Int32(zero_align) = eq(alignment, 0)
+    Int64(mask) = sub(alignment, 1)
+    Int64(bits) = and(alignment, mask)
+    Int32(not_power) = ne(bits, 0)
+    Int32(bad) = or(zero_size, zero_align)
+    Int32(bad) = or(bad, not_power)
+    if bad goto invalid else space
+space:
+    Ptr(base) = load(arena)
+    Ptr(slot) = add(arena, 8)
+    Int64(capacity) = load(slot)
+    Ptr(used_slot) = add(arena, 16)
+    Int64(used) = load(used_slot)
+    Int64(remaining) = sub(capacity, used)
+    Ptr(address) = add(base, used)
+    Int64(negative) = sub(0, address)
+    Int64(padding) = and(negative, mask)
+    Int32(no_padding) = ugt(padding, remaining)
+    if no_padding goto exhausted else size_check
+size_check:
+    Int64(available) = sub(remaining, padding)
+    Int32(no_size) = ugt(size, available)
+    if no_size goto exhausted else ready
+ready:
+    Ptr(result) = add(address, padding)
+    store(result, out)
+    Int64(next) = add(used, padding)
+    Int64(next) = add(next, size)
+    store(next, used_slot)
+    return 0
+invalid:
+    return -22
+exhausted:
+    return -12
+end
+export function luxrt_arena_rewind(Ptr(arena), Int64(mark)) -> Int32:
+    Ptr(slot) = add(arena, 16)
+    Int64(used) = load(slot)
+    Int32(invalid) = ugt(mark, used)
+    if invalid goto error else ready
+ready:
+    store(mark, slot)
+    return 0
+error:
+    return -22
+end

@@ -1,0 +1,22 @@
+{
+  "initial_sha256": "2f77ea40c767be6ec7b945a38d73778fc29696acf0a2dc3b3046e239b41f368d",
+  "generations": [
+    {
+      "generation": 2,
+      "seconds": 90.03957238699991,
+      "limit_seconds": 90.0,
+      "exit_code": "timeout",
+      "backend": "/workspace/scratch/602efea1b046/luxir-baseline/build/luxir",
+      "log": "/workspace/scratch/602efea1b046/luxir-baseline/build/selfhost/stage2.log"
+    }
+  ],
+  "complete": false,
+  "fixed_point": false,
+  "time_gate_passed": false,
+  "target": "amd64_sysv",
+  "tested_commit": "12d3bb3c1c5e1a7bfed1b74960bd7a025bf7d945",
+  "bootstrap_seconds": 77.20142619800004,
+  "required_limit_seconds": 60,
+  "required_time_gate_passed": false,
+  "note": "Previous commit also timed out in recovered environment; not a completed timing comparison or proof of relative speed."
+}

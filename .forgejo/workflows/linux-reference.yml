@@ -28,6 +28,7 @@ jobs:
           python3 tests/runtime/run_memory.py --backend src/luxir
           python3 tests/runtime/run_integer.py --backend src/luxir
           python3 tests/runtime/run_checked.py --backend src/luxir
+          python3 tests/runtime/run_arena.py --backend src/luxir
           python3 tests/runtime/run_os.py --backend src/luxir
           python3 tests/runtime/run_startup.py --backend src/luxir
           python3 tests/runtime/run_io.py --backend src/luxir
@@ -48,6 +49,7 @@ jobs:
             python3 tests/build_driver.py --target "$target" --backend src/luxir
             python3 tests/data_sections.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_relocate.py --target "$target" --backend src/luxir
+            python3 tests/runtime/run_arena.py --target "$target" --backend src/luxir
             python3 tests/numeric.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir
             python3 tests/runtime/tls_entry.py --target "$target" --backend src/luxir

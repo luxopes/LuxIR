@@ -53,7 +53,7 @@ def main():
     for p in a.inputs:
         if not p.is_file():ap.error('input missing: '+str(p))
     arch,prefix=TARGETS[a.target];platform=ROOT/('runtime/linux-'+arch)
-    sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate']]
+    sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate','arena']]
     sources+=[platform/(name+'.lir') for name in ['os','thread','signal','tls-native']]
     destination=a.output.resolve();destination.parent.mkdir(parents=True,exist_ok=True)
     # Final output is replaced only after successful compile and link.

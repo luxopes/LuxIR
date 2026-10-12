@@ -1,0 +1,41 @@
+{
+  "target": "amd64_sysv",
+  "results": [
+    {
+      "allocations_per_trial": 16000000,
+      "trials": 7,
+      "median_ns_per_allocation": 2.16456,
+      "managed_gc": false,
+      "touch_payload": false,
+      "implementation": "C reference"
+    },
+    {
+      "allocations_per_trial": 16000000,
+      "trials": 7,
+      "median_ns_per_allocation": 3.263998,
+      "managed_gc": false,
+      "touch_payload": false,
+      "implementation": "src/luxir"
+    },
+    {
+      "allocations_per_trial": 16000000,
+      "trials": 7,
+      "median_ns_per_allocation": 3.074189,
+      "managed_gc": false,
+      "touch_payload": false,
+      "implementation": "build/luxir"
+    }
+  ],
+  "includes": [
+    "function_call",
+    "alignment_and_capacity_checks",
+    "pointer_checksum"
+  ],
+  "excludes": [
+    "OS_mapping",
+    "payload_initialization",
+    "object_headers",
+    "GC",
+    "multi_thread_synchronization"
+  ]
+}

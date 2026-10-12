@@ -232,3 +232,40 @@ obě shodné se stage 1 (SHA256
 Minutová brána v tomto prostředí tedy **neprošla**; výsledky staršího
 prostředí nejsou důkazem aktuálního výkonu. Protokol 108 kontrol a všechny
 základní programy/72 negativních případů C+LSL prošly.
+
+## Raw arena allocator — 12. 10. 2026
+
+`runtime/arena.c/.h/.lir`: 24bajtový caller-owned descriptor, init s
+kontrolou rozsahu, bump allocation se zarovnáním a kontrolou kapacity,
+rewind. Chyby zachovají descriptor i output; payload se neinicializuje.
+Nejde o managed allocator, GC, mapování paměti ani thread-safe arénu.
+
+Nezávislý 128bitový C oracle: 1 213 384 kontrol pro C referenci, C-emitted
+a LSL-emitted IR, plus C ASan/UBSan. Assembler C/LSL shodný pro šest
+cílů. 256 dalších scénářů s Pythonem vypočtenými offsety spuštěno jako
+raw static PIE na třech Linux cílech (ARM64/RV64 QEMU), binárky C/LSL
+shodné. Driver připojuje arena modul automaticky; nepoužitý modul je
+vyřazen a dosavadní demo obraz zůstává bajtově stejný.
+
+Izolovaný x86-64 benchmark: 16 milionů alokací po 16 bajtech na trial,
+7 měřených trialů a warm-up; obsahuje call, kontroly a pointer checksum,
+nezahrnuje OS mapování, inicializaci objektů, GC nebo synchronizaci.
+- C reference: medián 2.165 ns/alokaci.
+- src/luxir: medián 3.264 ns/alokaci.
+- build/luxir: medián 3.074 ns/alokaci.
+
+Čísla nejsou měřením managed objektů ani end-to-end soutěžního programu.
+C/LSL emitory generují stejný kód; rozdíl jejich samostatně měřených
+trialů proto není rozdíl optimalizace backendu.
+
+Kontrola staršího commitu `12d3bb3` v obnoveném prostředí: znovu
+vytvořená binárka má původní SHA256 `2f77ea40…41f368d`; bootstrap
+77,20 s, selfhost stage 2 timeout 90 s. To nepotvrzuje relativní
+zrychlení nové změny, ale ukazuje, že starší minutový výsledek nelze
+přenést do současného prostředí.
+
+Profilovaný aktuální překlad: 63,7588 s celkem, samotný native LuxIR
+backend 3,6696 s (včetně spuštění wrapperu), úspěšná kompilace. Zbytek
+je frontend, generování IR, as/ld a driver; jednotlivé složky zbytku
+tímto měřením nejsou rozdělené. Výstup ověřen jako shodný s výchozí
+binárkou. Aktuální limit 60 s nesplněn.

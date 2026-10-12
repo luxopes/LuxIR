@@ -1,0 +1,20 @@
+{
+  "target": "arm64",
+  "raw_allocation_cases": 256,
+  "runner": [
+    "qemu-aarch64"
+  ],
+  "oracle": "1213384 arena checks passed",
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "raw_binary_identical": true,
+  "c_asan_ubsan": true,
+  "leak_sanitizer": false,
+  "managed_gc": false
+}

@@ -1,0 +1,23 @@
+{
+  "total_seconds": 63.758827096999994,
+  "exit_code": 0,
+  "backend_invocations": [
+    {
+      "seconds": 3.6695931369999926,
+      "exit_code": 0,
+      "args": [
+        "-t",
+        "amd64_sysv",
+        "-o",
+        "/tmp/lsl-program-6/program.s",
+        "/tmp/lsl-program-6/program.lir"
+      ],
+      "child_user_seconds": 3.177026,
+      "child_system_seconds": 0.490761
+    }
+  ],
+  "backend_seconds": 3.6695931369999926,
+  "required_limit_seconds": 60,
+  "required_time_gate_passed": false,
+  "note": "Wrapper timings include subprocess startup; remaining time includes frontend, IR emission, assembler, linker and driver."
+}

@@ -180,3 +180,36 @@ Oprava malých TLS bloků: zarovnání TCB a velikost variant-II obrazu jsou
 odlišné veličiny. Obraz se zaokrouhluje podle původního PT_TLS alignment,
 TP nejméně na 16 bajtů. Zvýšení alignment obrazu z 8 na 16 posouvalo data
 oproti linkerovým TPOFF offsetům. Driver testuje align 1..64 a krátký BSS.
+
+## Arena nad pamětí volajícího
+
+`arena.h/.c/.lir` poskytují jednoduchý 24bajtový raw alokátor bez OS
+závislostí: `{ Ptr base; UInt64 capacity; UInt64 used; }`, zarovnání polí 8.
+`luxrt_arena_init(arena, base, capacity)` ověří null rozsah a přetečení
+adresy a nastaví used na nulu. `luxrt_arena_alloc(arena, size, alignment,
+out)` přidělí nezávislý blok s požadovaným zarovnáním (nenulová mocnina
+dvou), bez inicializace obsahu. Nulová velikost je chyba.
+
+Status: 0 úspěch, -22 neplatný parametr, -75 přetečení rozsahu při init,
+-12 nedostatečná kapacita. Při chybě se nemění descriptor ani výstupní slot.
+`luxrt_arena_rewind(arena, mark)` vrací kurzor k dřívějšímu snímku used;
+mark musí patřit stejné životnosti arény. Hodnota větší než used je -22.
+Rewind zneplatní novější bloky, nemaže jejich obsah a nevolá destruktory.
+
+Descriptor, backing paměť a výstupní sloty musí být platné a disjunktní;
+descriptor mění pouze toto API. Caller musí zajistit skutečnou velikost
+a životnost backing paměti. Každá aréna má jediného vlastníka; pro
+souběžná vlákna použijte oddělené arény nebo vnější synchronizaci.
+
+Raw Linux driver připojuje modul automaticky. V IR lze descriptor
+vytvořit `Ptr(arena) = alloc8(24)` a předat mu backing rozsah. Samotné
+přidělení neprovádí syscall, nevede tabulku objektů a neskenuje kořeny.
+Jde o obecné primitivum pro dočasná data nebo budoucí allocator runtime;
+není to dokončený managed alokátor, generační GC ani správa rootů.
+
+Testy: `tests/runtime/run_arena.py` — nezávislé 128bitové zaokrouhlování
+adres, náhodné délky/zarovnání, canaries, nezměněný stav při chybě,
+obsah se při alokaci nemaže, C ASan/UBSan, C/LSL shoda assembleru šesti
+cílů a skutečné standalone execution tří Linux cílů.
+Benchmark `arena_benchmark.py` měří volání, kontroly a pointer checksum;
+nezahrnuje mapování, inicializaci objektů ani GC.

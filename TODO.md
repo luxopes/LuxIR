@@ -192,6 +192,11 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   výkonnostní brány a skutečné cílové execution testy; nenahrazovat celou
   širší položku níže stavem hotovo podle samotné existence prototypu.
 
+- [x] Raw caller-owned arena allocator (`runtime/arena.c/.lir`): zarovnání,
+  checked kapacita/adresní rozsah, rewind, bez syscallů v alokační cestě.
+  1 213 384 kontrol C/LSL, sanitizery C, standalone execution tří Linux
+  cílů. Nejde o managed allocator, bump nursery s GC nebo thread STW.
+
 ## Runtime knihovna LuxIR (luxrt)
 
 ### OS vrstva: jediné místo s kódem pro konkrétní systém
@@ -298,5 +303,9 @@ zastávek a `IntArray` místo slovníků: 1,48 s. Cíl: řetězcová verze nejv�
   Wine a před vydáním na skutečném Windows, macOS na skutečném Macu.
 - [ ] Self-host LuxIR na každém cíli: `luxir` přeložený LSL a luxrt pro daný
   systém, bajtově stejný výstup `.s` jako na Linuxu.
+- [ ] Aktuální minutová selfhost brána v obnoveném prostředí: profilovaný
+  překlad 63,76 s, z toho LuxIR backend 3,67 s. Fixed point ověřen, ale
+  limit 60 s nesplněn; předchozí commit zde také timeoutoval. Zbylé fáze
+  nejsou jednotlivě profilované (`validation/data-sections-profile.json`).
 - [ ] Výkonové měření backendu: čas překladu LSL compileru přes LuxIR
   nesmí růst s přidanými optimalizacemi bez vyrovnání jinde.
