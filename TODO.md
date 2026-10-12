@@ -108,6 +108,16 @@ zastávek a `IntArray` místo slovníků: 1,48 s. Cíl: řetězcová verze nejv�
 - [ ] **split a malé řetězce:** `split` vytváří nový objekt pro každý token.
   Zvážit internování krátkých řetězců nebo řezy bez kopie, aby opakované
   klíče sdílely objekt a porovnání skončilo na shodě ukazatelů.
+- [ ] **Alokace:** každý nový objekt se zapisuje do globální tabulky
+  objektů (`runtime_register_object`), kterou pak potřebuje rozlišení
+  netagovaných hodnot. Seznam `[i]` stojí 336 ns (Python 169 ns), `split("=")`
+  krátkého řetězce se třemi alokacemi 342 ns i s nativní cestou. Benchmark
+  „vrah“ (milion řádků `otazka=odpoved`, seskupení do slovníku seznamů): C
+  0,31 s, Python 3,8 s, LSL 0.9.2 4,9 s, se změnami po vydání 2,8 s.
+  S tagovanými hodnotami tabulka odpadne; alokátor s bump pointerem a
+  generační GC (dnes každý cyklus prochází celou haldu, úplný `gc()` nad
+  3 miliony objektů ~0,6 s).
+  Přijetí: malá alokace nejvýš 30 ns, „vrah“ nejvýš 1 s.
 - [ ] **Benchmarková sada:** přidat „autobusy“ (řetězcovou i číselnou verzi)
   a mikrobenchmarky slovníku (vložení, `in` při zásahu i minutí, čtení,
   vkládání do nového slovníku, append/pop na seznamu) s referencí v C a
