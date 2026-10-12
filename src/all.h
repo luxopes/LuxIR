@@ -630,3 +630,6 @@ void elf_emitfnfin(char *, FILE *);
 void elf_emitfin(FILE *);
 void macho_emitfin(FILE *);
 void pe_emitfin(FILE *);
+
+/* main.c: explicit static-PIE address mode (currently rv64). */
+extern int pic;

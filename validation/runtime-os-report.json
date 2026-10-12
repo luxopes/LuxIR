@@ -1,0 +1,10 @@
+{
+  "output": "27 Linux syscall checks passed",
+  "backends": [
+    "src/luxir",
+    "build/luxir"
+  ],
+  "assembly_parity": true,
+  "target": "linux-x86_64",
+  "libc_calls_in_runtime": false
+}

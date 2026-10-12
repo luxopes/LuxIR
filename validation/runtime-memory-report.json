@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "backend": "src/luxir",
+      "target": "amd64_sysv",
+      "assembly_parity": true
+    },
+    {
+      "backend": "src/luxir",
+      "target": "amd64_win",
+      "assembly_parity": true
+    },
+    {
+      "backend": "src/luxir",
+      "target": "amd64_apple",
+      "assembly_parity": true
+    },
+    {
+      "backend": "src/luxir",
+      "target": "arm64",
+      "assembly_parity": true
+    },
+    {
+      "backend": "src/luxir",
+      "target": "arm64_apple",
+      "assembly_parity": true
+    },
+    {
+      "backend": "src/luxir",
+      "target": "rv64",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "amd64_sysv",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "amd64_win",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "amd64_apple",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "arm64",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "arm64_apple",
+      "assembly_parity": true
+    },
+    {
+      "backend": "build/luxir",
+      "target": "rv64",
+      "assembly_parity": true
+    }
+  ],
+  "runtime_output": "235296 memory/UTF-8 checks passed",
+  "linux_execution": true,
+  "other_targets_execution": false,
+  "c_asan_ubsan": true,
+  "leak_sanitizer": false,
+  "native_guard_pages": true
+}

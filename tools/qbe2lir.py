@@ -20,7 +20,7 @@ RESERVED = {
     'file', 'end', 'goto', 'if', 'else', 'return', 'halt', 'call', 'phi', 'store',
     'blit', 'vastart', 'dbgloc', 'struct', 'union', 'opaque', 'zero', 'extern',
     'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32', 'Int64', 'Float32', 'Float64',
-    'Ptr', 'Env', 'inf', 'nan', 'bits',
+    'Ptr', 'Env', 'inf', 'nan', 'bits', 'ir_version', 'runtime_abi',
 }
 CMP_INT = {'eq': 'eq', 'ne': 'ne', 'sge': 'ge', 'sgt': 'gt', 'sle': 'le', 'slt': 'lt',
            'uge': 'uge', 'ugt': 'ugt', 'ule': 'ule', 'ult': 'ult'}

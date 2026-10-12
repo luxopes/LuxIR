@@ -1,0 +1,15 @@
+{
+  "name": "luxir-version-native",
+  "cwd": "/workspace/scratch/602efea1b046/lsl-release-091",
+  "command": [
+    "./compiler/lslc",
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/lsl/luxir.lsl",
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/build/luxir",
+    "./compiler/pure/luxir"
+  ],
+  "address_space_limit": 4294967296,
+  "timeout_seconds": 120,
+  "exit_code": 0,
+  "elapsed_seconds": 45.521,
+  "peak_rss_kib": 1057360
+}

@@ -1,0 +1,48 @@
+ir_version "1"
+runtime_abi "none"
+data environment_name = ["LUXRT_STARTUP_TEST", Int8(0)]
+export function luxrt_entry_main(Ptr(stack)) -> Int32:
+    Int64(argc) = call luxrt_startup_argc(stack)
+    Int32(count_ok) = eq(argc, 3)
+    if count_ok goto arguments else error
+arguments:
+    Ptr(argv) = call luxrt_startup_argv(stack)
+    Ptr(slot) = add(argv, 8)
+    Ptr(argument) = load(slot)
+    Ptr(env) = call luxrt_startup_env(stack)
+    Ptr(value) = call luxrt_getenv(env, Ptr(environment_name))
+    Int32(found) = ne(value, 0)
+    if found goto pages else error
+pages:
+    Int64(size) = call luxrt_startup_pagesize(stack)
+    Int32(has_page) = uge(size, 4096)
+    if has_page goto allocate else error
+allocate:
+    Int64(address) = call luxrt_os_map(size)
+    Int32(mapped) = gt(address, 0)
+    if mapped goto output else error
+output:
+    Ptr(memory) = add(address, 0)
+    Int64(n) = call luxrt_format_i64(argc, memory, size)
+    Ptr(end) = add(memory, n)
+    store(Int8(10), end)
+    Int64(n) = add(n, 1)
+    call luxrt_os_write(Int64(1), memory, n)
+    Int64(n) = call luxrt_format_i64(size, memory, size)
+    Ptr(end) = add(memory, n)
+    store(Int8(10), end)
+    Int64(n) = add(n, 1)
+    call luxrt_os_write(Int64(1), memory, n)
+    call luxrt_os_write(Int64(1), argument, Int64(6))
+    store(Int8(10), memory)
+    call luxrt_os_write(Int64(1), memory, Int64(1))
+    call luxrt_os_write(Int64(1), value, Int64(8))
+    call luxrt_os_write(Int64(1), memory, Int64(1))
+    Int64(result) = call luxrt_os_unmap(memory, size)
+    Int32(ok) = eq(result, 0)
+    if ok goto success else error
+success:
+    return 0
+error:
+    return 1
+end

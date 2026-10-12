@@ -1,0 +1,8 @@
+{
+  "byte_identical": true,
+  "sha256": "30c5e435de0c6a11220423bea83dac9f5f6dc66c3726a82bc7b169a5565fd83d",
+  "build_seconds": 45.521,
+  "selfhost_seconds": 45.369,
+  "frontend_seconds": 5.778,
+  "frontend_sha256": "dfe09af872905d37b970770924f2442645ccf902fca889611935979fe1766019"
+}

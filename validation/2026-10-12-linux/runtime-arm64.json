@@ -1,0 +1,49 @@
+{
+  "target": "arm64",
+  "runner": "qemu-aarch64",
+  "cc": "aarch64-linux-gnu-gcc",
+  "cases": [
+    {
+      "module": "memory",
+      "output": "235296 memory/UTF-8 checks passed",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "integer",
+      "output": "3800329 decimal integer checks passed",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "checked",
+      "output": "800512 checked arithmetic checks passed",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "startup",
+      "output": "10009 startup/environment checks passed",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "os",
+      "output": "27 Linux syscall checks passed",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "io",
+      "output": "33 full I/O checks passed (300001-byte pipe, short reads, partial error)",
+      "assembly_parity": true,
+      "execution": true
+    },
+    {
+      "module": "atomic",
+      "output": "2032 atomic checks passed (4-thread counters, 2000 SC ordering rounds)",
+      "execution": true
+    }
+  ],
+  "cross_selfhost": false
+}

@@ -1,0 +1,8 @@
+{
+  "output": "2032 atomic checks passed (4-thread counters, 2000 SC ordering rounds)",
+  "execution_targets": [
+    "linux-x86_64"
+  ],
+  "arm64_rv64_execution": false,
+  "backend_ir_instructions": false
+}

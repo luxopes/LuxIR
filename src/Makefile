@@ -28,6 +28,7 @@ $(AMD64OBJ): amd64/all.h
 $(ARM64OBJ): arm64/all.h
 $(RV64OBJ): rv64/all.h
 main.o: config.h
+main.o parse.o: version.h
 
 config.h:
 	@case `uname` in                               \

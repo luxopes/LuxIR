@@ -1,0 +1,15 @@
+{
+  "name": "luxir-version-backend-selfhost",
+  "cwd": "/workspace/scratch/602efea1b046/lsl-release-091",
+  "command": [
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/build/frontend-selfhost",
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/lsl/luxir.lsl",
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/build/luxir-selfhost",
+    "/workspace/scratch/602efea1b046/luxir-task/luxir/build/luxir"
+  ],
+  "address_space_limit": 4294967296,
+  "timeout_seconds": 120,
+  "exit_code": 0,
+  "elapsed_seconds": 45.369,
+  "peak_rss_kib": 1057232
+}

@@ -233,6 +233,12 @@ loadaddr(Con *c, char *rn, FILE *f)
 
 	switch (c->sym.type) {
 	case SGlo:
+		if (pic) {
+			fprintf(f, "\tlla %s, ", rn);
+			emitaddr(c, f);
+			fputc('\n', f);
+			break;
+		}
 		fprintf(f, "\tlui %s, %%hi(", rn);
 		emitaddr(c, f);
 		fprintf(f, ")\n\taddi %s, %s, %%lo(", rn, rn);
@@ -240,7 +246,7 @@ loadaddr(Con *c, char *rn, FILE *f)
 		fputs(")\n", f);
 		break;
 	case SExt:
-		fprintf(f, "\tla %s, ", rn);
+		fprintf(f, pic ? "\tlla %s, " : "\tla %s, ", rn);
 		emitaddr(c, f);
 		fputc('\n', f);
 		break;

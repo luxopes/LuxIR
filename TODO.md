@@ -14,8 +14,14 @@ pomalejší než předchozí vydání LSL, při překladu ani za běhu.
 
 ## Rozhraní pro frontendy
 
-- [ ] Verzovat IR a ABI runtime knihovny (`luxir --version`, verze v hlavičce
-  `.lir`); nekompatibilní kombinace odmítnout srozumitelnou chybou.
+- [x] Základ verzování IR: `luxir --version`, volitelné hlavičky
+  `ir_version "1"` a `runtime_abi "none"`, kontrola neznámých, opakovaných
+  a pozdních hlaviček. Legacy IR zachovává výstup. C reference a
+  přegenerovaná LSL verze mají shodné výstupy/diagnostiku; viz
+  `tests/versioning.py` a `VALIDATION.md` (12. 10. 2026).
+- [ ] Číslované ABI integrované runtime knihovny luxrt a kontrola při
+  linkování. Dnešní `none` výslovně označuje externí runtime; nejde o
+  implementaci luxrt ani ověření kompatibility externí knihovny.
 - [ ] Popis layoutu objektů frontendu: ukazatelové mapy typů, kořeny,
   safepointy. Frontend řekne *co* je ukazatel, LuxIR rozhodne *jak* GC
   prochází zásobník a registry (stack mapy).
@@ -42,6 +48,53 @@ pomalejší než předchozí vydání LSL, při překladu ani za běhu.
   každou binárku o ~12 KB).
 - [ ] Akceptace: linuxové binárky LSL bez `as` a `ld` projdou branou
   hardeningu obrazu v release preflightu LSL a celou sadou testů.
+
+## Implementované základy runtime — 12. 10. 2026
+
+Jde o testované externí moduly, nikoli o dokončený integrovaný luxrt.
+Kontrakt, omezení a příkazy: [runtime/README.md](runtime/README.md).
+Následující úzké části jsou hotové; širší položky níže zůstávají otevřené.
+
+- [x] Raw byte-span `memcpy`, `memmove`, `memset`, `memcmp`, `memchr`,
+  FNV-1a hash a strict UTF-8 validace: `runtime/memory.lir`, C reference.
+  235 296 kontrol; C/LSL assembler shodný pro šest cílů; execution Linux
+  x86_64 nativně, arm64 a rv64 v QEMU.
+- [x] Desetinné Int64 ↔ text v celém rozsahu s kontrolou overflow/kapacity
+  a nezměněným výstupem při chybě: `runtime/integer.lir`. 3 800 329 kontrol.
+- [x] Raw checked add/sub/mul/floor-divide s chybovým status a výstupním
+  slotem: `runtime/checked.lir`. 800 512 kontrol proti 128bitové referenci.
+  Nové checked IR instrukce/optimalizace kontrol tím ještě nejsou hotové.
+- [x] Linux x86_64 map/unmap/protect, openat/read/write/seek/close,
+  getrandom/clock/nanosleep přes skutečné syscalls: `runtime/linux-x86_64/`.
+  27 kontrol základů a 138 rozšířených kontrol souborů, procesů, socketů,
+  terminálu a futexu. Arm64/rv64 mají trap a OS wrappery, základní OS test
+  běží v QEMU. Vyšší spawn/TLS/signálová politika stále není hotová.
+- [x] Standalone static PIE demo bez libc/loaderu, C/LSL binárka shodná,
+  neexecutable stack: `examples/runtime-demo.lir` a
+  `tests/runtime/standalone.py`. Zatím sestaveno GNU as/ld.
+- [x] Kernel entry, argc/argv/envp a AT_PAGESZ + getenv: `startup.c/.lir`,
+  10 009 kontrol; libc-free static PIE program skutečně spuštěn na všech
+  třech Linux architekturách (arm64/rv64 v QEMU).
+- [x] I/O helpery s retry EINTR a zachováním částečného count na chybě:
+  `io.c/.lir`, 33 kontrol včetně skutečného signálu a pipe přes 300 KB.
+- [x] Externí SC atomiky load/store/add/swap/CAS/fence 32/64-bit: C11 oracle
+  a assembler pro Linux x86_64/arm64/rv64, 2 032 kontrol na každém cíli.
+  Stále nejde o IR instrukce, nezávislý plnohodnotný memory model frontendu.
+- [x] Raw clone/join Linux x86_64: 40 guarded-stack vláken, 4 000 000
+  inkrementů; C/LSL shoda. Callback nesmí používat libc/TLS/managed objekty.
+- [x] rv64 PC-relative adresy pro static PIE přes explicitní `-p`:
+  lokální i externí symboly + offset, C/LSL shoda a spuštění v QEMU.
+  Dynamické datové relokace a vlastní linker tím nejsou implementovány.
+- [x] Linux x86_64 self-host stage 1 == stage 2 == stage 3: 48,27 s a
+  46,16 s, obě pod limitem 60 s v tomto prostředí; `tests/selfhost.py`.
+- [x] Linux lokální testová matice, C/LSL execution arm64/rv64 + assembler
+  šesti targetů: `tools/check_linux.sh`. Nepotvrzuje výkon skutečných CPU.
+- [ ] Spustit novou `.forgejo/workflows/linux-reference.yml` na remote CI.
+  Workflow je připraven a YAML validní, remote job zatím neběžel; ověřuje C
+  reference, nikoli vlastní self-host na všech platformách.
+- [ ] Integrovat tyto moduly s aktuálním frontendem/layoutem LSL, doplnit
+  výkonnostní brány a skutečné cílové execution testy; nenahrazovat celou
+  širší položku níže stavem hotovo podle samotné existence prototypu.
 
 ## Runtime knihovna LuxIR (luxrt)
 

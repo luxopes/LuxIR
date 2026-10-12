@@ -1,0 +1,93 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_startup_argc(Ptr(stack)) -> Int64:
+    Int64(count) = load(stack)
+    return count
+end
+export function luxrt_startup_argv(Ptr(stack)) -> Ptr:
+    Ptr(argv) = add(stack, 8)
+    return argv
+end
+export function luxrt_startup_env(Ptr(stack)) -> Ptr:
+    Int64(count) = load(stack)
+    Int64(slots) = add(count, 2)
+    Int64(bytes) = mul(slots, 8)
+    Ptr(env) = add(stack, bytes)
+    return env
+end
+export function luxrt_startup_pagesize(Ptr(stack)) -> Int64:
+    Ptr(env) = call luxrt_startup_env(stack)
+    goto environment
+environment:
+    Ptr(item) = load(env)
+    Ptr(env) = add(env, 8)
+    Int32(last) = eq(item, 0)
+    if last goto auxiliary else environment
+auxiliary:
+    Int64(tag) = load(env)
+    Int32(last) = eq(tag, 0)
+    if last goto absent else test
+test:
+    Int32(page) = eq(tag, 6)
+    if page goto found else next
+next:
+    Ptr(env) = add(env, 16)
+    goto auxiliary
+found:
+    Ptr(slot) = add(env, 8)
+    Int64(size) = load(slot)
+    return size
+absent:
+    return 0
+end
+export function luxrt_getenv(Ptr(env), Ptr(name)) -> Ptr:
+    Int64(length) = 0
+    goto validate
+validate:
+    Ptr(at) = add(name, length)
+    Int32(byte) = load_u8(at)
+    Int32(end_name) = eq(byte, 0)
+    if end_name goto valid else equals
+equals:
+    Int32(invalid) = eq(byte, 61)
+    if invalid goto absent else grow
+grow:
+    Int64(length) = add(length, 1)
+    goto validate
+valid:
+    Int32(empty) = eq(length, 0)
+    if empty goto absent else entries
+entries:
+    Ptr(entry) = load(env)
+    Int32(end_env) = eq(entry, 0)
+    if end_env goto absent else begin
+begin:
+    Int64(index) = 0
+    goto compare
+compare:
+    Int32(done) = eq(index, length)
+    if done goto delimiter else bytes
+bytes:
+    Ptr(left) = add(entry, index)
+    Ptr(right) = add(name, index)
+    Int32(a) = load_u8(left)
+    Int32(b) = load_u8(right)
+    Int32(same) = eq(a, b)
+    if same goto increment else next
+increment:
+    Int64(index) = add(index, 1)
+    goto compare
+delimiter:
+    Ptr(at) = add(entry, length)
+    Int32(byte) = load_u8(at)
+    Int32(matches) = eq(byte, 61)
+    if matches goto found else next
+next:
+    Ptr(env) = add(env, 8)
+    goto entries
+found:
+    Ptr(value) = add(at, 1)
+    return value
+absent:
+    return 0
+end

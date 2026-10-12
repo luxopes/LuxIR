@@ -1,0 +1,27 @@
+{
+  "initial_sha256": "b8dd50c149d1592fc49260f33303b05802570bed04dfdd5199f649e89e5e3c53",
+  "generations": [
+    {
+      "generation": 2,
+      "seconds": 48.26948775699998,
+      "limit_seconds": 60.0,
+      "exit_code": 0,
+      "backend": "/workspace/scratch/602efea1b046/luxir-remote-current/build/luxir",
+      "log": "/workspace/scratch/602efea1b046/luxir-remote-current/build/selfhost/stage2.log",
+      "sha256": "b8dd50c149d1592fc49260f33303b05802570bed04dfdd5199f649e89e5e3c53"
+    },
+    {
+      "generation": 3,
+      "seconds": 46.15512145499997,
+      "limit_seconds": 60.0,
+      "exit_code": 0,
+      "backend": "/workspace/scratch/602efea1b046/luxir-remote-current/build/selfhost/luxir-stage2",
+      "log": "/workspace/scratch/602efea1b046/luxir-remote-current/build/selfhost/stage3.log",
+      "sha256": "b8dd50c149d1592fc49260f33303b05802570bed04dfdd5199f649e89e5e3c53"
+    }
+  ],
+  "fixed_point": true,
+  "time_gate_passed": true,
+  "target": "amd64_sysv",
+  "complete": true
+}

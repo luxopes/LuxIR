@@ -1,0 +1,5 @@
+{
+  "output": "33 full I/O checks passed (300001-byte pipe, short reads, partial error)",
+  "assembly_parity": true,
+  "target": "linux-x86_64"
+}

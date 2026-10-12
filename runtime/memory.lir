@@ -1,0 +1,273 @@
+# Experimental external luxrt byte-span API; no managed-object/GC ABI yet.
+ir_version "1"
+runtime_abi "none"
+
+export function luxrt_memcpy(Ptr(dst), Ptr(src), Int64(n)) -> Ptr:
+    Ptr(d) = dst
+    Ptr(s) = src
+    Int64(left) = n
+    Int64(da) = and(dst, 7)
+    Int64(sa) = and(src, 7)
+    Int64(alignment) = or(da, sa)
+    Int32(aligned) = eq(alignment, 0)
+    if aligned goto words else bytes
+words:
+    Int32(full) = uge(left, 8)
+    if full goto word else bytes
+word:
+    Int64(value) = load(s)
+    store(value, d)
+    Ptr(d) = add(d, 8)
+    Ptr(s) = add(s, 8)
+    Int64(left) = sub(left, 8)
+    goto words
+bytes:
+    Int32(more) = ne(left, 0)
+    if more goto byte else done
+byte:
+    Int32(value8) = load_u8(s)
+    store(Int8(value8), d)
+    Ptr(d) = add(d, 1)
+    Ptr(s) = add(s, 1)
+    Int64(left) = sub(left, 1)
+    goto bytes
+done:
+    return dst
+end
+
+export function luxrt_memmove(Ptr(dst), Ptr(src), Int64(n)) -> Ptr:
+    Int32(forward) = ule(dst, src)
+    if forward goto copy else backward
+copy:
+    Ptr(result) = call luxrt_memcpy(dst, src, n)
+    return result
+backward:
+    Ptr(d) = add(dst, n)
+    Ptr(s) = add(src, n)
+    Int64(left) = n
+    Int64(da) = and(d, 7)
+    Int64(sa) = and(s, 7)
+    Int64(alignment) = or(da, sa)
+    Int32(aligned) = eq(alignment, 0)
+    if aligned goto words else bytes
+words:
+    Int32(full) = uge(left, 8)
+    if full goto word else bytes
+word:
+    Ptr(d) = sub(d, 8)
+    Ptr(s) = sub(s, 8)
+    Int64(value) = load(s)
+    store(value, d)
+    Int64(left) = sub(left, 8)
+    goto words
+bytes:
+    Int32(more) = ne(left, 0)
+    if more goto byte else done
+byte:
+    Ptr(d) = sub(d, 1)
+    Ptr(s) = sub(s, 1)
+    Int32(value8) = load_u8(s)
+    store(Int8(value8), d)
+    Int64(left) = sub(left, 1)
+    goto bytes
+done:
+    return dst
+end
+
+export function luxrt_memset(Ptr(dst), Int32(byte), Int64(n)) -> Ptr:
+    Ptr(d) = dst
+    Int64(left) = n
+    Int32(b) = and(byte, 255)
+    Int64(wide) = zext32(b)
+    Int64(pattern) = mul(wide, 0x0101010101010101)
+    goto align
+align:
+    Int32(more) = ne(left, 0)
+    if more goto alignment else done
+alignment:
+    Int64(bits) = and(d, 7)
+    Int32(aligned) = eq(bits, 0)
+    if aligned goto words else leading
+leading:
+    store(Int8(b), d)
+    Ptr(d) = add(d, 1)
+    Int64(left) = sub(left, 1)
+    goto align
+words:
+    Int32(full) = uge(left, 8)
+    if full goto word else bytes
+word:
+    store(pattern, d)
+    Ptr(d) = add(d, 8)
+    Int64(left) = sub(left, 8)
+    goto words
+bytes:
+    Int32(more) = ne(left, 0)
+    if more goto byte else done
+byte:
+    store(Int8(b), d)
+    Ptr(d) = add(d, 1)
+    Int64(left) = sub(left, 1)
+    goto bytes
+done:
+    return dst
+end
+
+export function luxrt_memcmp(Ptr(a), Ptr(b), Int64(n)) -> Int32:
+    Int64(i) = 0
+    goto loop
+loop:
+    Int32(more) = ult(i, n)
+    if more goto compare else equal
+compare:
+    Ptr(pa) = add(a, i)
+    Ptr(pb) = add(b, i)
+    Int32(va) = load_u8(pa)
+    Int32(vb) = load_u8(pb)
+    Int32(same) = eq(va, vb)
+    if same goto next else different
+next:
+    Int64(i) = add(i, 1)
+    goto loop
+different:
+    Int32(less) = ult(va, vb)
+    if less goto lower else higher
+lower:
+    return -1
+higher:
+    return 1
+equal:
+    return 0
+end
+
+export function luxrt_memchr(Ptr(data), Int32(byte), Int64(n)) -> Ptr:
+    Int32(wanted) = and(byte, 255)
+    Int64(i) = 0
+    goto loop
+loop:
+    Int32(more) = ult(i, n)
+    if more goto compare else missing
+compare:
+    Ptr(p) = add(data, i)
+    Int32(value) = load_u8(p)
+    Int32(same) = eq(value, wanted)
+    if same goto found else next
+next:
+    Int64(i) = add(i, 1)
+    goto loop
+found:
+    return p
+missing:
+    return 0
+end
+
+export function luxrt_hash_bytes(Ptr(data), Int64(n)) -> Int32:
+    Int32(hash) = 2166136261
+    Int64(i) = 0
+    goto loop
+loop:
+    Int32(more) = ult(i, n)
+    if more goto byte else done
+byte:
+    Ptr(p) = add(data, i)
+    Int32(value) = load_u8(p)
+    Int32(mixed) = xor(hash, value)
+    Int32(hash) = mul(mixed, 16777619)
+    Int64(i) = add(i, 1)
+    goto loop
+done:
+    return hash
+end
+
+export function luxrt_utf8_valid(Ptr(data), Int64(n)) -> Int32:
+    Int64(i) = 0
+    goto loop
+loop:
+    Int32(more) = ult(i, n)
+    if more goto lead else valid
+lead:
+    Ptr(p) = add(data, i)
+    Int32(c) = load_u8(p)
+    Int64(i) = add(i, 1)
+    Int32(ascii) = ult(c, 128)
+    if ascii goto loop else range2
+range2:
+    Int32(lo2) = uge(c, 194)
+    Int32(hi2) = ule(c, 223)
+    Int32(two) = and(lo2, hi2)
+    if two goto set2 else range3
+set2:
+    Int64(count) = 1
+    Int32(min) = 128
+    Int32(max) = 191
+    goto remaining
+range3:
+    Int32(lo3) = uge(c, 224)
+    Int32(hi3) = ule(c, 239)
+    Int32(three) = and(lo3, hi3)
+    if three goto set3 else range4
+set3:
+    Int64(count) = 2
+    Int32(min) = 128
+    Int32(max) = 191
+    Int32(e0) = eq(c, 224)
+    if e0 goto min3 else surrogate
+min3:
+    Int32(min) = 160
+    goto remaining
+surrogate:
+    Int32(ed) = eq(c, 237)
+    if ed goto max3 else remaining
+max3:
+    Int32(max) = 159
+    goto remaining
+range4:
+    Int32(lo4) = uge(c, 240)
+    Int32(hi4) = ule(c, 244)
+    Int32(four) = and(lo4, hi4)
+    if four goto set4 else invalid
+set4:
+    Int64(count) = 3
+    Int32(min) = 128
+    Int32(max) = 191
+    Int32(f0) = eq(c, 240)
+    if f0 goto min4 else ceiling
+min4:
+    Int32(min) = 144
+    goto remaining
+ceiling:
+    Int32(f4) = eq(c, 244)
+    if f4 goto max4 else remaining
+max4:
+    Int32(max) = 143
+    goto remaining
+remaining:
+    Int64(left) = sub(n, i)
+    Int32(enough) = uge(left, count)
+    if enough goto second else invalid
+second:
+    Ptr(p2) = add(data, i)
+    Int32(v) = load_u8(p2)
+    Int32(low) = uge(v, min)
+    Int32(high) = ule(v, max)
+    Int32(ok) = and(low, high)
+    if ok goto continue else invalid
+continue:
+    Int64(i) = add(i, 1)
+    Int64(count) = sub(count, 1)
+    goto tail
+tail:
+    Int32(again) = ne(count, 0)
+    if again goto continuation else loop
+continuation:
+    Ptr(pc) = add(data, i)
+    Int32(v2) = load_u8(pc)
+    Int32(low2) = uge(v2, 128)
+    Int32(high2) = ule(v2, 191)
+    Int32(ok2) = and(low2, high2)
+    if ok2 goto continue else invalid
+valid:
+    return 1
+invalid:
+    return 0
+end

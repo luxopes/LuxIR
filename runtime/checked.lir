@@ -1,0 +1,97 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_checked_add(Int64(a), Int64(b), Ptr(output)) -> Int32:
+    Int64(result) = add(a, b)
+    Int64(ar) = xor(a, result)
+    Int64(br) = xor(b, result)
+    Int64(bits) = and(ar, br)
+    Int32(overflow) = lt(bits, 0)
+    if overflow goto fail else success
+fail:
+    return -34
+success:
+    store(result, output)
+    return 0
+end
+export function luxrt_checked_sub(Int64(a), Int64(b), Ptr(output)) -> Int32:
+    Int64(result) = sub(a, b)
+    Int64(ab) = xor(a, b)
+    Int64(ar) = xor(a, result)
+    Int64(bits) = and(ab, ar)
+    Int32(overflow) = lt(bits, 0)
+    if overflow goto fail else success
+fail:
+    return -34
+success:
+    store(result, output)
+    return 0
+end
+export function luxrt_checked_mul(Int64(a), Int64(b), Ptr(output)) -> Int32:
+    Int32(an) = lt(a, 0)
+    Int32(bn) = lt(b, 0)
+    Int32(negative) = xor(an, bn)
+    Int64(ua) = a
+    Int64(ub) = b
+    if an goto abs_a else test_b
+abs_a:
+    Int64(ua) = sub(0, a)
+    goto test_b
+test_b:
+    if bn goto abs_b else limit
+abs_b:
+    Int64(ub) = sub(0, b)
+    goto limit
+limit:
+    if negative goto negative_limit else positive_limit
+negative_limit:
+    Int64(bound) = 0x8000000000000000
+    goto zero
+positive_limit:
+    Int64(bound) = 0x7fffffffffffffff
+    goto zero
+zero:
+    Int32(is_zero) = eq(ub, 0)
+    if is_zero goto multiply else check
+check:
+    Int64(maximum) = udiv(bound, ub)
+    Int32(overflow) = ugt(ua, maximum)
+    if overflow goto fail else multiply
+multiply:
+    Int64(value) = mul(ua, ub)
+    if negative goto negate else success
+negate:
+    Int64(value) = sub(0, value)
+    goto success
+success:
+    store(value, output)
+    return 0
+fail:
+    return -34
+end
+export function luxrt_checked_floordiv(Int64(a), Int64(b), Ptr(output)) -> Int32:
+    Int32(zero) = eq(b, 0)
+    if zero goto divide_zero else overflow
+overflow:
+    Int32(min) = eq(a, 0x8000000000000000)
+    Int32(minus_one) = eq(b, -1)
+    Int32(fails) = and(min, minus_one)
+    if fails goto range else divide
+divide:
+    Int64(q) = div(a, b)
+    Int64(r) = rem(a, b)
+    Int32(nonzero) = ne(r, 0)
+    Int64(signs) = xor(a, b)
+    Int32(different) = lt(signs, 0)
+    Int32(adjust) = and(nonzero, different)
+    if adjust goto floor else success
+floor:
+    Int64(q) = sub(q, 1)
+    goto success
+success:
+    store(q, output)
+    return 0
+range:
+    return -34
+divide_zero:
+    return -33
+end

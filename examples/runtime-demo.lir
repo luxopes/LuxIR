@@ -1,0 +1,30 @@
+ir_version "1"
+runtime_abi "none"
+# Link with runtime/integer.lir and Linux x86_64 os.lir/syscall.S/start.S.
+export function luxrt_demo_main() -> Int32:
+    Int64(address) = call luxrt_os_map(Int64(4096))
+    Int32(failed) = lt(address, 0)
+    if failed goto error else mapped
+mapped:
+    Ptr(memory) = add(address, 0)
+    Int64(length) = call luxrt_format_i64(Int64(9223372036854775807), memory, Int64(4095))
+    Int32(format_failed) = lt(length, 0)
+    if format_failed goto release_error else write
+write:
+    Ptr(end) = add(memory, length)
+    store(Int8(10), end)
+    Int64(count) = add(length, 1)
+    Int64(written) = call luxrt_os_write(Int64(1), memory, count)
+    Int64(unmapped) = call luxrt_os_unmap(memory, Int64(4096))
+    Int32(write_ok) = eq(written, count)
+    Int32(unmap_ok) = eq(unmapped, 0)
+    Int32(ok) = and(write_ok, unmap_ok)
+    if ok goto success else error
+release_error:
+    call luxrt_os_unmap(memory, Int64(4096))
+    goto error
+success:
+    return 0
+error:
+    return 1
+end

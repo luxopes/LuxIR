@@ -1,0 +1,59 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_thread_spawn(Ptr(fn), Ptr(arg), Ptr(stack), Int64(size), Ptr(tid)) -> Int64:
+    Int32(no_fn) = eq(fn, 0)
+    Int32(no_stack) = eq(stack, 0)
+    Int32(no_tid) = eq(tid, 0)
+    Int64(bits) = and(tid, 3)
+    Int32(unaligned) = ne(bits, 0)
+    Int32(small) = ult(size, 4096)
+    Int64(available) = sub(-1, stack)
+    Int32(overflow) = ult(available, size)
+    Int32(bad1) = or(no_fn, no_stack)
+    Int32(bad2) = or(no_tid, unaligned)
+    Int32(bad3) = or(small, overflow)
+    Int32(bad4) = or(bad1, bad2)
+    Int32(bad) = or(bad4, bad3)
+    if bad goto invalid else alignment
+alignment:
+    Ptr(end) = add(stack, size)
+    Ptr(end) = and(end, -16)
+    Int64(capacity) = sub(end, stack)
+    Int32(small) = ult(capacity, 4096)
+    if small goto invalid else occupied
+occupied:
+    Int32(current) = call luxrt_atomic_load32(tid)
+    Int32(busy) = ne(current, 0)
+    if busy goto invalid else spawn
+spawn:
+    Int64(result) = call luxrt_thread_clone(fn, arg, end, tid)
+    return result
+invalid:
+    return -22
+end
+export function luxrt_thread_join(Ptr(tid)) -> Int64:
+    Int32(missing) = eq(tid, 0)
+    Int64(bits) = and(tid, 3)
+    Int32(unaligned) = ne(bits, 0)
+    Int32(bad) = or(missing, unaligned)
+    if bad goto invalid else retry
+retry:
+    Int32(value) = call luxrt_atomic_load32(tid)
+    Int32(done) = eq(value, 0)
+    if done goto success else wait
+wait:
+    Int64(expected) = zext32(value)
+    Int64(result) = call luxrt_os_futex(tid, Int64(0), expected, Ptr(0), Ptr(0), Int64(0))
+    Int32(success) = ge(result, 0)
+    Int32(interrupted) = eq(result, -4)
+    Int32(changed) = eq(result, -11)
+    Int32(retry1) = or(success, interrupted)
+    Int32(again) = or(retry1, changed)
+    if again goto retry else error
+error:
+    return result
+success:
+    return 0
+invalid:
+    return -22
+end

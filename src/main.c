@@ -1,9 +1,11 @@
 #include "all.h"
 #include "config.h"
+#include "version.h"
 #include <ctype.h>
 #include <getopt.h>
 
 Target T;
+int pic;
 
 char debug['Z'+1] = {
 	['P'] = 0, /* parsing */
@@ -137,8 +139,20 @@ main(int ac, char *av[])
 
 	T = Deftgt;
 	outf = stdout;
-	while ((c = getopt(ac, av, "hd:o:t:")) != -1)
+	/* Long query is deliberately standalone: never mistake an -o operand
+	 * or an input filename for an option, and never truncate an output. */
+	if (ac == 2 && strcmp(av[1], "--version") == 0) {
+		puts(LUXIR_VERSION_TEXT);
+		exit(0);
+	}
+	while ((c = getopt(ac, av, "hpVd:o:t:")) != -1)
 		switch (c) {
+		case 'p':
+			pic = 1;
+			break;
+		case 'V':
+			puts(LUXIR_VERSION_TEXT);
+			exit(0);
 		case 'd':
 			for (; *optarg; optarg++)
 				if (isalpha(*optarg)) {
@@ -176,7 +190,9 @@ main(int ac, char *av[])
 			hf = c != 'h' ? stderr : stdout;
 			fprintf(hf, "%s [OPTIONS] {file.lir, -}\n", av[0]);
 			fprintf(hf, "\t%-11s prints this help\n", "-h");
+			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
+			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s generate for a target among:\n", "-t <target>");
 			fprintf(hf, "\t%-11s ", "");
 			for (t=tlist, sep=""; *t; t++, sep=", ") {

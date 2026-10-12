@@ -7,6 +7,7 @@
  * se píší bez prefixů.
  */
 #include "all.h"
+#include "version.h"
 #include <ctype.h>
 #include <stdarg.h>
 
@@ -97,6 +98,8 @@ enum {
 	Wzero,
 	Wextern,
 	Wbits,
+	Wirversion,
+	Wruntimeabi,
 	WInt8,
 	WUInt8,
 	WInt16,
@@ -136,6 +139,8 @@ enum {
 };
 
 static char *kwname[Nkw] = {
+	[Wirversion] = "ir_version",
+	[Wruntimeabi] = "runtime_abi",
 	[Wfunction] = "function",
 	[Wdata] = "data",
 	[Wtype] = "type",
@@ -2325,7 +2330,7 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 {
 	Lnk lnk;
 	uint n;
-	int t;
+	int t, definition, irseen, abiseen;
 
 	lexinit();
 	readall(f);
@@ -2336,12 +2341,41 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 	buffered = 0;
 	ntyp = 0;
 	typ = vnew(0, sizeof typ[0], PHeap);
+	definition = irseen = abiseen = 0;
 	for (;;) {
 		lnk = (Lnk){0};
 		switch (parselnk(&lnk)) {
 		default:
 			err("top-level definition expected");
+		case Wirversion:
+		case Wruntimeabi:
+			/* Only header metadata is handled here. It does not certify
+			 * an externally linked runtime or change generated code. */
+			if (definition)
+				err("version headers must precede definitions");
+			if (iskw(Wirversion)) {
+				if (irseen)
+					err("duplicate ir_version header");
+				irseen = 1;
+				expect(Tstr);
+				if (strcmp(tstr, "\"" LUXIR_IR_VERSION "\"") != 0)
+					err("unsupported IR version %s; supported: " LUXIR_IR_VERSION, tstr);
+			} else {
+				if (abiseen)
+					err("duplicate runtime_abi header");
+				abiseen = 1;
+				expect(Tstr);
+				if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI "\"") != 0)
+					err("unsupported runtime ABI %s; supported: " LUXIR_RUNTIME_ABI, tstr);
+			}
+			t = next();
+			if (t == Teof)
+				thead = Teof;
+			else if (t != Tnl)
+				err("newline expected after version header");
+			break;
 		case Wfile:
+			definition = 1;
 			expect(Tstr);
 			dbgfile(tstr);
 			t = next();
@@ -2351,13 +2385,16 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 				err("newline expected after file");
 			break;
 		case Wfunction:
+			definition = 1;
 			lnk.align = 16;
 			func(parsefn(&lnk));
 			break;
 		case Wdata:
+			definition = 1;
 			parsedat(data, &lnk);
 			break;
 		case Wtype:
+			definition = 1;
 			parsetyp();
 			break;
 		case Teof:

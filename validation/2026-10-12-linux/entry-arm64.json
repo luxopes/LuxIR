@@ -1,0 +1,11 @@
+{
+  "target": "arm64",
+  "output": "3\n4096\nmarker\nexpected\n",
+  "binary_identical": true,
+  "libc": false,
+  "dynamic_loader": false,
+  "native": false,
+  "emulator": [
+    "qemu-aarch64"
+  ]
+}

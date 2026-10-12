@@ -25,6 +25,31 @@ finish:
 end
 ```
 
+## Verze protokolu
+
+`luxir --version` (samostatný příkaz) vypíše podporovanou revizi IR a
+runtime kontrakt. Aktuálně: `LuxIR (IR 1; runtime ABI none)`.
+Číslo původního QBE není verzí rozhraní LuxIR.
+
+Frontend může před všemi definicemi a direktivou `file` zapsat:
+
+```text
+ir_version "1"
+runtime_abi "none"
+```
+
+Obě hlavičky jsou volitelné; jejich pořadí je libovolné. Starší vstupy bez
+hlavičky zachovávají dnešní význam (IR 1, externí runtime). Verze jsou
+kanonické řetězce bez escape sekvencí, nikoli číselné operandy: nepřetékají
+modulo 2^64. Komentáře a prázdné řádky před hlavičkou jsou povolené.
+Opakovaná, pozdní nebo nekompatibilní hlavička skončí diagnostikou s cestou
+a řádkem. Přijatá hlavička nemění generovaný assembler.
+
+`runtime_abi "none"` znamená, že backend nespravuje integrované luxrt ABI.
+Nezakazuje externí volání ani stávající runtime LSL. Jiné runtime ABI se
+odmítá, dokud není implementováno a ověřeno; přijetí IR není důkazem
+kompatibility externě slinkované knihovny. Viz [runtime.md](runtime.md).
+
 ## Lexikální pravidla
 
 - Soubor je v UTF-8. Mimo řetězce a komentáře se smí používat jen ASCII.
@@ -263,3 +288,13 @@ vytvoří QBE 1.3 z původního IL. Hlavní rozdíly v zápisu:
 | `function w $f(l %a) { … }` | `function f(Int64(a)) -> Int32: … end` |
 | `data $d = { b "x", b 0 }` | `data d = ["x", Int8(0)]` |
 | `type :p = { l, w 2 }` | `type p = struct(Int64, Int32 * 2)` |
+
+## rv64 static PIE
+
+Volba `-p` použije u rv64 PC-relative `lla` pro lokální i externí adresy
+symbolů. Výchozí režim zachovává assembler původního QBE, včetně absolutních
+lokálních adres. `-p` je režim pro staticky slinkovaný obraz; neslibuje
+interpozici symbolů sdílené knihovny ani dynamické TLS. Backend neprovádí
+relokace dat obsahujících absolutní pointery při startu statického PIE;
+ty vyžadují vlastní linker/relokátor a zůstávají otevřené. Na ostatních
+cílech volba zatím adresování nemění.

@@ -1,0 +1,45 @@
+name: Linux C reference and runtime
+on:
+  push:
+  pull_request:
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install development tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv clang qemu-user gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
+      - name: Regenerate complete LSL source and build C reference
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install pycparser==3.0
+          make c lsl check-dominance check-bitsets PYTHON=.venv/bin/python
+      - name: Host programs and protocol
+        run: |
+          python3 tests/versioning.py --backend src/luxir
+          python3 tests/run_tests.py --backend src/luxir
+          python3 tests/fuzz.py --backend src/luxir --cases 300
+      - name: Host runtime
+        run: |
+          python3 tests/runtime/run_memory.py --backend src/luxir
+          python3 tests/runtime/run_integer.py --backend src/luxir
+          python3 tests/runtime/run_checked.py --backend src/luxir
+          python3 tests/runtime/run_os.py --backend src/luxir
+          python3 tests/runtime/run_startup.py --backend src/luxir
+          python3 tests/runtime/run_io.py --backend src/luxir
+          python3 tests/runtime/run_thread.py --backend src/luxir
+          python3 tests/runtime/run_atomic.py
+          python3 tests/runtime/standalone.py --backend src/luxir
+          python3 tests/runtime/entry.py --backend src/luxir
+      - name: Linux cross execution
+        run: |
+          for target in arm64 rv64; do
+            python3 tests/run_tests.py --target "$target" --backend src/luxir
+            python3 tests/runtime/cross_linux.py --target "$target" --backend src/luxir
+            python3 tests/runtime/entry.py --target "$target" --backend src/luxir
+          done
+          python3 tests/rv64_pie.py --backend src/luxir
+      - name: Six object-format assemblers
+        run: tests/assemble.sh src/luxir tests/run/*.lir examples/*.lir

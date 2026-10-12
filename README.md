@@ -166,3 +166,14 @@ Backend vychází z native LSL portu QBE 1.3 v
 z commitu `d6c9152`; větev `coordinator/qbe-declaration-scope-commit-20261010`
 s commitem `e0951ad` se od něj liší jen ve frontendu). Licence:
 MIT pro LuxIR a původní MIT licence QBE pro `src/`, viz [LICENSE](LICENSE).
+
+## Externí luxrt
+
+Experimentální runtime moduly a jejich C reference jsou v `runtime/`.
+`make check-runtime` ověřuje linuxové primitivy a skutečný program bez libc.
+Cross testy arm64/rv64 vyžadují cross GCC a qemu-user; viz `runtime/README.md`.
+Managed ABI, stack mapy a GC zůstávají otevřené a nejsou označené jako hotové.
+
+Self-host a limit celé kompilace: `python3 tests/selfhost.py --compiler
+/cesta/lslc --compiler-cwd /cesta/k/resource-root --backend build/luxir
+--limit 60`. Test ověřuje dvě další generace, identitu binárek a čas každé.

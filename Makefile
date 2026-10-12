@@ -32,6 +32,7 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	chmod +x build/luxir
 
 check: c native
+	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir
 	$(MAKE) check-dominance check-bitsets
 	$(PYTHON) tests/run_tests.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/differential.py --reference $(QBE) --backend src/luxir
@@ -55,6 +56,18 @@ check-bitsets:
 		tests/bitset_count.c src/util.c -o build/bitset-count-test
 	build/bitset-count-test
 
+check-runtime: c native
+	$(PYTHON) tests/runtime/run_io.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/entry.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_atomic.py
+	$(PYTHON) tests/runtime/run_thread.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_memory.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_integer.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_checked.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_os.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_startup.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/standalone.py --backend src/luxir --backend build/luxir
+
 # Další cíle: Windows pod Wine (mingw-w64), arm64 a rv64 v qemu-user
 # (cross gcc), upstream spustitelné testy QBE s C drivery a překlad výstupu
 # assemblery všech cílů (clang).
@@ -73,4 +86,4 @@ clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-cross clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross clean

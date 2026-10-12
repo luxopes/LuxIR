@@ -1,7 +1,7 @@
 #!/bin/sh
 # Přeloží výstup backendu skutečnými assemblery všech cílů.
 # Použití: tests/assemble.sh BACKEND soubor.lir ...
-# Potřebuje clang (aarch64, riscv64, Apple) a mingw-w64 binutils.
+# Potřebuje clang (LLVM assembler všech cílů) a GNU as pro hosta.
 set -u
 be=$1; shift
 OUT=$(mktemp -d)
@@ -13,7 +13,7 @@ for t in arm64 arm64_apple amd64_apple rv64 amd64_win amd64_sysv; do
     arm64_apple) as="clang --target=arm64-apple-macos13 -c";;
     amd64_apple) as="clang --target=x86_64-apple-macos13 -c";;
     rv64) as="clang --target=riscv64-linux-gnu -march=rv64gc -c";;
-    amd64_win) as="x86_64-w64-mingw32-as";;
+    amd64_win) as="clang --target=x86_64-w64-windows-gnu -c";;
     amd64_sysv) as="as --64";;
   esac
   gen=0; ok=0; refused=0; bad=0

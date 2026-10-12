@@ -1,0 +1,15 @@
+{
+  "output": "10009 startup/environment checks passed",
+  "targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "assembly_parity": true,
+  "execution_targets": [
+    "amd64_sysv"
+  ]
+}

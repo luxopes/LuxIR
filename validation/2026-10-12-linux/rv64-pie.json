@@ -1,0 +1,10 @@
+{
+  "target": "rv64",
+  "static_pie": true,
+  "local_symbol_offset": true,
+  "external_address": true,
+  "assembly_parity": true,
+  "binary_parity": true,
+  "runtime_relocations": false,
+  "qemu_execution": true
+}

@@ -1,0 +1,7 @@
+{
+  "output": "256 raw thread checks passed (40 threads, 4000000 atomic increments)",
+  "assembly_parity": true,
+  "target": "linux-x86_64",
+  "tls": false,
+  "managed_gc": false
+}

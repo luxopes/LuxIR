@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "backend": "src/luxir",
+      "bytes": 12928,
+      "static_pie": true,
+      "libc": false,
+      "dynamic_loader": false,
+      "nonexecutable_stack": true,
+      "native_execution": true
+    },
+    {
+      "backend": "build/luxir",
+      "bytes": 12928,
+      "static_pie": true,
+      "libc": false,
+      "dynamic_loader": false,
+      "nonexecutable_stack": true,
+      "native_execution": true
+    }
+  ],
+  "binary_identical": true,
+  "assembler": "GNU as",
+  "linker": "GNU ld",
+  "own_assembler_linker": false
+}

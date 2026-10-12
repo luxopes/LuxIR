@@ -1,0 +1,233 @@
+ir_version "1"
+runtime_abi "none"
+# Raw Linux x86_64 wrappers; the architecture trap is syscall.S.
+export function luxrt_os_map(Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(9), Int64(0), size, Int64(3), Int64(34), Int64(-1), Int64(0))
+    return result
+end
+export function luxrt_os_unmap(Ptr(address), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(11), address, size, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_protect(Ptr(address), Int64(size), Int64(protection)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(10), address, size, protection, Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_open(Ptr(path), Int64(flags), Int64(mode)) -> Int64:
+    Int64(cloexec) = or(flags, 524288)
+    Int64(result) = call luxrt_syscall6(Int64(257), Int64(-100), path, cloexec, mode, Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_read(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(0), fd, buffer, size, Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_write(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(1), fd, buffer, size, Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_close(Int64(fd)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(3), fd, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_seek(Int64(fd), Int64(offset), Int64(whence)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(8), fd, offset, whence, Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_random(Ptr(buffer), Int64(size), Int64(flags)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(318), buffer, size, flags, Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_clock(Int64(clock_id), Ptr(timespec)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(228), clock_id, timespec, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+export function luxrt_os_sleep(Ptr(timespec), Ptr(remaining)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(35), timespec, remaining, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_stat(Ptr(path), Int64(flags), Int64(mask), Ptr(result)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(332), Int64(-100), path, flags, mask, result, Int64(0))
+    return result
+end
+
+export function luxrt_os_list(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(217), fd, buffer, size, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_mkdir(Ptr(path), Int64(mode)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(258), Int64(-100), path, mode, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_unlink(Ptr(path), Int64(flags)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(263), Int64(-100), path, flags, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_rename(Ptr(oldpath), Ptr(newpath)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(264), Int64(-100), oldpath, Int64(-100), newpath, Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_chmod(Int64(fd), Int64(mode)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(91), fd, mode, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_symlink(Ptr(target), Ptr(path)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(266), target, Int64(-100), path, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_readlink(Ptr(path), Ptr(buffer), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(267), Int64(-100), path, buffer, size, Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_cwd(Ptr(buffer), Int64(size)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(79), buffer, size, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_chdir(Ptr(path)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(80), path, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_pipe(Ptr(fds), Int64(flags)) -> Int64:
+    Int64(cloexec) = or(flags, 524288)
+    Int64(result) = call luxrt_syscall6(Int64(293), fds, cloexec, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_dup(Int64(fd), Int64(newfd)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(292), fd, newfd, Int64(524288), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_wait(Int64(pid), Ptr(status), Int64(options)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(61), pid, status, options, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_kill(Int64(pid), Int64(signal)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(62), pid, signal, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_exec(Ptr(path), Ptr(argv), Ptr(envp)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(59), path, argv, envp, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_pid() -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(39), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_ppid() -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(110), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_close_range(Int64(first), Int64(last), Int64(flags)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(436), first, last, flags, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_exit(Int64(status)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(231), status, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_socket(Int64(domain), Int64(type), Int64(protocol)) -> Int64:
+    Int64(cloexec) = or(type, 524288)
+    Int64(result) = call luxrt_syscall6(Int64(41), domain, cloexec, protocol, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_socketpair(Int64(domain), Int64(type), Int64(protocol), Ptr(fds)) -> Int64:
+    Int64(cloexec) = or(type, 524288)
+    Int64(result) = call luxrt_syscall6(Int64(53), domain, cloexec, protocol, fds, Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_bind(Int64(fd), Ptr(address), Int64(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(49), fd, address, length, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_listen(Int64(fd), Int64(backlog)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(50), fd, backlog, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_accept(Int64(fd), Ptr(address), Ptr(length), Int64(flags)) -> Int64:
+    Int64(cloexec) = or(flags, 524288)
+    Int64(result) = call luxrt_syscall6(Int64(288), fd, address, length, cloexec, Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_connect(Int64(fd), Ptr(address), Int64(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(42), fd, address, length, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_send(Int64(fd), Ptr(buffer), Int64(size), Int64(flags), Ptr(address), Int64(length)) -> Int64:
+    Int64(nosignal) = or(flags, 16384)
+    Int64(result) = call luxrt_syscall6(Int64(44), fd, buffer, size, nosignal, address, length)
+    return result
+end
+
+export function luxrt_os_recv(Int64(fd), Ptr(buffer), Int64(size), Int64(flags), Ptr(address), Ptr(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(45), fd, buffer, size, flags, address, length)
+    return result
+end
+
+export function luxrt_os_shutdown(Int64(fd), Int64(how)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(48), fd, how, Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_sockname(Int64(fd), Ptr(address), Ptr(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(51), fd, address, length, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_peername(Int64(fd), Ptr(address), Ptr(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(52), fd, address, length, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_setsockopt(Int64(fd), Int64(level), Int64(option), Ptr(value), Int64(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(54), fd, level, option, value, length, Int64(0))
+    return result
+end
+
+export function luxrt_os_getsockopt(Int64(fd), Int64(level), Int64(option), Ptr(value), Ptr(length)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(55), fd, level, option, value, length, Int64(0))
+    return result
+end
+
+export function luxrt_os_poll(Ptr(fds), Int64(count), Ptr(timeout)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(271), fds, count, timeout, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_ioctl(Int64(fd), Int64(request), Ptr(argument)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(16), fd, request, argument, Int64(0), Int64(0), Int64(0))
+    return result
+end
+
+export function luxrt_os_futex(Ptr(address), Int64(operation), Int64(value), Ptr(timeout), Ptr(address2), Int64(value3)) -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(202), address, operation, value, timeout, address2, value3)
+    return result
+end
+
+export function luxrt_os_fork() -> Int64:
+    Int64(result) = call luxrt_syscall6(Int64(57), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
+    return result
+end

@@ -1,0 +1,4144 @@
+{
+  "reference": "/workspace/scratch/602efea1b046/lsl-qbe-latest/vendor/qbe-1.3/qbe",
+  "backend": "build/luxir",
+  "targets": [
+    "amd64_sysv",
+    "amd64_apple",
+    "amd64_win",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "cases": [
+    {
+      "input": "_alt.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "_alt.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "_alt.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0019,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "_alt.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "_alt.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "_alt.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0371
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0072,
+      "backend_seconds": 0.0472
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0079,
+      "backend_seconds": 0.0448
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0076,
+      "backend_seconds": 0.0431
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0087,
+      "backend_seconds": 0.0631
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0082,
+      "backend_seconds": 0.0664
+    },
+    {
+      "input": "_bf99.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0081,
+      "backend_seconds": 0.0469
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0349,
+      "backend_seconds": 0.0838
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0355,
+      "backend_seconds": 0.0944
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0342,
+      "backend_seconds": 0.0828
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0461,
+      "backend_seconds": 0.1169
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0403,
+      "backend_seconds": 0.1195
+    },
+    {
+      "input": "_bfmandel.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0316,
+      "backend_seconds": 0.0835
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0363
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0018,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0348
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "_chacha20.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0341
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0302
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0312
+    },
+    {
+      "input": "_dragon.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0361
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0375
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "_fix1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0299
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "_fix2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0312
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.038
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "_fix3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0341
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0349
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0396
+    },
+    {
+      "input": "_fix4.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0345
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0369
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0354
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "_gcm1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0383
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0314
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0357
+    },
+    {
+      "input": "_gcm2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "_live.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "_live.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0346
+    },
+    {
+      "input": "_live.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "_live.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "_live.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "_live.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0367
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0365
+    },
+    {
+      "input": "_load-elim.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.034
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "_rpo.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "_spill1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0506
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0394
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0353
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0379
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0365
+    },
+    {
+      "input": "_spill2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0311
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "_spill3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "abi1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "abi2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0348
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "abi3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0349
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0386
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "abi4.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0355
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "abi5.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0352
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "abi6.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0307
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0305
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0303
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0307
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "abi7.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0311
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0019,
+      "backend_seconds": 0.0425
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.037
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0386
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0027,
+      "backend_seconds": 0.0394
+    },
+    {
+      "input": "abi8.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0018,
+      "backend_seconds": 0.0374
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0334
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "abi9.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0341
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0302
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "alias1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "align.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0303
+    },
+    {
+      "input": "align.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "align.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "align.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "align.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0346
+    },
+    {
+      "input": "align.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0382
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "cmp1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "collatz.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0357
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0337
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "conaddr.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "copy.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "copy.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0686
+    },
+    {
+      "input": "copy.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "copy.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "copy.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0345
+    },
+    {
+      "input": "copy.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0359
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.034
+    },
+    {
+      "input": "cprime.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "cup.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0327
+    },
+    {
+      "input": "cup.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "cup.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "cup.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "cup.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0352
+    },
+    {
+      "input": "cup.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "dark.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "dark.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0307
+    },
+    {
+      "input": "dark.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "dark.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "dark.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0359
+    },
+    {
+      "input": "dark.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "double.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0401
+    },
+    {
+      "input": "double.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0395
+    },
+    {
+      "input": "double.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "double.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.041
+    },
+    {
+      "input": "double.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0354
+    },
+    {
+      "input": "double.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0374
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0355
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0305
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.036
+    },
+    {
+      "input": "dynalloc.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "echo.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "echo.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0427
+    },
+    {
+      "input": "echo.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0341
+    },
+    {
+      "input": "echo.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "echo.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "echo.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "env.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "env.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "env.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "env.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "env.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "env.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0341
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0359
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0345
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0395
+    },
+    {
+      "input": "eucl.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0356
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "euclc.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0352
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "fixarg.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0355
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0337
+    },
+    {
+      "input": "fold1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0345
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0352
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0327
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0353
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0327
+    },
+    {
+      "input": "fpcnv.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0337
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0353
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0349
+    },
+    {
+      "input": "gvn1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0415
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.036
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0018,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0294
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0378
+    },
+    {
+      "input": "gvn2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0362
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "ifc.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0306
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.036
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0314
+    },
+    {
+      "input": "isel1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0309
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0337
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "isel2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0356
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0334
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0394
+    },
+    {
+      "input": "isel3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0304
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.034
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0365
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "isel4.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.035
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0371
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0376
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0353
+    },
+    {
+      "input": "isel5.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0352
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "isel6.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0357
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "ldbits.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0371
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0027,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "ldhoist.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0333
+    },
+    {
+      "input": "load1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "load1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "load1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "load1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0327
+    },
+    {
+      "input": "load1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "load1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "load2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0362
+    },
+    {
+      "input": "load2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0023,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "load2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "load2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "load2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "load2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "load3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0316
+    },
+    {
+      "input": "load3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0324
+    },
+    {
+      "input": "load3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "load3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0368
+    },
+    {
+      "input": "load3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "load3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0331
+    },
+    {
+      "input": "loop.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "loop.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0304
+    },
+    {
+      "input": "loop.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "loop.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "loop.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.03
+    },
+    {
+      "input": "loop.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0305
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0384
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.038
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0382
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0434
+    },
+    {
+      "input": "mandel.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0389
+    },
+    {
+      "input": "max.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0361
+    },
+    {
+      "input": "max.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "max.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "max.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "max.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "max.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0361
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0323
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "mem1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0357
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0311
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0304
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0332
+    },
+    {
+      "input": "mem2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0361
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0363
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "mem3.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "philv.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0301
+    },
+    {
+      "input": "philv.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.032
+    },
+    {
+      "input": "philv.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "philv.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "philv.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "philv.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0319
+    },
+    {
+      "input": "prime.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0312
+    },
+    {
+      "input": "prime.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "prime.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0356
+    },
+    {
+      "input": "prime.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "prime.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "prime.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.036
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0308
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0304
+    },
+    {
+      "input": "puts10.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "queen.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.002,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "queen.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0019,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "queen.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0017,
+      "backend_seconds": 0.0397
+    },
+    {
+      "input": "queen.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0342
+    },
+    {
+      "input": "queen.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0019,
+      "backend_seconds": 0.036
+    },
+    {
+      "input": "queen.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0021,
+      "backend_seconds": 0.0392
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0315
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0322
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0366
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.001,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0348
+    },
+    {
+      "input": "rega1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0328
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0356
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0348
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0326
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0016,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0371
+    },
+    {
+      "input": "spill1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0351
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0313
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.034
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0373
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "strcmp.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0338
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0365
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0359
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0405
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0311
+    },
+    {
+      "input": "strspn.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0358
+    },
+    {
+      "input": "sum.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0325
+    },
+    {
+      "input": "sum.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.031
+    },
+    {
+      "input": "sum.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0314
+    },
+    {
+      "input": "sum.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0015,
+      "backend_seconds": 0.0301
+    },
+    {
+      "input": "sum.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0318
+    },
+    {
+      "input": "sum.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0343
+    },
+    {
+      "input": "tls.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0336
+    },
+    {
+      "input": "tls.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0339
+    },
+    {
+      "input": "tls.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": -6,
+      "backend_status": 1,
+      "reference_seconds": 0.0014,
+      "backend_seconds": 0.0314
+    },
+    {
+      "input": "tls.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0013,
+      "backend_seconds": 0.0312
+    },
+    {
+      "input": "tls.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.033
+    },
+    {
+      "input": "tls.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0347
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0366
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0321
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0311
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0011,
+      "backend_seconds": 0.0317
+    },
+    {
+      "input": "vararg1.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0012,
+      "backend_seconds": 0.0335
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "amd64_sysv",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0022,
+      "backend_seconds": 0.0344
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "amd64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0023,
+      "backend_seconds": 0.0329
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "amd64_win",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0019,
+      "backend_seconds": 0.0314
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "arm64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0025,
+      "backend_seconds": 0.0448
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "arm64_apple",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0023,
+      "backend_seconds": 0.037
+    },
+    {
+      "input": "vararg2.ssa",
+      "target": "rv64",
+      "ok": true,
+      "reference_status": 0,
+      "backend_status": 0,
+      "reference_seconds": 0.0018,
+      "backend_seconds": 0.0377
+    }
+  ],
+  "summary": {
+    "amd64_sysv": {
+      "cases": 76,
+      "failures": 0
+    },
+    "amd64_apple": {
+      "cases": 76,
+      "failures": 0
+    },
+    "amd64_win": {
+      "cases": 76,
+      "failures": 0
+    },
+    "arm64": {
+      "cases": 76,
+      "failures": 0
+    },
+    "arm64_apple": {
+      "cases": 76,
+      "failures": 0
+    },
+    "rv64": {
+      "cases": 76,
+      "failures": 0
+    }
+  }
+}

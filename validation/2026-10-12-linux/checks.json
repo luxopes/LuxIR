@@ -1,0 +1,31 @@
+{
+  "generated_functions": 462,
+  "blocked_functions": 0,
+  "protocol_checks": 108,
+  "qbe_differential_pairs_per_backend": 456,
+  "qbe_failures": 0,
+  "fuzz_cases": 300,
+  "fuzz_internal_errors": 0,
+  "dominance_independent_checks": 6435072,
+  "bitset_independent_checks": 12384,
+  "cfg_comparisons": 216,
+  "cfg_executions": 36,
+  "runtime_execution_targets": [
+    "linux-x86_64",
+    "linux-arm64-qemu",
+    "linux-rv64-qemu"
+  ],
+  "assembler_targets": [
+    "amd64_sysv",
+    "amd64_apple",
+    "amd64_win",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "windows_mac_execution": false,
+  "own_assembler_linker": false,
+  "managed_gc": false,
+  "remote_ci_executed": false,
+  "whole_todo_completed": false
+}

@@ -1,0 +1,143 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_parse_i64(Ptr(text), Int64(length), Ptr(output)) -> Int32:
+    Int64(i) = 0
+    Int64(value) = 0
+    Int32(negative) = 0
+    Int32(empty) = eq(length, 0)
+    if empty goto syntax else sign
+sign:
+    Int32(first) = load_u8(text)
+    Int32(minus) = eq(first, 45)
+    Int32(plus) = eq(first, 43)
+    Int32(signed) = or(minus, plus)
+    if signed goto skip else limit
+skip:
+    Int32(negative) = minus
+    Int64(i) = 1
+    goto limit
+limit:
+    Int32(last) = eq(i, length)
+    if last goto syntax else cutoff
+cutoff:
+    if negative goto negative_limit else positive_limit
+negative_limit:
+    Int32(last_digit) = 8
+    goto loop
+positive_limit:
+    Int32(last_digit) = 7
+    goto loop
+loop:
+    Int32(more) = ult(i, length)
+    if more goto digit else success
+digit:
+    Ptr(p) = add(text, i)
+    Int32(byte) = load_u8(p)
+    Int32(digit) = sub(byte, 48)
+    Int32(valid) = ule(digit, 9)
+    if valid goto overflow_test else syntax
+overflow_test:
+    Int32(too_large) = ugt(value, 922337203685477580)
+    if too_large goto overflow else boundary
+boundary:
+    Int32(equal) = eq(value, 922337203685477580)
+    Int32(too_high_digit) = ugt(digit, last_digit)
+    Int32(exceeds) = and(equal, too_high_digit)
+    if exceeds goto overflow else accumulate
+accumulate:
+    Int64(wide) = zext32(digit)
+    Int64(tenfold) = mul(value, 10)
+    Int64(value) = add(tenfold, wide)
+    Int64(i) = add(i, 1)
+    goto loop
+success:
+    if negative goto negate else store
+negate:
+    Int64(value) = sub(0, value)
+    goto store
+store:
+    store(value, output)
+    return 0
+syntax:
+    return -22
+overflow:
+    return -34
+end
+
+export function luxrt_format_i64(Int64(value), Ptr(buffer), Int64(capacity)) -> Int64:
+    Ptr(digits) = alloc8(24)
+    Int64(count) = 0
+    Int64(magnitude) = value
+    Int32(negative) = lt(value, 0)
+    if negative goto negate else digit
+negate:
+    Int64(magnitude) = sub(0, value)
+    goto digit
+digit:
+    Int32(pair) = uge(magnitude, 100)
+    if pair goto pair_digits else final_digits
+pair_digits:
+    Int64(quotient) = udiv(magnitude, 100)
+    Int64(hundredfold) = mul(quotient, 100)
+    Int64(remainder) = sub(magnitude, hundredfold)
+    Int32(r32) = remainder
+    # floor(r/10) = (r*205)>>11 exactly for r in 0..99.
+    Int32(scaled) = mul(r32, 205)
+    Int32(tens) = shr(scaled, 11)
+    Int32(tenfold) = mul(tens, 10)
+    Int32(ones) = sub(r32, tenfold)
+    Int32(one_char) = add(ones, 48)
+    Int32(ten_char) = add(tens, 48)
+    Ptr(p) = add(digits, count)
+    store(Int8(one_char), p)
+    Ptr(p_next) = add(p, 1)
+    store(Int8(ten_char), p_next)
+    Int64(count) = add(count, 2)
+    Int64(magnitude) = quotient
+    goto digit
+final_digits:
+    Int32(last32) = magnitude
+    Int32(last_scaled) = mul(last32, 205)
+    Int32(last_tens) = shr(last_scaled, 11)
+    Int32(last_tenfold) = mul(last_tens, 10)
+    Int32(last_ones) = sub(last32, last_tenfold)
+    Int32(last_char) = add(last_ones, 48)
+    Ptr(last_p) = add(digits, count)
+    store(Int8(last_char), last_p)
+    Int64(count) = add(count, 1)
+    Int32(two_final) = ne(last_tens, 0)
+    if two_final goto final_tens else capacity
+final_tens:
+    Int32(last_ten_char) = add(last_tens, 48)
+    Ptr(last_ten_p) = add(digits, count)
+    store(Int8(last_ten_char), last_ten_p)
+    Int64(count) = add(count, 1)
+    goto capacity
+capacity:
+    Int64(sign_size) = zext32(negative)
+    Int64(total) = add(count, sign_size)
+    Int32(enough) = uge(capacity, total)
+    if enough goto begin else small
+begin:
+    Int64(i) = 0
+    if negative goto sign else loop
+sign:
+    store(Int8(45), buffer)
+    Int64(i) = 1
+    goto loop
+loop:
+    Int32(more_digits) = ne(count, 0)
+    if more_digits goto copy else done
+copy:
+    Int64(count) = sub(count, 1)
+    Ptr(source) = add(digits, count)
+    Int32(byte2) = load_u8(source)
+    Ptr(destination) = add(buffer, i)
+    store(Int8(byte2), destination)
+    Int64(i) = add(i, 1)
+    goto loop
+done:
+    return total
+small:
+    return -28
+end
