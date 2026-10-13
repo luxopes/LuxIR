@@ -213,3 +213,30 @@ obsah se při alokaci nemaže, C ASan/UBSan, C/LSL shoda assembleru šesti
 cílů a skutečné standalone execution tří Linux cílů.
 Benchmark `arena_benchmark.py` měří volání, kontroly a pointer checksum;
 nezahrnuje mapování, inicializaci objektů ani GC.
+
+## Float64 bez libc
+
+`float64.h/.c/.lir` přijímají/vracejí IEEE64 bity jako UInt64. Frontend
+může použít `bitcast` pro Float64 registr. Parser je locale-free strict
+ASCII: volitelné +/-, číslice s nejvýše jednou tečkou, volitelné e/E
+s exponentem. Bez whitespace, podtržítek a hex; lower-case inf/infinity
+a nan přijímá explicitně. Overflow je signed infinity, underflow signed
+zero. Zaokrouhlení nearest ties-even; chyby -22 syntax a -34 neúměrný
+span zachovají output. Raw paměťové rozsahy musí být platné.
+
+Krátké vstupy (do 17 significant digits) používají Ryu s2d. Delší
+vstupy mají přesný fallback: první 800 relevantních číslic, count/exponent
+a sticky tail; porovnání s exaktním desetinným zápisem binárních
+midpointů. Žádný midpoint IEEE64 nemá více než tuto hranici číslic.
+Prefix je jen hint; rozhodnutí ties/overflow/subnormal provede exaktní
+integer porovnání. Není to hotový Eisel-Lemire fast path.
+
+Formatter používá nejkratší Ryu digits a Python-repr prahy fixed/scientific
+(-4 až 15), .0 pro fixed integer, signed zero, lower-case inf/nan,
+sign exponentu a nejméně dvě exponentové číslice. Vrátí byte count nebo
+-28 při malé kapacitě; nepíše NUL a při chybě nemění buffer.
+
+Modul se v raw driveru připojí automaticky a nepoužité funkce/tabulky se
+vyřadí. Vendored Ryu je pinovaný a s licencemi v `runtime/vendor/ryu`.
+Generated IR používá skutečné `umulh` a `clz`, žádný externí intrinsics
+helper. Ryu C reference používá uint128; běhový program z IR C nepotřebuje.

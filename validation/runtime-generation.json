@@ -1,0 +1,42 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/managed.c",
+      "source_sha256": "a64b207dfedc1308d6318f647e8765a87dc336f845177f7cbd592381e058ee4c",
+      "ir_sha256": "bbf9f7d5eef2294b4488f4ce3dfcc08f25d0c9ee3f902ab514b085ac5df3838c"
+    },
+    {
+      "source": "runtime/collections.c",
+      "source_sha256": "28466b18035e550bf9adaf368806c34c5eb6dc63c6e971549bf7358ce707926e",
+      "ir_sha256": "a4610b58012798e69cbeab375cbd10feb20b7f88759786e1eae905cab91f7f1c"
+    },
+    {
+      "source": "runtime/map.c",
+      "source_sha256": "18d17bc4068f7f9c8ec6706e9fa12af3e1a785e296e3681810166f0aa1c3722a",
+      "ir_sha256": "773089f99749eaab898d70069242a0d3923bb5a7322ef71cd44d0beeecd86af8"
+    },
+    {
+      "source": "runtime/float64.c",
+      "source_sha256": "5851ebc019708d3d0dac7a790c0f91550787bc8f9815da598d1b420c4125493d",
+      "ir_sha256": "933e7d2cb74da2a7e037725a3a6c15aef52d75b5de7d3b0e6e50549b4df05dd1"
+    },
+    {
+      "source": "tests/runtime/managed_smoke.c",
+      "source_sha256": "95a6d795d7951160569436d78ef061a496c9030b90f29e61ecf2557393c68820",
+      "ir_sha256": "cbe46e3e80743f9b342f6bc1b70dbbdb78a72858aca3f6145aedb40fd6c6fb1d"
+    },
+    {
+      "source": "tests/runtime/collections_smoke.c",
+      "source_sha256": "a238993d2c9244e9589d8d8a4e9c02409567a7d1becef0701ae6bb18f17ecee1",
+      "ir_sha256": "19ef7973b3cee87f2f203bf80cd59abe34f37d0a728ef73798b7e4b33327adf7"
+    },
+    {
+      "source": "tests/runtime/float64_smoke.c",
+      "source_sha256": "5380a9acf7c7323c2f17b22cf6c7d73ef466dba9a09dce5510565b5410c31c10",
+      "ir_sha256": "f98a819193e2504f6129d8c3f6b51d03d85e90541c052406149b4adcb0eb1261"
+    }
+  ]
+}

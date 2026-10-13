@@ -1,0 +1,10 @@
+{
+  "target": "amd64_sysv",
+  "raw_binary_identical": true,
+  "c_asan_ubsan": true,
+  "libc_float_conversion": false,
+  "format_against_python_repr": true,
+  "parse_against_python_float": true,
+  "long_decimal_inputs": true,
+  "runner": []
+}

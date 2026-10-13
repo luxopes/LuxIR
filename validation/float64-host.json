@@ -1,0 +1,34 @@
+{
+  "target": "amd64_sysv",
+  "results": [
+    {
+      "implementation": "C reference",
+      "checks": 86321,
+      "rounding": "24 rounding-mode checks passed"
+    },
+    {
+      "implementation": "src/luxir",
+      "checks": 86321,
+      "rounding": "24 rounding-mode checks passed"
+    },
+    {
+      "implementation": "build/luxir",
+      "checks": 86321,
+      "rounding": "24 rounding-mode checks passed"
+    }
+  ],
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "oracle": "Python repr/float + Fraction exact midpoint corpus",
+  "random_bit_patterns": 20000,
+  "long_inputs": 600,
+  "midpoint_neighbors": 654,
+  "huge_input_digits": 100000,
+  "libc_float_conversion": false
+}

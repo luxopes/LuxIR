@@ -76,6 +76,8 @@ check-runtime: c native
 	$(PYTHON) tests/runtime/run_arena.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_managed.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_collections.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_float64.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/float64.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_os.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_startup.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/standalone.py --backend src/luxir --backend build/luxir

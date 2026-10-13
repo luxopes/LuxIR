@@ -213,6 +213,13 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   obsahujících objektů); není to end-to-end benchmark autobusů v LSL.
   Seeded/cryptographic collision protection zůstává otevřená.
 
+- [x] Raw Float64 bits ↔ text: shortest/nearest Python-repr rendering,
+  strict ASCII decimal parser, round-to-nearest ties-even, Ryu short route
+  a přesné midpoint porovnání arbitrárně dlouhých vstupů (bounded digits
+  + sticky). 86 321 kontrol/implementaci, Fraction/Python oracle,
+  standalone execution tří Linux cílů. Není Eisel-Lemire fast path,
+  managed String/Float adapters, Float32 parser nebo end-to-end LSL brána.
+
 ## Runtime knihovna LuxIR (luxrt)
 
 ### OS vrstva: jediné místo s kódem pro konkrétní systém

@@ -306,3 +306,24 @@ loadu, jednorázovém avalanche při konstrukci String a odstranění
 opakovaných type/coercion/out-parameter helperů: native 27,19 ns,
 C-emitted IR 29,14 ns, C reference 25,18 ns. Nejde o měření celé LSL
 varianta autobusů nebo srovnání s předchozím LSL release.
+
+## Float64 parse/format — 13. 10. 2026
+
+86 321 kontrol pro C reference, C-emitted a LSL-emitted IR; 20 000
+random bitpatterns, 5 000 short decimals, 600 vstupů s 18–1200 digits,
+654 přesných midpoint/neighbor případů od Python Fraction a vstupy se
+100 000 digits. Výstup shodný s Python repr, parse s Python float včetně
+signed zero, subnormal, max finite, overflow, inf/nan. Capacity failure
+zachovává buffer a canaries, syntax failure output. C/LSL assembler
+shodný pro šest cílů; C ASan/UBSan standalone fixture prošel. Raw
+static PIE fixture běží na třech Linux cílech (ARM64/RV64 QEMU), C/LSL
+binárky shodné a žádné libc float conversion/extern intrinsic helper.
+
+Dalších 24 kontrol pro každou implementaci prošlo ve všech čtyřech
+režimech zaokrouhlování fenv. Build-driver regression: 30 kontrol,
+C/LSL binárky shodné; nepoužitý Float64 modul se odstraní při linkování.
+
+Nejde o všechny 2^64 inputs/formální důkaz ani benchmark Float parseru
+proti předchozímu LSL release. Long route je přesné porovnání midpointů,
+ne Eisel-Lemire. Vendored Ryu 4c0618b pod Boost 1.0, notices zachovány
+v C i generated IR.

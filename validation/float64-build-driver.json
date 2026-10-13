@@ -1,0 +1,42 @@
+{
+  "target": "amd64_sysv",
+  "checks": 30,
+  "backends": [
+    {
+      "backend": "src/luxir",
+      "sha256": "650c2c65fb6e9d2d7fec2c6c964e6b243690750c09b10b1384be0aaad44ab0b7",
+      "bytes": 13200,
+      "bytes_without_gc_sections": 44688,
+      "text_bytes": 3029,
+      "text_bytes_without_gc_sections": 20742
+    },
+    {
+      "backend": "build/luxir",
+      "sha256": "650c2c65fb6e9d2d7fec2c6c964e6b243690750c09b10b1384be0aaad44ab0b7",
+      "bytes": 13200,
+      "bytes_without_gc_sections": 44688,
+      "text_bytes": 3029,
+      "text_bytes_without_gc_sections": 20742
+    }
+  ],
+  "binary_identical": true,
+  "small_tls_alignments": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "relative_data_and_tls_pointers": true,
+  "relro_write_fault": true,
+  "failed_build_preserves_output": true,
+  "libc": false,
+  "dynamic_loader": false,
+  "external_tools": [
+    "GNU as",
+    "GNU ld"
+  ],
+  "runner": []
+}
