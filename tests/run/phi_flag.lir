@@ -1,0 +1,51 @@
+# Int64 phi s hodnotami 0/1 podle porovnání Int32: copy.c ji nahradí
+# přímo výsledkem porovnání (slovo použité jako long; dříve pád rv64 isel)
+data fmt = ["%d:%lld\n", Int8(0)]
+
+function out(Int32(id), Int64(v)):
+    call printf(Ptr(fmt), ..., Int32(id), Int64(v))
+    return
+end
+
+function negative_flag(Int64(a), Int64(b)) -> Int64:
+start:
+    Int64(v) = copy(0)
+    Int32(c) = lt(a, 0)
+    if c goto yes else no
+yes:
+    Int64(v) = copy(1)
+    goto join
+no:
+    goto join
+join:
+    Int64(r) = add(v, b)
+    return r
+end
+
+function inverted_flag(Int64(a), Int64(b)) -> Int64:
+start:
+    Int64(v) = copy(1)
+    Int32(c) = lt(a, 0)
+    if c goto yes else no
+yes:
+    Int64(v) = copy(0)
+    goto join
+no:
+    goto join
+join:
+    Int64(r) = mul(v, b)
+    return r
+end
+
+export function main() -> Int32:
+start:
+    Int64(x) = call negative_flag(Int64(-5), Int64(4294967295))
+    call out(Int32(1), Int64(x))
+    Int64(x) = call negative_flag(Int64(7), Int64(-1))
+    call out(Int32(2), Int64(x))
+    Int64(x) = call inverted_flag(Int64(-1), Int64(1099511627776))
+    call out(Int32(3), Int64(x))
+    Int64(x) = call inverted_flag(Int64(3), Int64(1099511627776))
+    call out(Int32(4), Int64(x))
+    return 0
+end

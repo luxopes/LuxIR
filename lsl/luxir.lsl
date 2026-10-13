@@ -48354,23 +48354,41 @@ function q_f_rv64_isel_fixarg(q_a0, q_a1, q_a2, q_a3):
     q_v176 = q_f_emit(68, 1, q_v169, q_v171, q_v173)
     call __lsl_qbe_jump(50)
     call __lsl_qbe_label(49)
+    call __lsl_qbe_branch(Int(q_param1 == 1), 55, 53)
+    call __lsl_qbe_label(55)
     q_v179 = __lsl_qbe_load64((q_param3 + 8))
     q_v180 = (__lsl_qbe_lshr(q_s2_r0, 3) & 536870911)
     q_v181 = (q_v179 + (q_v180 * 128))
     q_v182 = __lsl_qbe_s16(__lsl_qbe_load16((q_v181 + 44)))
-    call __lsl_qbe_branch(Int(q_param1 == q_v182), 53, 52)
+    call __lsl_qbe_branch(Int(q_v182 == 0), 52, 53)
     call __lsl_qbe_label(52)
-    call q_assert(0, q_string_692, q_string_691, 80)
+    q_v187 = q_f_newtmp(q_string_86, 1, q_param3)
+    q_v188 = __lsl_qbe_raw_int(q_v187)
+    q_s3_r1 = q_v188
+    q_v191 = q_s3_r1
+    q_v193 = q_s2_r0
+    q_v195 = (0)
+    q_v198 = q_f_emit(69, 1, q_v191, q_v193, q_v195)
+    call __lsl_qbe_jump(54)
     call __lsl_qbe_label(53)
+    q_v201 = __lsl_qbe_load64((q_param3 + 8))
+    q_v202 = (__lsl_qbe_lshr(q_s2_r0, 3) & 536870911)
+    q_v203 = (q_v201 + (q_v202 * 128))
+    q_v204 = __lsl_qbe_s16(__lsl_qbe_load16((q_v203 + 44)))
+    call __lsl_qbe_branch(Int(q_param1 == q_v204), 57, 56)
+    call __lsl_qbe_label(56)
+    call q_assert(0, q_string_692, q_string_691, 88)
+    call __lsl_qbe_label(57)
+    call __lsl_qbe_label(54)
     call __lsl_qbe_label(50)
     call __lsl_qbe_label(8)
-    q_v188 = q_s3_r1
-    call __lsl_qbe_store32(q_param0, q_v188)
+    q_v210 = q_s3_r1
+    call __lsl_qbe_store32(q_param0, q_v210)
     call __lsl_qbe_label(1)
     return q_result
 end
 
-# QBE 1.3: rv64/isel.c:88
+# QBE 1.3: rv64/isel.c:96
 function q_f_rv64_isel_negate(q_a0, q_a1):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -48391,7 +48409,7 @@ function q_f_rv64_isel_negate(q_a0, q_a1):
     return q_result
 end
 
-# QBE 1.3: rv64/isel.c:98
+# QBE 1.3: rv64/isel.c:106
 function q_f_rv64_isel_selcmp(q_a0, q_a1, q_a2, q_a3):
     q_result = 0
     q_param0 = __lsl_qbe_alloc(16)
@@ -48645,7 +48663,7 @@ function q_f_rv64_isel_selcmp(q_a0, q_a1, q_a2, q_a3):
     call __lsl_qbe_label(49)
     call __lsl_qbe_branch(q_v239, 51, 50)
     call __lsl_qbe_label(50)
-    call q_assert(0, q_string_694, q_string_691, 158)
+    call q_assert(0, q_string_694, q_string_691, 166)
     call __lsl_qbe_label(51)
     call __lsl_qbe_label(22)
     q_v244 = q_param2
@@ -48701,7 +48719,7 @@ function q_f_rv64_isel_selcmp(q_a0, q_a1, q_a2, q_a3):
     return q_result
 end
 
-# QBE 1.3: rv64/isel.c:176
+# QBE 1.3: rv64/isel.c:184
 function q_f_rv64_isel_sel(q_a0, q_a1):
     q_result = 0
     q_param0 = __lsl_qbe_alloc(16)
@@ -48765,7 +48783,7 @@ function q_f_rv64_isel_sel(q_a0, q_a1):
     return q_result
 end
 
-# QBE 1.3: rv64/isel.c:200
+# QBE 1.3: rv64/isel.c:208
 function q_f_rv64_isel_seljmp(q_a0, q_a1):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -48783,7 +48801,7 @@ function q_f_rv64_isel_seljmp(q_a0, q_a1):
     return q_result
 end
 
-# QBE 1.3: rv64/isel.c:208
+# QBE 1.3: rv64/isel.c:216
 function q_f_rv64_isel(q_a0):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -48936,7 +48954,7 @@ function q_f_rv64_isel(q_a0):
     q_v92 = __lsl_qbe_u32(__lsl_qbe_load32((q_v91 + 12)))
     call __lsl_qbe_branch(__lsl_qbe_ult(__lsl_qbe_u32((q_v90 + 1)), q_v92), 41, 40)
     call __lsl_qbe_label(40)
-    call q_assert(0, q_string_617, q_string_691, 242)
+    call q_assert(0, q_string_617, q_string_691, 250)
     call __lsl_qbe_label(41)
     call __lsl_qbe_label(38)
     q_v97 = q_s5_n

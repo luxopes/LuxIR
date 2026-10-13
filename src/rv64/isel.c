@@ -76,6 +76,14 @@ fixarg(Ref *r, int k, Ins *i, Fn *fn)
 			 */
 			r1 = newtmp("isel", k, fn);
 			emit(Oextsw, Kl, r1, r0, R);
+		} else if (k == Kl && fn->tmp[r0.val].cls == Kw) {
+			/* slovo (např. výsledek porovnání, který
+			 * copy.c dosadil za phi 0/1) použité jako
+			 * long: horní bity nejsou definované,
+			 * rozšíří se nulami
+			 */
+			r1 = newtmp("isel", Kl, fn);
+			emit(Oextuw, Kl, r1, r0, R);
 		} else {
 			assert(k == fn->tmp[r0.val].cls);
 		}
