@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifndef LUXRT_HASH_SEEDED
+#define LUXRT_HASH_SEEDED 0
+#endif
 #define KEYS 4096
 #define CALLS 1000000
 static double now(void) {
@@ -16,6 +19,7 @@ int main(void) {
     luxrt_value roots[2] = {0}, *keys = calloc(KEYS, sizeof *keys);
     luxrt_roots frame, key_frame;
     if (!keys || luxrt_heap_init(&h, 64 * 1024 * 1024, 4096) ||
+        (LUXRT_HASH_SEEDED && luxrt_heap_seed_hash(&h, 12345, 67890)) ||
         luxrt_roots_push(&h, &frame, roots, 2) || luxrt_roots_push(&h, &key_frame, keys, KEYS) ||
         luxrt_map_new(&h, 0, roots))
         return 1;

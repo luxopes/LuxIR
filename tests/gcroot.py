@@ -36,7 +36,7 @@ def disable_core():resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--backend',type=Path,action='append',required=True);ap.add_argument('--target',choices=TARGETS,default='amd64_sysv');ap.add_argument('--report',type=Path);a=ap.parse_args();parity={};rows=[]
  with tempfile.TemporaryDirectory(prefix='luxir-gcroot-') as d:
-  d=Path(d);common=[ROOT/('tests/runtime/'+x) for x in ('gcroot_cases.c','gcroot_main.c','managed_os_oracle.c')];rt=[ROOT/('runtime/'+x+'.c') for x in ('managed','memory','abi')];flags=['cc','-O2','-Wall','-Wextra','-Werror'];expected=None
+  d=Path(d);common=[ROOT/('tests/runtime/'+x) for x in ('gcroot_cases.c','gcroot_main.c','managed_os_oracle.c')];rt=[ROOT/('runtime/'+x+'.c') for x in ('managed','memory','abi','hash')];flags=['cc','-O2','-Wall','-Wextra','-Werror'];expected=None
   for b in a.backend:
    for enabled in (False,True):
     asm=subprocess.check_output([str(b.resolve())]+(['-i'] if enabled else [])+[str(ROOT/'tests/gcroot.lir')]);p=d/'gcroot.s';p.write_bytes(asm)

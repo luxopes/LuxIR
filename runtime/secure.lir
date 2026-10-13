@@ -1,0 +1,108 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_heap_init_secure(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.1:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(336)
+    Int64(.8) = alloc4(4)
+    Int64(.14) = alloc8(16)
+    Int64(.18) = alloc8(8)
+    Int64(.22) = alloc8(8)
+body.2:
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int32(.11) = call extern(luxrt_heap_init)(Int64(.7), Int64(.9), Int64(.10))
+    store(.11, .8)
+    Int32(.12) = load_i32(.8)
+    if .12 goto if_true.3 else if_false.4
+if_true.3:
+    Int32(.13) = load_i32(.8)
+    return .13
+if_false.4:
+    Int64(.15) = sext32(0)
+    store(.15, .14)
+    Int64(.16) = add(.14, 8)
+    Int64(.17) = sext32(0)
+    store(.17, .16)
+    Int64(.19) = sext32(0)
+    store(.19, .18)
+while_cond.5:
+    Int64(.20) = load(.18)
+    Int32(.21) = ult(.20, 16)
+    if .21 goto while_body.6 else while_join.7
+while_body.6:
+    Int64(.23) = load(.18)
+    Int64(.24) = mul(.23, 1)
+    Int64(.25) = add(.14, .24)
+    Int64(.26) = load(.18)
+    Int64(.27) = sub(16, .26)
+    Int64(.28) = sext32(0)
+    Int64(.29) = call extern(luxrt_os_random)(Int64(.25), Int64(.27), Int64(.28))
+    store(.29, .22)
+    Int64(.30) = load(.22)
+    Int32(.31) = eq(.30, 18446744073709551612)
+    if .31 goto if_true.8 else if_false.9
+if_true.8:
+    goto while_cond.5
+if_false.9:
+    Int64(.32) = load(.22)
+    Int64(.33) = sext32(0)
+    Int32(.34) = le(.32, .33)
+    if .34 goto if_true.10 else logic_or.12
+logic_or.12:
+    Int64(.35) = load(.22)
+    Int64(.36) = load(.18)
+    Int64(.37) = sub(16, .36)
+    Int32(.38) = ugt(.35, .37)
+    if .38 goto if_true.10 else if_false.11
+if_true.10:
+    Int64(.39) = load(.22)
+    Int32(.40) = lt(.39, 0)
+    if .40 goto cond_true.13 else cond_false.14
+cond_true.13:
+    Int64(.41) = load(.22)
+    goto cond_join.15
+cond_false.14:
+    Int32(.42) = neg(5)
+cond_join.15:
+    Int32(.43) = phi(cond_true.13: .41, cond_false.14: .42)
+    store(.43, .8)
+    Int64(.44) = call extern(luxrt_memset)(Int64(.14), Int32(0), Int64(16))
+    Int32(.45) = load_i32(.8)
+    return .45
+if_false.11:
+    Int64(.46) = load(.18)
+    Int64(.47) = load(.22)
+    Int64(.48) = add(.46, .47)
+    store(.48, .18)
+    goto while_cond.5
+while_join.7:
+    Int64(.49) = sext32(0)
+    Int64(.50) = mul(.49, 8)
+    Int64(.51) = add(.14, .50)
+    Int64(.52) = load(.51)
+    Int64(.53) = sext32(1)
+    Int64(.54) = mul(.53, 8)
+    Int64(.55) = add(.14, .54)
+    Int64(.56) = load(.55)
+    Int32(.57) = call extern(luxrt_heap_seed_hash)(Int64(.7), Int64(.52), Int64(.56))
+    store(.57, .8)
+    Int64(.58) = call extern(luxrt_memset)(Int64(.14), Int32(0), Int64(16))
+    Int32(.59) = load_i32(.8)
+    if .59 goto if_true.16 else if_false.17
+if_true.16:
+    Int32(.60) = call extern(luxrt_heap_destroy)(Int64(.7))
+    Int32(.61) = load_i32(.8)
+    return .61
+if_false.17:
+    Int64(.62) = load(.2)
+    Int64(.63) = call extern(luxrt_memcpy)(Int64(.62), Int64(.7), Int64(336))
+    Int64(.64) = call extern(luxrt_memset)(Int64(.7), Int32(0), Int64(336))
+    return 0
+end
+

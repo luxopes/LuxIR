@@ -1,0 +1,30 @@
+{
+  "target": "arm64",
+  "oracle": "54982 hash checks passed",
+  "independent_python_vectors": 3005,
+  "official_vectors": 64,
+  "entropy_faults": "16 entropy fault checks passed",
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "raw_binary_identical": true,
+  "c_asan_ubsan": true,
+  "models": [
+    "keyed cached strings",
+    "foreign-heap read-only map lookup/deletion",
+    "same-heap insertion ownership",
+    "numeric key equivalence",
+    "seed propagation across slabs",
+    "reseed rejection and empty-heap reseed",
+    "zero key",
+    "OOM preservation"
+  ],
+  "runner": [
+    "qemu-aarch64"
+  ]
+}

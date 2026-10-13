@@ -1,4 +1,5 @@
 #include "map.h"
+#include "internal/heap_hash.h"
 #include "memory.h"
 #include <stddef.h>
 #define MAP_PAYLOAD(v) ((void *)((luxrt_object *)(uintptr_t)(v) + 1))
@@ -30,13 +31,7 @@ static int32_t own(luxrt_heap *h, luxrt_value v) {
     luxrt_object *o = (luxrt_object *)(uintptr_t)v;
     return o->owner == h && o->descriptor;
 }
-static uint64_t mix(uint64_t x) {
-    x ^= x >> 30;
-    x *= UINT64_C(0xbf58476d1ce4e5b9);
-    x ^= x >> 27;
-    x *= UINT64_C(0x94d049bb133111eb);
-    return x ^ (x >> 31);
-}
+
 static int32_t integer_key(luxrt_value v, uint64_t flags, int64_t *out) {
     if (luxrt_value_get_int(v, out) == 0)
         return 1;
@@ -69,19 +64,23 @@ typedef struct {
 } cached_string;
 /* Runtime-private access to the documented managed header, not a frontend
  * requirement. Avoid out-parameter helpers and repeated type tests in probes. */
-static int32_t key_hash(luxrt_value v, uint64_t flags, uint64_t *out) {
+static int32_t key_hash(luxrt_heap *h, luxrt_value v, uint64_t flags, uint64_t *out) {
     uint64_t type = luxrt_value_type(v);
     if (type == LUXRT_STRING_TYPE) {
-        *out = ((cached_string *)MAP_PAYLOAD(v))->hash ^ UINT64_C(0x8f21754953);
+        cached_string *s = MAP_PAYLOAD(v);
+        *out = (((luxrt_object *)(uintptr_t)v)->owner == h
+                    ? s->hash
+                    : luxrt_heap_hash_bytes(h, s->data, s->bytes)) ^
+               UINT64_C(0x8f21754953);
         return 0;
     }
     int64_t i;
     if (integer_key(v, flags, &i)) {
-        *out = mix((uint64_t)i ^ UINT64_C(0x0123456789abcdef));
+        *out = luxrt_heap_hash_word(h, (uint64_t)i ^ UINT64_C(0x0123456789abcdef));
         return 0;
     }
     if (type == LUXRT_NONE_TYPE || type == LUXRT_BOOL_TYPE) {
-        *out = mix(v);
+        *out = luxrt_heap_hash_word(h, v);
         return 0;
     }
     if (type == LUXRT_FLOAT_TYPE) {
@@ -89,7 +88,7 @@ static int32_t key_hash(luxrt_value v, uint64_t flags, uint64_t *out) {
         luxrt_value_get_float_bits(v, &bits);
         if ((bits << 1) == 0)
             bits = 0;
-        *out = mix(bits ^ UINT64_C(0xf01a712d98));
+        *out = luxrt_heap_hash_word(h, bits ^ UINT64_C(0xf01a712d98));
         return 0;
     }
     return -22;
@@ -100,7 +99,9 @@ static int32_t key_equal(luxrt_value a, luxrt_value b, uint64_t flags) {
     uint64_t type = luxrt_value_type(a), other = luxrt_value_type(b);
     if (type == LUXRT_STRING_TYPE && other == type) {
         cached_string *x = MAP_PAYLOAD(a), *y = MAP_PAYLOAD(b);
-        return x->bytes == y->bytes && x->hash == y->hash &&
+        return x->bytes == y->bytes &&
+               (((luxrt_object *)(uintptr_t)a)->owner != ((luxrt_object *)(uintptr_t)b)->owner ||
+                x->hash == y->hash) &&
                luxrt_memcmp(x->data, y->data, x->bytes) == 0;
     }
     int64_t x, y;
@@ -215,7 +216,7 @@ int32_t luxrt_map_set(luxrt_heap *h, luxrt_value v, luxrt_value key, luxrt_value
     if (!m || !own(h, v) || !own(h, key) || !own(h, value))
         return -22;
     uint64_t hash;
-    int32_t status = key_hash(key, m->flags, &hash);
+    int32_t status = key_hash(((luxrt_object *)(uintptr_t)v)->owner, key, m->flags, &hash);
     if (status)
         return status;
     uint64_t e, slot = probe(m, key, hash, &e);
@@ -257,7 +258,7 @@ int32_t luxrt_map_get(luxrt_value v, luxrt_value key, luxrt_value *out) {
     if (!m)
         return -22;
     uint64_t hash;
-    int32_t status = key_hash(key, m->flags, &hash);
+    int32_t status = key_hash(((luxrt_object *)(uintptr_t)v)->owner, key, m->flags, &hash);
     if (status)
         return status;
     uint64_t e;
@@ -272,7 +273,7 @@ int32_t luxrt_map_delete(luxrt_value v, luxrt_value key, luxrt_value *old) {
     if (!m)
         return -22;
     uint64_t hash;
-    int32_t status = key_hash(key, m->flags, &hash);
+    int32_t status = key_hash(((luxrt_object *)(uintptr_t)v)->owner, key, m->flags, &hash);
     if (status)
         return status;
     uint64_t e, slot = probe(m, key, hash, &e);

@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TARGETS = ['amd64_sysv', 'amd64_win', 'amd64_apple', 'arm64', 'arm64_apple', 'rv64']
 RUNNERS = {'amd64_sysv': [], 'arm64': ['qemu-aarch64'], 'rv64': ['qemu-riscv64']}
-MODULES = ['memory', 'integer', 'float64', 'managed', 'collections', 'numeric', 'tuple']
+MODULES = ['memory', 'integer', 'float64', 'hash', 'managed', 'collections', 'numeric', 'tuple']
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--backend', type=Path, action='append', required=True)

@@ -83,6 +83,7 @@ check-runtime: c native
 	$(PYTHON) tests/runtime/run_process.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_process.py --capture --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_extended.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/runtime/run_hash.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_collections.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/run_float64.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/runtime/float64.py --backend src/luxir --backend build/luxir

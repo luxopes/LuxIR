@@ -48,6 +48,16 @@ typedef struct {
     uint64_t payload_bytes;
 } luxrt_object;
 int32_t luxrt_heap_init(luxrt_heap *,uint64_t max_mapped_bytes,uint64_t page_size);
+/* Opt-in keyed SipHash-2-4 for String/Map/Set hashes. Call before constructing
+ * any objects, or after a collection leaves no live objects (-16 otherwise).
+ * No automatic entropy acquisition; use a secret unpredictable 128-bit key.
+ * May allocate the first slab (-12 on failure); existing seed unchanged on failure.
+ * Destroy removes seed. Heap context size and Value/object layouts are unchanged. */
+int32_t luxrt_heap_seed_hash(luxrt_heap *,uint64_t key0,uint64_t key1);
+/* Initialize a fresh heap with 128 bits from OS getrandom. Handles partial
+ * reads/EINTR, fails closed on entropy errors/zero reads, output unchanged on
+ * failure. May allocate the first slab. Fresh/destroyed contexts are required. */
+int32_t luxrt_heap_init_secure(luxrt_heap *,uint64_t max_mapped_bytes,uint64_t page_size);
 int32_t luxrt_heap_destroy(luxrt_heap *); /* no outstanding root frames */
 int32_t luxrt_roots_push(luxrt_heap *,luxrt_roots *,luxrt_value *,uint64_t);
 int32_t luxrt_roots_pop(luxrt_heap *,luxrt_roots *);

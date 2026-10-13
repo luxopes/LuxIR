@@ -17,6 +17,7 @@
     "runtime/collections.h",
     "runtime/context.h",
     "runtime/float64.h",
+    "runtime/hash.h",
     "runtime/integer.h",
     "runtime/io.h",
     "runtime/managed.h",
@@ -809,6 +810,58 @@
         },
         {
           "name": "page_size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_init_secure",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "max_mapped_bytes",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "page_size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_seed_hash",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "key0",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "key1",
           "ir_type": "Int64",
           "c_type": "uint64_t"
         }
@@ -3038,6 +3091,37 @@
           "name": "signal",
           "ir_type": "Int64",
           "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_siphash24",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "data",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "key0",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "key1",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
         }
       ],
       "targets": [

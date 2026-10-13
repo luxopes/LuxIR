@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 TARGETS=['amd64_sysv','amd64_win','amd64_apple','arm64','arm64_apple','rv64']
 CONF={'amd64_sysv':[],'arm64':['qemu-aarch64'],'rv64':['qemu-riscv64']}
-MODULES=['managed','collections','map']
+MODULES=['hash', 'managed','collections','map']
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--backend',type=Path,action='append',required=True);ap.add_argument('--target',choices=CONF,default='amd64_sysv');ap.add_argument('--report',type=Path);ap.add_argument('--inline',action='store_true');a=ap.parse_args();assemblies={}
  with tempfile.TemporaryDirectory(prefix='luxrt-collections-') as d:

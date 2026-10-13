@@ -1,0 +1,37 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/hash.c",
+      "source_sha256": "0489ed824d35eab8d4b739b04917979e145931156894f62f9a054f90496dbd40",
+      "ir_sha256": "b682fbf4d4200d891fb9a106a91b006d114a611da6a30a71a0059cc6af8a93d5"
+    },
+    {
+      "source": "runtime/secure.c",
+      "source_sha256": "5b2a5f09e8ab97e361742ee132e4d651deb09e8acbc03353bf83212deb7cf94a",
+      "ir_sha256": "4c1933f83bc452fb690eeb540e32b997a21b422129775257a9602b5ef4c203b7"
+    },
+    {
+      "source": "runtime/managed.c",
+      "source_sha256": "c28a2d73d83ad78ce4b70962de4832b429da5a44296cae206be3677b5ae0788a",
+      "ir_sha256": "fce1ac8c2a32fee6aff27bf5e5e51ba2f95f514ebff5e8ef125e66fec617ba15"
+    },
+    {
+      "source": "runtime/collections.c",
+      "source_sha256": "8bd4fe43695fe046c4e69d534af5879e1b012cbe58115e3e3f043fe9d065ce6d",
+      "ir_sha256": "c4a83a0a29ab1657278dd48fcbcd50b147880c1259007412157f97483ca75ee3"
+    },
+    {
+      "source": "runtime/map.c",
+      "source_sha256": "2bd727784fe496d42960051659d9ee8192943e9eedf15750deb267e802711968",
+      "ir_sha256": "f6ffe36a92e7885cc1352d906977be5ebda46539dc2798c688c53a85ea5e2280"
+    },
+    {
+      "source": "tests/runtime/hash_cases.c",
+      "source_sha256": "b1df61d8dbd84716156386d2518504ecb94631548b1fc0ca9768431d8e239b70",
+      "ir_sha256": "1cd8474804662bf733d08f002434a3117d4c157def5be9a5bfcd1471af40ea7c"
+    }
+  ]
+}

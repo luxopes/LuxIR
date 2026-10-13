@@ -1,4 +1,5 @@
 #include "collections.h"
+#include "internal/heap_hash.h"
 #include "memory.h"
 #include <stddef.h>
 static const uint64_t vector_refs[] = {16};
@@ -38,19 +39,6 @@ static int32_t owned(luxrt_heap *h, luxrt_value v) {
 static string *get_string(luxrt_value v) {
     return object_of(v, LUXRT_STRING_TYPE) ? luxrt_object_payload(v) : 0;
 }
-static uint64_t hash_string(const unsigned char *p, uint64_t n) {
-    uint64_t hash = UINT64_C(14695981039346656037);
-    for (uint64_t i = 0; i < n; i++) {
-        hash ^= p[i];
-        hash *= UINT64_C(1099511628211);
-    }
-    /* Avalanche once at construction; map probes consume the cached hash. */
-    hash ^= hash >> 30;
-    hash *= UINT64_C(0xbf58476d1ce4e5b9);
-    hash ^= hash >> 27;
-    hash *= UINT64_C(0x94d049bb133111eb);
-    return hash ^ (hash >> 31);
-}
 static uint64_t character_count(const unsigned char *p, uint64_t n) {
     uint64_t count = 0;
     for (uint64_t i = 0; i < n; i++)
@@ -72,7 +60,7 @@ int32_t luxrt_string_new(luxrt_heap *h, const void *data, uint64_t n, luxrt_valu
     s->characters = character_count(data, n);
     luxrt_memcpy(s->data, data, n);
     s->data[n] = 0;
-    s->hash = hash_string(s->data, n);
+    s->hash = luxrt_heap_hash_bytes(h, s->data, n);
     *out = v;
     return 0;
 }
@@ -91,8 +79,11 @@ int32_t luxrt_string_equal(luxrt_value a, luxrt_value b, int32_t *out) {
     string *x = get_string(a), *y = get_string(b);
     if (!x || !y)
         return -22;
-    *out = a == b || (x->bytes == y->bytes && x->hash == y->hash &&
-                      luxrt_memcmp(x->data, y->data, x->bytes) == 0);
+    *out = a == b ||
+           (x->bytes == y->bytes &&
+            (((luxrt_object *)(uintptr_t)a)->owner != ((luxrt_object *)(uintptr_t)b)->owner ||
+             x->hash == y->hash) &&
+            luxrt_memcmp(x->data, y->data, x->bytes) == 0);
     return 0;
 }
 int32_t luxrt_string_compare(luxrt_value a, luxrt_value b, int32_t *out) {
@@ -125,7 +116,7 @@ int32_t luxrt_string_concat(luxrt_heap *h, luxrt_value a, luxrt_value b, luxrt_v
         luxrt_memcpy(s->data, x->data, x->bytes);
         luxrt_memcpy(s->data + x->bytes, y->data, y->bytes);
         s->data[n] = 0;
-        s->hash = hash_string(s->data, n);
+        s->hash = luxrt_heap_hash_bytes(h, s->data, n);
         *out = v;
     }
     luxrt_roots_pop(h, &frame);

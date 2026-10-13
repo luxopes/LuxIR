@@ -222,7 +222,14 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   Jde o základní API, ne celý stdlib/145 funkcí, Tuple nebo Unicode case.
   String lookup v izolovaném benchmarku 27–29 ns (4096 různých stejně
   obsahujících objektů); není to end-to-end benchmark autobusů v LSL.
-  Seeded/cryptographic collision protection zůstává otevřená.
+  Doplněno volitelné per-heap SipHash-2-4 (128bit klíč), cached String hash,
+  hash numerických klíčů a lookup/read-only delete podle String z jiné haldy.
+  Seed lze měnit jen bez živých objektů; soukromé slab metadata zachovává
+  kontext ABI 1 (336 B). 54 982 kontrol/implementaci, 64 oficiálních vektorů,
+  3 005 nezávislých Python referencí a tři Linux cíle. `luxrt_heap_init_secure`
+  získá klíč z OS náhody; 16 fault kontrol (partial/EINTR/zero/error/OOM),
+  zachování outputu a fail-closed politika. Deterministický defaultní initializer
+  zůstává kompatibilní a není collision-flood ochrana.
 
 - [x] Raw Float64 bits ↔ text: shortest/nearest Python-repr rendering,
   strict ASCII decimal parser, round-to-nearest ties-even, Ryu short route

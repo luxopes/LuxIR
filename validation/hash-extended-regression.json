@@ -1,0 +1,25 @@
+{
+  "target": "amd64_sysv",
+  "inline": false,
+  "oracle": "1530264 managed numeric/tuple checks passed",
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "raw_binary_identical": true,
+  "c_asan_ubsan": true,
+  "all_mappings_released": true,
+  "models": [
+    "full Int64 managed conversion",
+    "Float64 bit roundtrip and raw text comparison",
+    "immutable Tuple list model",
+    "forced GC during construction",
+    "slice/concat/source mutation",
+    "foreign heap and OOM preservation"
+  ],
+  "runner": []
+}

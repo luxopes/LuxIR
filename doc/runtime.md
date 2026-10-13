@@ -193,3 +193,35 @@ Capture fault injection stalls child exec and, separately, process group creatio
 for three seconds while requesting a 30 ms timeout, and verifies cancellation
 before exec/group creation, direct-child SIGKILL status
 and cleanup in C and emitted runtime IR.
+
+### Keyed heap hashes
+
+`hash.h` supplies allocation-free SipHash-2-4 over arbitrary byte spans.
+`luxrt_heap_seed_hash(heap, key0, key1)` selects a 128-bit secret key before
+objects are constructed, or after collection leaves the heap empty. The default
+FNV/avalanche path is preserved. Explicit seeding may allocate the first slab;
+OOM leaves seed unchanged. Live objects cause -16, preserving cached hashes and
+map invariants. Zero key words are allowed for deterministic tests but are not
+secret entropy. No heap-context, Value or object-header size changes occur.
+
+Strings cache the selected hash at construction, including concat/slice results.
+Maps and sets hash scalar keys with the same policy, preserving numeric-key
+equivalence, signed zero and NaN identity. Same-heap string probes consume the
+cached hash; foreign-heap read-only String probes use the target heap's key and
+compare bytes independently of the foreign cached hash. Foreign insertion stays
+invalid. The hash API is a keyed short hash, not encryption/password hashing.
+
+`tests/runtime/run_hash.py` combines the 64 official vectors with an independent
+Python reference for 3,005 random key/span cases, unaligned spans and inputs up
+to 100,000 bytes; the managed model covers seed changes, OOM, slab propagation
+and cross-heap lookup. `map_benchmark.py --seeded` measures cached lookup with
+keyed hashing enabled; construction, allocation and GC remain outside timing.
+
+`luxrt_heap_init_secure(heap, maximum, page_size)` provides the complete secure
+initializer: validate settings, fill a 128-bit key from OS getrandom, seed a
+temporary heap, publish only on success and clear temporary key storage. Partial
+reads/EINTR are handled; unavailable entropy, zero reads and OOM are errors.
+The caller's output heap is unchanged on any failure. Initialize fresh/destroyed
+contexts only. This is opt-in; ordinary heap_init remains deterministic.
+Entropy fault injection covers -ENOSYS, zero result, an error after partial
+progress, an oversized result and OOM, in C and emitted IR with sanitizers.
