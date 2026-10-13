@@ -363,3 +363,27 @@ o něm linker. Adresy získané numericky, bez symbolické relokace, nejsou
 kořeny: taková data musí uživatel uchovat linkerovým skriptem. Bez `-s`
 je dosavadní formát assembleru zachován. Volba platí jen pro ELF cíle
 `amd64_sysv`, `arm64` a `rv64`; ostatní cíle vrátí diagnostiku.
+
+## Status call with explicit error edge (`invoke`)
+
+```text
+Int32(status) = invoke operation(args...) else failed goto succeeded
+# or, if the status is not needed by the error handler:
+invoke operation(args...) else failed goto succeeded
+```
+
+`invoke` is a block terminator. It calls an ordinary target-ABI function
+returning Int32 status: 0 goes to `succeeded`, any nonzero (positive or
+negative) goes to `failed`. The optional status result remains available
+on both edges. Result payloads use the runtime's explicit output-pointer
+arguments; `invoke` does not introduce aggregate/two-register returns.
+Direct, `extern(name)` and indirect pointer callees are supported.
+
+Both labels must be valid successors; following instructions need a label,
+just as after `goto`/`if`. Normal phi predecessor rules apply. The backend
+lowers this to a status call and branch before SSA/optimization, so existing
+inlining/constant folding can remove known status branches. There is no
+TLS error flag, native stack unwinding or automatic cleanup. The frontend
+emits any root-frame pop/resource cleanup required by its error blocks.
+Do not use it for count-returning raw Linux calls: their successful positive
+results are not a zero-success status. Requires LuxIR 0.1.2 or newer.

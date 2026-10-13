@@ -44,8 +44,9 @@ Individual raw APIs document count returns and additional negative codes.
 Linux OS calls return nonnegative results or negative Linux errno; no
 ambient libc errno. There are no implicit exceptions or TLS error flags.
 Failure preserves documented outputs/logical contents, though allocation
-failure may follow a completed GC. Error propagation is currently an IR
-branch on status; automatic landing pads are not part of ABI 1.
+failure may follow a completed GC. Error propagation can use an IR `invoke` status call with explicit success
+and failure successors. There is no automatic unwinding/cleanup or native
+exception landing-pad protocol.
 
 Callers provide valid appropriately aligned buffers, contexts and output
 slots with the documented lifetimes. This is not validation of arbitrary

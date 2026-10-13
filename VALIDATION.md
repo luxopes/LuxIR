@@ -386,3 +386,16 @@ Protocol 108 kontrol stále prošel, no-header/none assembler se nemění.
 Bootstrap nové native LSL verze 57,97 s původním C LSL frontendem;
 nejde o nový self-host stage2/3 ani splnění minutové brány.
 Profil neobsahuje automatic stackmaps/STW; normativní limity jsou explicitní.
+
+## Status invoke error edges — 13. 10. 2026
+
+80 002 kontrol na variantu C/LSL backendu, s/bez `-i`: přesný počet volání,
+output preservation na error, negative i positive nonzero status,
+direct extern/indirect callee, discarded status, Phi edge merge,
+identifier `invoke` jako běžná kopírovaná hodnota, zero-argument constant
+success/error inlining bez zbylého callu. Sedm malformed/control-flow
+vstupů odmítnutých. Shodný assembler šesti cílů, raw ABI 1 error parse
+a úspěšná init/Tuple/destroy cesta na třech Linux cílech (QEMU ARM/RV).
+Protokol a předchozí executable/error fixtures nadále prošly.
+Nejde o nativní exception unwinding, automatic roots/cleanup nebo
+negativní-errno model count-returning OS calls.

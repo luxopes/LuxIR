@@ -87,6 +87,7 @@ enum {
 	Wreturn,
 	Whalt,
 	Wcall,
+	Winvoke,
 	Wphi,
 	Wstore,
 	Wblit,
@@ -157,6 +158,7 @@ static char *kwname[Nkw] = {
 	[Wreturn] = "return",
 	[Whalt] = "halt",
 	[Wcall] = "call",
+	[Winvoke] = "invoke",
 	[Wphi] = "phi",
 	[Wstore] = "store",
 	[Wblit] = "blit",
@@ -1559,6 +1561,10 @@ parseline(PState ps)
 		expect(Tnl);
 		closeblk();
 		return PLbl;
+	case Winvoke:
+		r = newtmp("invoke", Kw, curf);
+		parsecall(r, Kw, 0);
+		goto Invoke;
 	case Wcall:
 		parsecall(R, Kw, 0);
 		break;
@@ -1640,10 +1646,27 @@ parseline(PState ps)
 		w = Wnone;
 		if (peek() == Tid) {
 			w = fnw[tk[itk].id];
-			if (w != Wcall && w != Wphi && (w < WOp || peek2() != Tlparen))
+			if (w != Wcall && w != Wphi && w != Winvoke && (w < WOp || peek2() != Tlparen))
 				w = Wnone;
 		}
-		if (w == Wcall) {
+		if (w == Winvoke && peek2() != Tid)
+			w = Wnone;
+		if (w == Winvoke) {
+			next();
+			if (k != Kw)
+				err("invoke status result must be Int32");
+			parsecall(r, Kw, 0);
+		Invoke:
+			curb->jmp.type = Jjnz;
+			curb->jmp.arg = r;
+			if (next() != Tid || !iskw(Welse))
+				err("else expected after invoke call");
+			curb->s1 = jumptarget();
+			if (next() != Tid || !iskw(Wgoto))
+				err("goto success label expected after invoke error label");
+			curb->s2 = jumptarget();
+			goto Close;
+		} else if (w == Wcall) {
 			next();
 			parsecall(r, k, tyn);
 		} else if (w == Wphi) {

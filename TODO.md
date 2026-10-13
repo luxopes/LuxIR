@@ -109,9 +109,11 @@ Windows a macOS (navíc):
 - [ ] Popis layoutu objektů frontendu: ukazatelové mapy typů, kořeny,
   safepointy. Frontend řekne *co* je ukazatel, LuxIR rozhodne *jak* GC
   prochází zásobník a registry (stack mapy).
-- [ ] „Volání, které může selhat“: chybová cesta z volání (landing pad nebo
-  druhá návratová hodnota), aby frontend negeneroval kontrolu příznaku po
-  každém volání.
+- [x] Status `invoke` call s explicitní success/error hranou v IR;
+  typed Int32 nebo discarded status, direct/extern/indirect callees,
+  žádný skrytý TLS příznak. Backend sníží na call/branch před SSA a
+  foldne known status při inlinování. Není native unwind/automatický cleanup;
+  frontend zajišťuje error-block root/resource cleanup.
 - [ ] Kontrolovaná aritmetika jako instrukce (přetečení Int, dělení nulou,
   kontrola mezí) s cílem chyby; backend kontroly slučuje a odstraňuje.
 - [ ] Dokumentovat celé rozhraní v `doc/runtime.md` vedle `doc/ir.md`.

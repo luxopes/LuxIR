@@ -1,0 +1,36 @@
+{
+  "target": "rv64",
+  "results": [
+    {
+      "backend": "src/luxir",
+      "inline": false,
+      "checks": 80002
+    },
+    {
+      "backend": "src/luxir",
+      "inline": true,
+      "checks": 80002
+    },
+    {
+      "backend": "build/luxir",
+      "inline": false,
+      "checks": 80002
+    },
+    {
+      "backend": "build/luxir",
+      "inline": true,
+      "checks": 80002
+    }
+  ],
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "amd64_win",
+    "amd64_apple",
+    "arm64",
+    "arm64_apple",
+    "rv64"
+  ],
+  "syntax_rejections": 7,
+  "raw_managed_error_and_success_edges": true,
+  "semantics": "Int32 status 0 succeeds, any nonzero follows explicit error edge; no unwinding"
+}

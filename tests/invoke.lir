@@ -1,0 +1,51 @@
+ir_version "1"
+runtime_abi "none"
+export function invoke_status(Int64(x), Ptr(out), Ptr(count)) -> Int32:
+entry:
+    Int32(status) = invoke extern(invoke_probe)(x, out, count) else failed goto success
+success:
+    goto done
+failed:
+    goto done
+done:
+    Int32(result) = phi(success: 9, failed: status)
+    return result
+end
+export function invoke_discard(Int64(x), Ptr(out), Ptr(count)) -> Int32:
+    invoke invoke_probe(x, out, count) else failed goto success
+success:
+    return 9
+failed:
+    return 42
+end
+export function invoke_pointer(Ptr(fn), Int64(x), Ptr(out), Ptr(count)) -> Int32:
+    Int32(status) = invoke fn(x, out, count) else failed goto success
+success:
+    return 9
+failed:
+    return status
+end
+export function invoke_copy(Int64(invoke)) -> Int64:
+    Int64(result) = invoke
+    return result
+end
+function always_error() -> Int32:
+    return -22
+end
+function always_success() -> Int32:
+    return 0
+end
+export function invoke_constant_error() -> Int32:
+    Int32(status) = invoke always_error() else failed goto success
+failed:
+    return status
+success:
+    return 9
+end
+export function invoke_constant_success() -> Int32:
+    Int32(status) = invoke always_success() else failed goto success
+failed:
+    return status
+success:
+    return 9
+end

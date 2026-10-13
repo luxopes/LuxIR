@@ -7,6 +7,7 @@ cd "$root"
 make check QBE="${QBE:-qbe}"
 make check-runtime
 for target in arm64 rv64; do
+    python3 tests/invoke.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime_abi.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/atomic_ir.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/build_driver.py --target "$target" --backend src/luxir --backend build/luxir
