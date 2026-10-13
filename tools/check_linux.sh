@@ -14,6 +14,7 @@ for target in arm64 rv64; do
     python3 tests/runtime/run_arena.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_managed.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_collections.py --inline --target "$target" --backend src/luxir --backend build/luxir
+    python3 tests/runtime/run_extended.py --inline --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_float64.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/numeric.py --target "$target" --backend src/luxir --backend build/luxir
     python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir --backend build/luxir

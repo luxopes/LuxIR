@@ -1,0 +1,170 @@
+ir_version "1"
+runtime_abi "none"
+export function luxrt_string_to_int(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.1:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.8) = alloc8(8)
+    Int64(.9) = alloc8(8)
+    Int64(.10) = alloc8(8)
+    Int64(.11) = alloc8(8)
+    Int64(.12) = alloc4(4)
+body.2:
+    Int64(.13) = load(.4)
+    Int32(.14) = call extern(luxrt_string_info)(Int64(.13), Int64(.7), Int64(.8), Int64(.10), Int64(.9))
+    store(.14, .12)
+    Int32(.15) = load_i32(.12)
+    if .15 goto if_true.3 else if_false.4
+if_true.3:
+    Int32(.16) = load_i32(.12)
+    return .16
+if_false.4:
+    Int64(.17) = load(.10)
+    Int64(.18) = load(.7)
+    Int32(.19) = call extern(luxrt_parse_i64)(Int64(.17), Int64(.18), Int64(.11))
+    store(.19, .12)
+    Int32(.20) = load_i32(.12)
+    if .20 goto cond_true.5 else cond_false.6
+cond_true.5:
+    Int32(.21) = load_i32(.12)
+    goto cond_join.7
+cond_false.6:
+    Int64(.22) = load(.2)
+    Int64(.23) = load(.11)
+    Int64(.24) = load(.6)
+    Int32(.25) = call extern(luxrt_value_int)(Int64(.22), Int64(.23), Int64(.24))
+cond_join.7:
+    Int32(.26) = phi(cond_true.5: .21, cond_false.6: .25)
+    return .26
+end
+
+export function luxrt_string_to_float(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.8:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.8) = alloc8(8)
+    Int64(.9) = alloc8(8)
+    Int64(.10) = alloc8(8)
+    Int64(.11) = alloc8(8)
+    Int64(.12) = alloc4(4)
+body.9:
+    Int64(.13) = load(.4)
+    Int32(.14) = call extern(luxrt_string_info)(Int64(.13), Int64(.7), Int64(.8), Int64(.11), Int64(.9))
+    store(.14, .12)
+    Int32(.15) = load_i32(.12)
+    if .15 goto if_true.10 else if_false.11
+if_true.10:
+    Int32(.16) = load_i32(.12)
+    return .16
+if_false.11:
+    Int64(.17) = load(.11)
+    Int64(.18) = load(.7)
+    Int32(.19) = call extern(luxrt_parse_float64)(Int64(.17), Int64(.18), Int64(.10))
+    store(.19, .12)
+    Int32(.20) = load_i32(.12)
+    if .20 goto cond_true.12 else cond_false.13
+cond_true.12:
+    Int32(.21) = load_i32(.12)
+    goto cond_join.14
+cond_false.13:
+    Int64(.22) = load(.2)
+    Int64(.23) = load(.10)
+    Int64(.24) = load(.6)
+    Int32(.25) = call extern(luxrt_value_float_bits)(Int64(.22), Int64(.23), Int64(.24))
+cond_join.14:
+    Int32(.26) = phi(cond_true.12: .21, cond_false.13: .25)
+    return .26
+end
+
+export function luxrt_int_to_string(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.15:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.8) = alloc4(32)
+    Int64(.9) = alloc4(4)
+    Int64(.14) = alloc8(8)
+body.16:
+    Int64(.10) = load(.4)
+    Int32(.11) = call extern(luxrt_value_get_int)(Int64(.10), Int64(.7))
+    store(.11, .9)
+    Int32(.12) = load_i32(.9)
+    if .12 goto if_true.17 else if_false.18
+if_true.17:
+    Int32(.13) = load_i32(.9)
+    return .13
+if_false.18:
+    Int64(.15) = load(.7)
+    Int64(.16) = call extern(luxrt_format_i64)(Int64(.15), Int64(.8), Int64(32))
+    store(.16, .14)
+    Int64(.17) = load(.14)
+    Int32(.18) = lt(.17, 0)
+    if .18 goto cond_true.19 else cond_false.20
+cond_true.19:
+    Int64(.19) = load(.14)
+    goto cond_join.21
+cond_false.20:
+    Int64(.20) = load(.2)
+    Int64(.21) = load(.14)
+    Int64(.22) = load(.6)
+    Int32(.23) = call extern(luxrt_string_new)(Int64(.20), Int64(.8), Int64(.21), Int64(.22))
+cond_join.21:
+    Int32(.24) = phi(cond_true.19: .19, cond_false.20: .23)
+    return .24
+end
+
+export function luxrt_float_to_string(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.22:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+    Int64(.8) = alloc4(32)
+    Int64(.9) = alloc4(4)
+    Int64(.14) = alloc8(8)
+body.23:
+    Int64(.10) = load(.4)
+    Int32(.11) = call extern(luxrt_value_get_float_bits)(Int64(.10), Int64(.7))
+    store(.11, .9)
+    Int32(.12) = load_i32(.9)
+    if .12 goto if_true.24 else if_false.25
+if_true.24:
+    Int32(.13) = load_i32(.9)
+    return .13
+if_false.25:
+    Int64(.15) = load(.7)
+    Int64(.16) = call extern(luxrt_format_float64)(Int64(.15), Int64(.8), Int64(32))
+    store(.16, .14)
+    Int64(.17) = load(.14)
+    Int32(.18) = lt(.17, 0)
+    if .18 goto cond_true.26 else cond_false.27
+cond_true.26:
+    Int64(.19) = load(.14)
+    goto cond_join.28
+cond_false.27:
+    Int64(.20) = load(.2)
+    Int64(.21) = load(.14)
+    Int64(.22) = load(.6)
+    Int32(.23) = call extern(luxrt_string_new)(Int64(.20), Int64(.8), Int64(.21), Int64(.22))
+cond_join.28:
+    Int32(.24) = phi(cond_true.26: .19, cond_false.27: .23)
+    return .24
+end
+

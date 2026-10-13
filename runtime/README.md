@@ -240,3 +240,25 @@ Modul se v raw driveru připojí automaticky a nepoužité funkce/tabulky se
 vyřadí. Vendored Ryu je pinovaný a s licencemi v `runtime/vendor/ryu`.
 Generated IR používá skutečné `umulh` a `clz`, žádný externí intrinsics
 helper. Ryu C reference používá uint128; běhový program z IR C nepotřebuje.
+
+## Managed číselné převody a Tuple
+
+`numeric.h/.lir` poskytuje `string_to_int`, `string_to_float`,
+`int_to_string` a `float_to_string`. Parsery přijímají přesně stejnou
+strict grammar jako raw API. Chyby zachovají output Value; výsledek
+Int zachová celý signed Int64, Float je bezeztrátový box IEEE bits.
+Formát NaN zůstává `nan`, takže text roundtrip nezachovává NaN payload.
+API nepřevádí implicitně Bool nebo Int na Float.
+
+`tuple.h/.lir`: immutable sequence Value, type ID 25, payload
+`{length, items[]}`; descriptor tail map od offsetu 8 s count na 0.
+`new`, `length`, `get`, `slice`, `concat`, `from_values` mají explicitní
+status a output. Snapshot listu se nemění při následné mutaci listu.
+Immutable jsou reference v Tuple, nikoli jimi odkazované objekty;
+strukturální equality/hash není zatím součástí API. Indices/ranges
+jsou unsigned; frontend překládá případnou vlastní sémantiku záporných
+indexů. Nová Tuple odmítne foreign-heap Values. Input span do `new`
+musí přežít GC; pokud leží v managed objektu, jeho owner musí být rooted.
+
+Driver `--managed` připojuje oba moduly automaticky. Frontend musí
+před alokačním voláním rootovat všechny ostatní živé Values.

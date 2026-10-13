@@ -355,3 +355,16 @@ IR 1,897 → 1,413 ns/iteration, LSL-emitted 1,944 → 1,447; checksum
 o zrychlení (viz raw report), nejde o celkový výkon programů LSL.
 Lokální vazbu definic musí garantovat uživatel `-i`; default off.
 Víceblokové, forward a cross-module inlining zůstává otevřené.
+
+## Managed numeric adapters a immutable Tuple — 13. 10. 2026
+
+1 530 264 kontrol C reference a C/LSL-emitted IR: 10 000 plnorozsahových
+Int64 + Float64 bit/text roundtrips, 5 000 random Tuple/list modelů,
+forced GC při konstrukci, slice/concat, snapshot po clear původního
+listu, foreign heap rejection a preservation outputu při OOM/type/range
+chybách. Strict parse malformed/NUL/overflow a záporná nula ověřeny.
+Raw standalone fixture spustil celý corpus na třech Linux cílech
+(ARM64/RV64 QEMU), C/LSL binárky shodné. Varianty ARM64/RV64 mají `--inline`.
+C ASan/UBSan prošly, všechny heap mappings uvolněny; šest-target
+assembly parity. Nejde o deep immutable objekty, Tuple hashing/equality
+ani automatické rooting frontendu.

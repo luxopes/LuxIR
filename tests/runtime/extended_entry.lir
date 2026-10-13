@@ -1,0 +1,7 @@
+ir_version "1"
+runtime_abi "none"
+export function main() -> Int32:
+    Ptr(count) = alloc8(8)
+    Int32(status) = call luxrt_extended_cases(count)
+    return status
+end

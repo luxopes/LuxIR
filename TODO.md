@@ -188,9 +188,10 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   46,16 s, obě pod limitem 60 s v tomto prostředí; `tests/selfhost.py`.
 - [x] Linux lokální testová matice, C/LSL execution arm64/rv64 + assembler
   šesti targetů: `tools/check_linux.sh`. Nepotvrzuje výkon skutečných CPU.
-- [ ] Spustit novou `.forgejo/workflows/linux-reference.yml` na remote CI.
-  Workflow je připraven a YAML validní, remote job zatím neběžel; ověřuje C
-  reference, nikoli vlastní self-host na všech platformách.
+- [ ] Dokončit běh `.forgejo/workflows/linux-reference.yml` na remote CI.
+  Push vytváří běhy; run 13 je `waiting`, předchozí jsou `cancelled`
+  (ověřeno API 13. 10. 2026). Úspěšný job zatím potvrzený není.
+  Workflow ověřuje C reference, nikoli vlastní self-host na všech platformách.
 - [ ] Integrovat tyto moduly s aktuálním frontendem/layoutem LSL, doplnit
   výkonnostní brány a skutečné cílové execution testy; nenahrazovat celou
   širší položku níže stavem hotovo podle samotné existence prototypu.
@@ -221,7 +222,13 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   a přesné midpoint porovnání arbitrárně dlouhých vstupů (bounded digits
   + sticky). 86 321 kontrol/implementaci, Fraction/Python oracle,
   standalone execution tří Linux cílů. Není Eisel-Lemire fast path,
-  managed String/Float adapters, Float32 parser nebo end-to-end LSL brána.
+  Float32 parser nebo end-to-end LSL brána. Managed adapters viz níže.
+
+- [x] Managed String ↔ Int64/Float64 adapters nad strict decimal API,
+  bez implicitních Bool/numeric coercions; immutable Tuple s přesnou GC
+  tail mapou, slice/concat a snapshot Value listu. 1 530 264 kontrol,
+  nucené kolekce, owner/type/OOM zachování outputu, tři Linux cíle.
+  Není tím doplněné strukturální equality/hash Tuple ani celý stdlib.
 
 ## Runtime knihovna LuxIR (luxrt)
 

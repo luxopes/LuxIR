@@ -58,7 +58,7 @@ def main():
     sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate','arena','float64']]
     sources+=[platform/(name+'.lir') for name in ['os','thread','signal','tls-native']]
     if a.managed:
-        sources += [ROOT/('runtime/'+name+'.lir') for name in ['managed','collections','map']]
+        sources += [ROOT/('runtime/'+name+'.lir') for name in ['managed','collections','map','numeric','tuple']]
     destination=a.output.resolve();destination.parent.mkdir(parents=True,exist_ok=True)
     # Final output is replaced only after successful compile and link.
     with tempfile.TemporaryDirectory(prefix='.luxir-build-',dir=destination.parent) as tmp:

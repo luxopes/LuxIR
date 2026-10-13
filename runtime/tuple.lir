@@ -1,0 +1,583 @@
+ir_version "1"
+runtime_abi "none"
+data tuple_desc align 8 = [Int64(25), Int64(0), Int64(0), Int64(8), Int64(0), Int64(8)]
+function get_tuple(Int64(.1)) -> Int64:
+start.1:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.2:
+    Int64(.3) = load(.2)
+    Int64(.4) = call extern(luxrt_value_type)(Int64(.3))
+    Int32(.5) = eq(.4, 25)
+    if .5 goto cond_true.3 else cond_false.4
+cond_true.3:
+    Int64(.6) = load(.2)
+    Int64(.7) = call extern(luxrt_object_payload)(Int64(.6))
+    goto cond_join.5
+cond_false.4:
+    Int64(.8) = sext32(0)
+cond_join.5:
+    Int64(.9) = phi(cond_true.3: .7, cond_false.4: .8)
+    return .9
+end
+
+function owned(Int64(.1), Int64(.3)) -> Int32:
+start.6:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.21) = alloc8(8)
+body.7:
+    Int64(.5) = load(.4)
+    Int64(.6) = sext32(7)
+    Int64(.7) = and(.5, .6)
+    Int32(.8) = eq(.7, 1)
+    if .8 goto if_true.8 else logic_or.12
+logic_or.12:
+    Int64(.9) = load(.4)
+    Int32(.10) = eq(.9, 2)
+    if .10 goto if_true.8 else logic_or.11
+logic_or.11:
+    Int64(.11) = load(.4)
+    Int32(.12) = eq(.11, 3)
+    if .12 goto if_true.8 else logic_or.10
+logic_or.10:
+    Int64(.13) = load(.4)
+    Int32(.14) = eq(.13, 11)
+    if .14 goto if_true.8 else if_false.9
+if_true.8:
+    return 1
+if_false.9:
+    Int64(.15) = load(.4)
+    Int32(.16) = ne(.15, 0)
+    if .16 goto logic_or.15 else if_true.13
+logic_or.15:
+    Int64(.17) = load(.4)
+    Int64(.18) = sext32(7)
+    Int64(.19) = and(.17, .18)
+    Int32(.20) = ne(.19, 0)
+    if .20 goto if_true.13 else if_false.14
+if_true.13:
+    return 0
+if_false.14:
+    Int64(.22) = load(.4)
+    store(.22, .21)
+    Int64(.23) = load(.21)
+    Int64(.24) = add(.23, 32)
+    Int64(.25) = load(.24)
+    Int64(.26) = load(.2)
+    Int32(.27) = eq(.25, .26)
+    if .27 goto logic_and.19 else logic_false.17
+logic_and.19:
+    Int64(.28) = load(.21)
+    Int64(.29) = add(.28, 0)
+    Int64(.30) = load(.29)
+    Int32(.31) = ne(.30, 0)
+    if .31 goto logic_true.16 else logic_false.17
+logic_true.16:
+    goto logic_join.18
+logic_false.17:
+logic_join.18:
+    Int32(.32) = phi(logic_true.16: 1, logic_false.17: 0)
+    return .32
+end
+
+export function luxrt_tuple_new(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.20:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.21) = alloc8(8)
+    Int64(.36) = alloc8(24)
+    Int64(.37) = alloc4(4)
+    Int64(.44) = alloc8(8)
+    Int64(.53) = alloc8(8)
+body.21:
+    Int64(.9) = load(.6)
+    Int64(.10) = sext32(8)
+    Int64(.11) = sub(18446744073709551615, .10)
+    Int64(.12) = sext32(8)
+    Int64(.13) = udiv(.11, .12)
+    Int32(.14) = ugt(.9, .13)
+    if .14 goto if_true.22 else if_false.23
+if_true.22:
+    Int32(.15) = neg(34)
+    return .15
+if_false.23:
+    Int64(.16) = load(.6)
+    Int32(.17) = ne(.16, 0)
+    if .17 goto logic_and.26 else if_false.25
+logic_and.26:
+    Int64(.18) = load(.4)
+    Int32(.19) = eq(.18, 0)
+    if .19 goto if_true.24 else if_false.25
+if_true.24:
+    Int32(.20) = neg(22)
+    return .20
+if_false.25:
+    Int64(.22) = sext32(0)
+    store(.22, .21)
+for_cond.27:
+    Int64(.23) = load(.21)
+    Int64(.24) = load(.6)
+    Int32(.25) = ult(.23, .24)
+    if .25 goto for_body.28 else for_join.30
+for_body.28:
+    Int64(.26) = load(.2)
+    Int64(.27) = load(.4)
+    Int64(.28) = load(.21)
+    Int64(.29) = mul(.28, 8)
+    Int64(.30) = add(.27, .29)
+    Int64(.31) = load(.30)
+    Int32(.32) = call owned(Int64(.26), Int64(.31))
+    if .32 goto if_false.32 else if_true.31
+if_true.31:
+    Int32(.33) = neg(22)
+    return .33
+if_false.32:
+for_cont.29:
+    Int64(.34) = load(.21)
+    Int64(.35) = add(.34, 1)
+    store(.35, .21)
+    goto for_cond.27
+for_join.30:
+    Int64(.38) = load(.2)
+    Int64(.39) = load(.4)
+    Int64(.40) = load(.6)
+    Int32(.41) = call extern(luxrt_roots_push)(Int64(.38), Int64(.36), Int64(.39), Int64(.40))
+    store(.41, .37)
+    Int32(.42) = load_i32(.37)
+    if .42 goto if_true.33 else if_false.34
+if_true.33:
+    Int32(.43) = load_i32(.37)
+    return .43
+if_false.34:
+    Int64(.45) = load(.2)
+    Int64(.46) = sext32(8)
+    Int64(.47) = load(.6)
+    Int64(.48) = sext32(8)
+    Int64(.49) = mul(.47, .48)
+    Int64(.50) = add(.46, .49)
+    Int32(.51) = call extern(luxrt_object_new)(Int64(.45), Int64(tuple_desc), Int64(.50), Int64(.44))
+    store(.51, .37)
+    Int32(.52) = load_i32(.37)
+    if .52 goto if_false.36 else if_true.35
+if_true.35:
+    Int64(.54) = load(.44)
+    Int64(.55) = call extern(luxrt_object_payload)(Int64(.54))
+    store(.55, .53)
+    Int64(.56) = load(.6)
+    Int64(.57) = load(.53)
+    Int64(.58) = add(.57, 0)
+    store(.56, .58)
+    Int64(.59) = load(.53)
+    Int64(.60) = add(.59, 8)
+    Int64(.61) = load(.4)
+    Int64(.62) = load(.6)
+    Int64(.63) = sext32(8)
+    Int64(.64) = mul(.62, .63)
+    Int64(.65) = call extern(luxrt_memcpy)(Int64(.60), Int64(.61), Int64(.64))
+    Int64(.66) = load(.44)
+    Int64(.67) = load(.8)
+    store(.66, .67)
+if_false.36:
+    Int64(.68) = load(.2)
+    Int32(.69) = call extern(luxrt_roots_pop)(Int64(.68), Int64(.36))
+    Int32(.70) = load_i32(.37)
+    return .70
+end
+
+export function luxrt_tuple_length(Int64(.1), Int64(.3)) -> Int32:
+start.37:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+body.38:
+    Int64(.6) = load(.2)
+    Int64(.7) = call get_tuple(Int64(.6))
+    store(.7, .5)
+    Int64(.8) = load(.5)
+    Int32(.9) = eq(.8, 0)
+    if .9 goto if_true.39 else if_false.40
+if_true.39:
+    Int32(.10) = neg(22)
+    return .10
+if_false.40:
+    Int64(.11) = load(.5)
+    Int64(.12) = add(.11, 0)
+    Int64(.13) = load(.12)
+    Int64(.14) = load(.4)
+    store(.13, .14)
+    return 0
+end
+
+export function luxrt_tuple_get(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.41:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+body.42:
+    Int64(.8) = load(.2)
+    Int64(.9) = call get_tuple(Int64(.8))
+    store(.9, .7)
+    Int64(.10) = load(.7)
+    Int32(.11) = eq(.10, 0)
+    if .11 goto if_true.43 else if_false.44
+if_true.43:
+    Int32(.12) = neg(22)
+    return .12
+if_false.44:
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.7)
+    Int64(.15) = add(.14, 0)
+    Int64(.16) = load(.15)
+    Int32(.17) = uge(.13, .16)
+    if .17 goto if_true.45 else if_false.46
+if_true.45:
+    Int32(.18) = neg(34)
+    return .18
+if_false.46:
+    Int64(.19) = load(.7)
+    Int64(.20) = add(.19, 8)
+    Int64(.21) = load(.4)
+    Int64(.22) = mul(.21, 8)
+    Int64(.23) = add(.20, .22)
+    Int64(.24) = load(.23)
+    Int64(.25) = load(.6)
+    store(.24, .25)
+    return 0
+end
+
+export function luxrt_tuple_slice(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9)) -> Int32:
+start.47:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.11) = alloc8(8)
+    Int64(.29) = alloc8(24)
+    Int64(.30) = alloc4(4)
+body.48:
+    Int64(.12) = load(.4)
+    Int64(.13) = call get_tuple(Int64(.12))
+    store(.13, .11)
+    Int64(.14) = load(.11)
+    Int32(.15) = eq(.14, 0)
+    if .15 goto if_true.49 else logic_or.51
+logic_or.51:
+    Int64(.16) = load(.2)
+    Int64(.17) = load(.4)
+    Int32(.18) = call owned(Int64(.16), Int64(.17))
+    if .18 goto if_false.50 else if_true.49
+if_true.49:
+    Int32(.19) = neg(22)
+    return .19
+if_false.50:
+    Int64(.20) = load(.6)
+    Int64(.21) = load(.8)
+    Int32(.22) = ugt(.20, .21)
+    if .22 goto if_true.52 else logic_or.54
+logic_or.54:
+    Int64(.23) = load(.8)
+    Int64(.24) = load(.11)
+    Int64(.25) = add(.24, 0)
+    Int64(.26) = load(.25)
+    Int32(.27) = ugt(.23, .26)
+    if .27 goto if_true.52 else if_false.53
+if_true.52:
+    Int32(.28) = neg(34)
+    return .28
+if_false.53:
+    Int64(.31) = load(.2)
+    Int64(.32) = sext32(1)
+    Int32(.33) = call extern(luxrt_roots_push)(Int64(.31), Int64(.29), Int64(.4), Int64(.32))
+    store(.33, .30)
+    Int32(.34) = load_i32(.30)
+    if .34 goto if_true.55 else if_false.56
+if_true.55:
+    Int32(.35) = load_i32(.30)
+    return .35
+if_false.56:
+    Int64(.36) = load(.2)
+    Int64(.37) = load(.11)
+    Int64(.38) = add(.37, 8)
+    Int64(.39) = load(.6)
+    Int64(.40) = mul(.39, 8)
+    Int64(.41) = add(.38, .40)
+    Int64(.42) = load(.8)
+    Int64(.43) = load(.6)
+    Int64(.44) = sub(.42, .43)
+    Int64(.45) = load(.10)
+    Int32(.46) = call extern(luxrt_tuple_new)(Int64(.36), Int64(.41), Int64(.44), Int64(.45))
+    store(.46, .30)
+    Int64(.47) = load(.2)
+    Int32(.48) = call extern(luxrt_roots_pop)(Int64(.47), Int64(.29))
+    Int32(.49) = load_i32(.30)
+    return .49
+end
+
+export function luxrt_tuple_concat(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int32:
+start.57:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+    Int64(.12) = alloc8(8)
+    Int64(.39) = alloc8(16)
+    Int64(.43) = alloc8(8)
+    Int64(.44) = alloc8(24)
+    Int64(.45) = alloc4(4)
+    Int64(.51) = alloc8(8)
+    Int64(.67) = alloc8(8)
+body.58:
+    Int64(.10) = load(.4)
+    Int64(.11) = call get_tuple(Int64(.10))
+    store(.11, .9)
+    Int64(.13) = load(.6)
+    Int64(.14) = call get_tuple(Int64(.13))
+    store(.14, .12)
+    Int64(.15) = load(.9)
+    Int32(.16) = eq(.15, 0)
+    if .16 goto if_true.59 else logic_or.63
+logic_or.63:
+    Int64(.17) = load(.12)
+    Int32(.18) = eq(.17, 0)
+    if .18 goto if_true.59 else logic_or.62
+logic_or.62:
+    Int64(.19) = load(.2)
+    Int64(.20) = load(.4)
+    Int32(.21) = call owned(Int64(.19), Int64(.20))
+    if .21 goto logic_or.61 else if_true.59
+logic_or.61:
+    Int64(.22) = load(.2)
+    Int64(.23) = load(.6)
+    Int32(.24) = call owned(Int64(.22), Int64(.23))
+    if .24 goto if_false.60 else if_true.59
+if_true.59:
+    Int32(.25) = neg(22)
+    return .25
+if_false.60:
+    Int64(.26) = load(.9)
+    Int64(.27) = add(.26, 0)
+    Int64(.28) = load(.27)
+    Int64(.29) = sext32(8)
+    Int64(.30) = sub(18446744073709551615, .29)
+    Int64(.31) = sext32(8)
+    Int64(.32) = udiv(.30, .31)
+    Int64(.33) = load(.12)
+    Int64(.34) = add(.33, 0)
+    Int64(.35) = load(.34)
+    Int64(.36) = sub(.32, .35)
+    Int32(.37) = ugt(.28, .36)
+    if .37 goto if_true.64 else if_false.65
+if_true.64:
+    Int32(.38) = neg(34)
+    return .38
+if_false.65:
+    Int64(.40) = load(.4)
+    store(.40, .39)
+    Int64(.41) = add(.39, 8)
+    Int64(.42) = load(.6)
+    store(.42, .41)
+    Int64(.46) = load(.2)
+    Int64(.47) = sext32(2)
+    Int32(.48) = call extern(luxrt_roots_push)(Int64(.46), Int64(.44), Int64(.39), Int64(.47))
+    store(.48, .45)
+    Int32(.49) = load_i32(.45)
+    if .49 goto if_true.66 else if_false.67
+if_true.66:
+    Int32(.50) = load_i32(.45)
+    return .50
+if_false.67:
+    Int64(.52) = load(.9)
+    Int64(.53) = add(.52, 0)
+    Int64(.54) = load(.53)
+    Int64(.55) = load(.12)
+    Int64(.56) = add(.55, 0)
+    Int64(.57) = load(.56)
+    Int64(.58) = add(.54, .57)
+    store(.58, .51)
+    Int64(.59) = load(.2)
+    Int64(.60) = sext32(8)
+    Int64(.61) = load(.51)
+    Int64(.62) = sext32(8)
+    Int64(.63) = mul(.61, .62)
+    Int64(.64) = add(.60, .63)
+    Int32(.65) = call extern(luxrt_object_new)(Int64(.59), Int64(tuple_desc), Int64(.64), Int64(.43))
+    store(.65, .45)
+    Int32(.66) = load_i32(.45)
+    if .66 goto if_false.69 else if_true.68
+if_true.68:
+    Int64(.68) = load(.43)
+    Int64(.69) = call extern(luxrt_object_payload)(Int64(.68))
+    store(.69, .67)
+    Int64(.70) = load(.51)
+    Int64(.71) = load(.67)
+    Int64(.72) = add(.71, 0)
+    store(.70, .72)
+    Int64(.73) = load(.67)
+    Int64(.74) = add(.73, 8)
+    Int64(.75) = load(.9)
+    Int64(.76) = add(.75, 8)
+    Int64(.77) = load(.9)
+    Int64(.78) = add(.77, 0)
+    Int64(.79) = load(.78)
+    Int64(.80) = sext32(8)
+    Int64(.81) = mul(.79, .80)
+    Int64(.82) = call extern(luxrt_memcpy)(Int64(.74), Int64(.76), Int64(.81))
+    Int64(.83) = load(.67)
+    Int64(.84) = add(.83, 8)
+    Int64(.85) = load(.9)
+    Int64(.86) = add(.85, 0)
+    Int64(.87) = load(.86)
+    Int64(.88) = mul(.87, 8)
+    Int64(.89) = add(.84, .88)
+    Int64(.90) = load(.12)
+    Int64(.91) = add(.90, 8)
+    Int64(.92) = load(.12)
+    Int64(.93) = add(.92, 0)
+    Int64(.94) = load(.93)
+    Int64(.95) = sext32(8)
+    Int64(.96) = mul(.94, .95)
+    Int64(.97) = call extern(luxrt_memcpy)(Int64(.89), Int64(.91), Int64(.96))
+    Int64(.98) = load(.43)
+    Int64(.99) = load(.8)
+    store(.98, .99)
+if_false.69:
+    Int64(.100) = load(.2)
+    Int32(.101) = call extern(luxrt_roots_pop)(Int64(.100), Int64(.44))
+    Int32(.102) = load_i32(.45)
+    return .102
+end
+
+export function luxrt_tuple_from_values(Int64(.1), Int64(.3), Int64(.5)) -> Int32:
+start.70:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.14) = alloc8(8)
+    Int64(.15) = alloc4(4)
+    Int64(.27) = alloc8(24)
+    Int64(.33) = alloc8(8)
+    Int64(.42) = alloc8(8)
+    Int64(.48) = alloc8(8)
+body.71:
+    Int64(.7) = load(.4)
+    Int64(.8) = call extern(luxrt_value_type)(Int64(.7))
+    Int32(.9) = ne(.8, 19)
+    if .9 goto if_true.72 else logic_or.74
+logic_or.74:
+    Int64(.10) = load(.2)
+    Int64(.11) = load(.4)
+    Int32(.12) = call owned(Int64(.10), Int64(.11))
+    if .12 goto if_false.73 else if_true.72
+if_true.72:
+    Int32(.13) = neg(22)
+    return .13
+if_false.73:
+    Int64(.16) = load(.4)
+    Int32(.17) = call extern(luxrt_vector_length)(Int64(.16), Int64(.14))
+    store(.17, .15)
+    Int32(.18) = load_i32(.15)
+    if .18 goto if_true.75 else if_false.76
+if_true.75:
+    Int32(.19) = load_i32(.15)
+    return .19
+if_false.76:
+    Int64(.20) = load(.14)
+    Int64(.21) = sext32(8)
+    Int64(.22) = sub(18446744073709551615, .21)
+    Int64(.23) = sext32(8)
+    Int64(.24) = udiv(.22, .23)
+    Int32(.25) = ugt(.20, .24)
+    if .25 goto if_true.77 else if_false.78
+if_true.77:
+    Int32(.26) = neg(34)
+    return .26
+if_false.78:
+    Int64(.28) = load(.2)
+    Int64(.29) = sext32(1)
+    Int32(.30) = call extern(luxrt_roots_push)(Int64(.28), Int64(.27), Int64(.4), Int64(.29))
+    store(.30, .15)
+    Int32(.31) = load_i32(.15)
+    if .31 goto if_true.79 else if_false.80
+if_true.79:
+    Int32(.32) = load_i32(.15)
+    return .32
+if_false.80:
+    Int64(.34) = load(.2)
+    Int64(.35) = sext32(8)
+    Int64(.36) = load(.14)
+    Int64(.37) = sext32(8)
+    Int64(.38) = mul(.36, .37)
+    Int64(.39) = add(.35, .38)
+    Int32(.40) = call extern(luxrt_object_new)(Int64(.34), Int64(tuple_desc), Int64(.39), Int64(.33))
+    store(.40, .15)
+    Int32(.41) = load_i32(.15)
+    if .41 goto if_false.82 else if_true.81
+if_true.81:
+    Int64(.43) = load(.33)
+    Int64(.44) = call extern(luxrt_object_payload)(Int64(.43))
+    store(.44, .42)
+    Int64(.45) = load(.14)
+    Int64(.46) = load(.42)
+    Int64(.47) = add(.46, 0)
+    store(.45, .47)
+    Int64(.49) = sext32(0)
+    store(.49, .48)
+for_cond.83:
+    Int64(.50) = load(.48)
+    Int64(.51) = load(.14)
+    Int32(.52) = ult(.50, .51)
+    if .52 goto for_body.84 else for_join.86
+for_body.84:
+    Int64(.53) = load(.4)
+    Int64(.54) = load(.48)
+    Int64(.55) = load(.42)
+    Int64(.56) = add(.55, 8)
+    Int64(.57) = load(.48)
+    Int64(.58) = mul(.57, 8)
+    Int64(.59) = add(.56, .58)
+    Int32(.60) = call extern(luxrt_values_get)(Int64(.53), Int64(.54), Int64(.59))
+for_cont.85:
+    Int64(.61) = load(.48)
+    Int64(.62) = add(.61, 1)
+    store(.62, .48)
+    goto for_cond.83
+for_join.86:
+    Int64(.63) = load(.33)
+    Int64(.64) = load(.6)
+    store(.63, .64)
+if_false.82:
+    Int64(.65) = load(.2)
+    Int32(.66) = call extern(luxrt_roots_pop)(Int64(.65), Int64(.27))
+    Int32(.67) = load_i32(.15)
+    return .67
+end
+

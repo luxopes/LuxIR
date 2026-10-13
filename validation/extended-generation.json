@@ -1,0 +1,22 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/numeric.c",
+      "source_sha256": "0174f880ed57939a2df2d02b37e56531cca09b850d716498de6c5e37e69fa471",
+      "ir_sha256": "77c8b618f2c7fcdd4cbe0b009e46a83a2a1d4d044938734cd2242a7c2300ebd2"
+    },
+    {
+      "source": "runtime/tuple.c",
+      "source_sha256": "2067333f0f9e1e498cf1d70aa389fe031be7100ef15713b7c3b109437efcae0f",
+      "ir_sha256": "1062ae36e514acec12ff00c12e88a5fa9c5e68dcd6054b84b6590c96625e1ca4"
+    },
+    {
+      "source": "tests/runtime/extended_cases.c",
+      "source_sha256": "4d828a0d252153ba46836ed807c03b4d0a4cf0c1f1347742f05ffa3921595033",
+      "ir_sha256": "b8813a4ffad967706e7f1023aa8a119efcb033ad478a3ca3edd0f394951355ba"
+    }
+  ]
+}
