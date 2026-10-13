@@ -79,7 +79,8 @@ int32_t luxrt_process_capture(const char *path, const char *const *argv, const c
         q->timeout_ms > INT32_MAX)
         return -22;
     int32_t in[2] = {-1, -1}, out[2] = {-1, -1}, err[2] = {-1, -1};
-    int32_t status = 0, reaped = 0, masked = 0;
+    int32_t status = 0, reaped = 0, masked = 0, pending = 1;
+    struct luxrt_process_handoff handoff = {0, -1, 0, 0};
     uint64_t oldmask = 0, childmask = UINT64_C(1) << 16;
     int64_t n;
     struct luxrt_signal_action childaction;
@@ -132,10 +133,10 @@ int32_t luxrt_process_capture(const char *path, const char *const *argv, const c
     status = nonblocking(err[0]);
     if (status)
         goto cleanup;
-    status =
-        luxrt_process_spawn_group_mask(path, argv, envp, in[1], out[1], err[1], &r->pid, &oldmask);
+    status = luxrt_process_start(path, argv, envp, in[1], out[1], err[1], 1, &oldmask, &handoff);
     if (status)
         goto cleanup;
+    r->pid = handoff.pid;
     close_fd(&in[1]);
     close_fd(&out[1]);
     close_fd(&err[1]);
@@ -160,6 +161,17 @@ int32_t luxrt_process_capture(const char *path, const char *const *argv, const c
                 delay = remaining;
         }
         int32_t progress = 0;
+        if (pending) {
+            int32_t handoff_status = luxrt_process_handoff_poll(&handoff);
+            if (handoff_status < 0) {
+                status = handoff_status;
+                break;
+            }
+            if (handoff_status == 0) {
+                pending = 0;
+                progress = 1;
+            }
+        }
         status = drain(&out[0], q->output, q->output_capacity, &r->output_size, &progress);
         if (status)
             break;
@@ -189,7 +201,7 @@ int32_t luxrt_process_capture(const char *path, const char *const *argv, const c
         }
         /* Retain the leader's pid until all streams close: avoid a reused pgid
          * when descendants keep a pipe open and group termination is needed. */
-        if (in[0] < 0 && out[0] < 0 && err[0] < 0) {
+        if (!pending && in[0] < 0 && out[0] < 0 && err[0] < 0) {
             uint32_t raw;
             n = luxrt_os_wait(r->pid, &raw, 1);
             if (n == r->pid) {
@@ -210,17 +222,22 @@ int32_t luxrt_process_capture(const char *path, const char *const *argv, const c
         }
         if (progress)
             continue;
-        struct poll_fd fds[3] = {{in[0], 4, 0}, {out[0], 1, 0}, {err[0], 1, 0}};
+        struct poll_fd fds[4] = {
+            {in[0], 4, 0}, {out[0], 1, 0}, {err[0], 1, 0}, {(int32_t)handoff.error_fd, 1, 0}};
         int64_t ts[2] = {0, (int64_t)delay};
-        n = luxrt_os_poll(fds, 3, ts);
+        n = luxrt_os_poll(fds, 4, ts);
         if (n < 0 && n != -4) {
             status = (int32_t)n;
             break;
         }
     }
 cleanup:
-    if (r->pid > 0 && !reaped && status)
+    if (r->pid > 0 && !reaped && status) {
         luxrt_os_kill(-r->pid, 9);
+        luxrt_os_kill(r->pid, 9); /* Group creation can still be pending. */
+    }
+    if (handoff.error_fd >= 0)
+        luxrt_os_close(handoff.error_fd);
     close_fd(&in[0]);
     close_fd(&in[1]);
     close_fd(&out[0]);

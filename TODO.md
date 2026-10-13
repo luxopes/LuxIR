@@ -252,8 +252,10 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   jednovláknový. Doplněno souběžné bounded capture stdin/stdout/stderr, process
   group, SIGPIPE-safe vstup, maska SIGCHLD a úklid při limitu/timeoutu. Přes
   3,1 milionu kontrol na každém Linux cíli (C/LSL IR, sanitizéry a raw binárky).
-  Timeout kontroluje čas komunikace, zatím neumí přerušit blokující exec handoff;
-  asynchronní handoff s tvrdým deadline a ostatní OS stále zbývají.
+  Asynchronní handoff `luxrt_process_start/handoff_poll` pokrývá deadline i během
+  child setup/exec. Fault injection: exec zpožděný o 3 s, timeout 30 ms, dítě
+  ukončené/reapnuté před exec; fragmentované/chybné protokoly. Kernel syscall a
+  reap nejsou hard real-time bounded. Ostatní OS stále zbývají.
 - [ ] Vlákna: spawn a join, čekání na adrese (futex / WaitOnAddress /
   ulock), TLS.
 - [ ] Čas, spánek, OS náhoda, proměnné prostředí, argumenty, pracovní adresář.

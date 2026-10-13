@@ -142,7 +142,8 @@ int32_t luxrt_process_wait(int64_t pid, uint32_t *raw_status, int32_t *exit_code
 }
 static int32_t spawn_impl(const char *path, const char *const *argv, const char *const *envp,
                           int64_t input_fd, int64_t output_fd, int64_t error_fd, int64_t *outpid,
-                          int32_t group, const uint64_t *child_mask) {
+                          int32_t group, const uint64_t *child_mask,
+                          struct luxrt_process_handoff *handoff) {
     if (!path || !argv || input_fd < -1 || output_fd < -1 || error_fd < -1 ||
         input_fd > 2147483647 || output_fd > 2147483647 || error_fd > 2147483647)
         return -22;
@@ -150,7 +151,7 @@ static int32_t spawn_impl(const char *path, const char *const *argv, const char 
     int64_t saved[3] = {-1, -1, -1}, inherit_flags[3] = {0, 0, 0};
     int32_t pipefd[2] = {-1, -1}, status = 0, masked = 0;
     uint64_t all = UINT64_MAX, oldmask = 0;
-    int64_t success_pid = -1;
+    int64_t success_pid = -1, result_fd = -1;
     for (int32_t i = 0; i < 3; i++) {
         int64_t source = requested[i] == -1 ? i : requested[i];
         if (requested[i] == -1) {
@@ -178,7 +179,7 @@ static int32_t spawn_impl(const char *path, const char *const *argv, const char 
     }
     int64_t result;
     do {
-        result = luxrt_os_pipe(pipefd, 0);
+        result = luxrt_os_pipe(pipefd, handoff ? 2048 : 0);
     } while (result == -4);
     if (result < 0) {
         status = (int32_t)result;
@@ -246,6 +247,12 @@ static int32_t spawn_impl(const char *path, const char *const *argv, const char 
             luxrt_os_close(saved[i]);
             saved[i] = -1;
         }
+    if (handoff) {
+        result_fd = pipefd[0];
+        pipefd[0] = -1;
+        success_pid = pid;
+        goto cleanup;
+    }
     int32_t exec_status = 0;
     uint64_t bytes;
     result = luxrt_read_full(pipefd[0], &exec_status, sizeof exec_status, &bytes);
@@ -287,23 +294,63 @@ cleanup:
             }
         }
     }
-    if (!status)
+    if (status && result_fd >= 0)
+        luxrt_os_close(result_fd);
+    if (!status) {
         *outpid = success_pid;
+        if (handoff) {
+            handoff->pid = success_pid;
+            handoff->error_fd = result_fd;
+            handoff->bytes = 0;
+            handoff->record = 0;
+        }
+    }
     return status;
 }
 
 int32_t luxrt_process_spawn(const char *path, const char *const *argv, const char *const *envp,
                             int64_t input, int64_t output, int64_t error, int64_t *pid) {
-    return spawn_impl(path, argv, envp, input, output, error, pid, 0, 0);
+    return spawn_impl(path, argv, envp, input, output, error, pid, 0, 0, 0);
 }
 int32_t luxrt_process_spawn_group(const char *path, const char *const *argv,
                                   const char *const *envp, int64_t input, int64_t output,
                                   int64_t error, int64_t *pid) {
-    return spawn_impl(path, argv, envp, input, output, error, pid, 1, 0);
+    return spawn_impl(path, argv, envp, input, output, error, pid, 1, 0, 0);
 }
 
 int32_t luxrt_process_spawn_group_mask(const char *path, const char *const *argv,
                                        const char *const *envp, int64_t input, int64_t output,
                                        int64_t error, int64_t *pid, const uint64_t *child_mask) {
-    return spawn_impl(path, argv, envp, input, output, error, pid, 1, child_mask);
+    return spawn_impl(path, argv, envp, input, output, error, pid, 1, child_mask, 0);
+}
+
+uint64_t luxrt_process_handoff_bytes(void) { return sizeof(struct luxrt_process_handoff); }
+int32_t luxrt_process_start(const char *path, const char *const *argv, const char *const *envp,
+                            int64_t input, int64_t output, int64_t error, int32_t group,
+                            const uint64_t *mask, struct luxrt_process_handoff *handoff) {
+    if (group != 0 && group != 1)
+        return -22;
+    int64_t pid;
+    return spawn_impl(path, argv, envp, input, output, error, &pid, group, mask, handoff);
+}
+int32_t luxrt_process_handoff_poll(struct luxrt_process_handoff *h) {
+    if (h->pid <= 0 || h->error_fd < 0 || h->error_fd > INT32_MAX || h->bytes > 3)
+        return -22;
+    int64_t n = luxrt_os_read(h->error_fd, (unsigned char *)&h->record + h->bytes, 4 - h->bytes);
+    if (n == -4 || n == -11)
+        return 1;
+    int32_t status;
+    if (n < 0)
+        status = (int32_t)n;
+    else if (n == 0)
+        status = h->bytes ? -5 : 0;
+    else {
+        h->bytes += (uint32_t)n;
+        if (h->bytes < 4)
+            return 1;
+        status = h->record < 0 ? h->record : -5;
+    }
+    luxrt_os_close(h->error_fd);
+    h->error_fd = -1;
+    return status;
 }

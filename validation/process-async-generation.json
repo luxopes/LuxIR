@@ -1,0 +1,27 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/process.c",
+      "source_sha256": "38e786f7967a2eda5a3aa6e037b539c678ee66a60d1f91ce38bd2fa6ed4636bc",
+      "ir_sha256": "f04d12a7ce695cd6b2d3f8c19d9dfb974d07ae4aa045b771c63b7a44e59a63a6"
+    },
+    {
+      "source": "runtime/capture.c",
+      "source_sha256": "43be864f17761adbd0fa7df51758408db06757072f77f75c50e88bf2171d551f",
+      "ir_sha256": "42e248fbeb1c110e5f25f032472ffd9cec1b749855ff4c7d9e66691298136580"
+    },
+    {
+      "source": "tests/runtime/process_cases.c",
+      "source_sha256": "1b7d4b6a345fbf57087660a2cfdb576651f4cb8d00f89414715cd8bfd5a492b4",
+      "ir_sha256": "ed74000f90d0599dce3ed5d0351c0bf928e1dfb0d02b24927743532a4c268f02"
+    },
+    {
+      "source": "tests/runtime/capture_cases.c",
+      "source_sha256": "02d7960d16c7a5640df2d977747c121031e4bc473fe0112c4d7ffcb222b62fe1",
+      "ir_sha256": "e697dd4a9033696bd29ddaa0ed21668eb2d2fbf6ecdadae0aee04b22f589ef76"
+    }
+  ]
+}

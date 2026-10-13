@@ -46,7 +46,7 @@ int32_t luxrt_capture_cases(const char *child,uint64_t *outchecks) {
  args[1]="mask";args[2]=(mask&(UINT64_C(1)<<16))?"1":"0";
  CHECK(luxrt_process_capture(child,args,0,&q,&r)==0&&r.exit_code==0);
  args[1]="exit";args[2]=0;
- CHECK(luxrt_process_capture("/luxrt/does-not-exist",args,0,&q,&r)==-2&&r.pid==0&&r.input_sent==0&&r.output_size==0&&r.error_size==0);
+ CHECK(luxrt_process_capture("/luxrt/does-not-exist",args,0,&q,&r)==-2&&r.pid>0&&r.input_sent<=q.input_size&&r.output_size==0&&r.error_size==0);
  CHECK(fd_count()==fds);
  q.timeout_ms=UINT64_C(2147483648);
  CHECK(luxrt_process_capture(child,args,0,&q,&r)==-22&&r.pid==0);

@@ -2526,6 +2526,32 @@
       ]
     },
     {
+      "name": "luxrt_process_handoff_bytes",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_process_handoff_poll",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "handoff",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_process_handoff *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
       "name": "luxrt_process_spawn",
       "return_ir_type": "Int32",
       "parameters": [
@@ -2660,6 +2686,62 @@
           "name": "child_mask",
           "ir_type": "Ptr",
           "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_process_start",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "argv",
+          "ir_type": "Ptr",
+          "c_type": "const char * const *"
+        },
+        {
+          "name": "envp",
+          "ir_type": "Ptr",
+          "c_type": "const char * const *"
+        },
+        {
+          "name": "input_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "error_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "group",
+          "ir_type": "Int32",
+          "c_type": "int32_t"
+        },
+        {
+          "name": "child_mask",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "handoff",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_process_handoff *"
         }
       ],
       "targets": [

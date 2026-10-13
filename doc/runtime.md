@@ -141,7 +141,7 @@ program exit. Wait returns the raw Linux status plus exit code or 128+signal.
 Concurrent bounded capture is provided separately by `capture.h`.
 
 `tests/runtime/run_process.py` exercises C and emitted runtime IR, including
-779 checks, forced procfs fallback, substituted filesystem rejection, closed stdio, explicit
+802 checks, forced procfs fallback, substituted filesystem rejection, closed stdio, explicit
 environment, hundreds of inherited FDs, caught/ignored signals and failed exec
 cleanup. RISC-V signal tests require QEMU with upstream fix
 513823e7521a09ed7ad1e32e6454bac3b2cbf52d (QEMU 8.2.2 has an incorrect sigaction
@@ -161,8 +161,9 @@ closure does not terminate the parent. Output/error are pipes. Counts report
 accepted input bytes and captured output bytes; output need not be NUL terminated.
 Exact-full buffers succeed if followed by EOF; an additional byte returns -28.
 A zero timeout waits indefinitely; positive milliseconds (up to INT32_MAX) use
-a monotonic deadline. Deadline measurement starts before spawn, but synchronous
-setup/exec handoff remains blocking and cannot itself be interrupted yet.
+a monotonic deadline. Deadline measurement starts before spawn and includes
+child setup/exec handoff through a nonblocking error channel. Kernel syscalls
+and mandatory reaping after SIGKILL are not hard real-time bounded.
 
 Capture creates a child process group. Capacity overflow, timeout (-110), or
 communication error kills this group and reaps the direct child. A descendant
@@ -179,3 +180,16 @@ caller obligations. `tests/runtime/run_process.py --capture` compares a 1 MiB
 input / 2 MiB output / 1 MiB stderr corpus, exact capacity and overflow cases,
 closed stdin, timeout before/after stream closure, child mask/group inheritance,
 error cleanup and descriptor/mask preservation.
+
+`luxrt_process_start` exposes this asynchronous handoff independently for event
+loops. A successful start returns a 24-byte uniquely owned handle (pid, error_fd,
+bytes, record); it does not promise successful exec. Polling returns 1 pending,
+0 handoff success, or negative setup/exec error. Terminal poll closes error_fd;
+it never kills/reaps. Caller must prevent automatic/concurrent reaping, close
+a pending channel on cancellation, and terminate/reap the child. Group creation
+may still be pending before handoff, so cancellation also kills the direct pid.
+Fragmented/malformed records and partial EOF are covered by the process corpus.
+Capture fault injection stalls child exec and, separately, process group creation
+for three seconds while requesting a 30 ms timeout, and verifies cancellation
+before exec/group creation, direct-child SIGKILL status
+and cleanup in C and emitted runtime IR.

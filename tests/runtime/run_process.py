@@ -33,12 +33,17 @@ def main():
         shim.write_text('''#include <stdint.h>
 int64_t test_real_close_range(uint64_t,uint64_t,uint64_t);
 int64_t test_real_fstatfs(int64_t,void*);
-int test_bad_proc;
+int test_bad_proc,test_delay_exec;
+int64_t test_real_exec(const char*,void*,void*);
+int64_t luxrt_os_sleep(const void*,void*);
+int64_t test_real_setpgid(int64_t,int64_t);
+int64_t luxrt_os_setpgid(int64_t p,int64_t g){if(test_delay_exec==2){int64_t delay[2]={3,0};luxrt_os_sleep(delay,0);}return test_real_setpgid(p,g);}
+int64_t luxrt_os_exec(const char*p,void*a,void*e){if(test_delay_exec==1){int64_t delay[2]={3,0};luxrt_os_sleep(delay,0);}return test_real_exec(p,a,e);}
 int64_t luxrt_os_close_range(uint64_t a,uint64_t b,uint64_t c){(void)a;(void)b;(void)c;return -38;}
 int64_t luxrt_os_fstatfs(int64_t f,void *p){int64_t s=test_real_fstatfs(f,p);if(!s&&test_bad_proc)((uint64_t*)p)[0]=0;return s;}
 ''')
         renamed=d/'os.o'
-        run(flags+['-Dluxrt_os_close_range=test_real_close_range','-Dluxrt_os_fstatfs=test_real_fstatfs','-c',native/'os.c','-o',renamed])
+        run(flags+['-Dluxrt_os_close_range=test_real_close_range','-Dluxrt_os_fstatfs=test_real_fstatfs','-Dluxrt_os_exec=test_real_exec','-Dluxrt_os_setpgid=test_real_setpgid','-c',native/'os.c','-o',renamed])
         fallback_os=[renamed]+osfiles[1:]+[shim]
         run(flags+common+refs+fallback_os+['-o',exe])
         assert subprocess.check_output([str(exe),str(child)],timeout=60)==expected
@@ -50,6 +55,15 @@ int main(int argc,char **argv){(void)argc;test_bad_proc=1;const char *args[]={"c
 ''')
         run(flags+['-I'+str(ROOT/'runtime'),bad]+refs+fallback_os+['-o',exe])
         run([exe,child])
+        delayed=d/'delayed.c'
+        delayed.write_text('''#include <stdint.h>
+#include "capture.h"
+#include "os.h"
+extern int test_delay_exec;
+int main(int argc,char **argv){(void)argc;for(int stage=1;stage<=2;stage++){test_delay_exec=stage;const char *args[]={"child","exit",0};struct luxrt_capture_request q={0,0,0,0,0,0,30};struct luxrt_capture_result r;int64_t before[2],after[2];luxrt_os_clock(1,before);int32_t s=luxrt_process_capture(argv[1],args,0,&q,&r);luxrt_os_clock(1,after);int64_t elapsed=(after[0]-before[0])*1000000000+after[1]-before[1];if(!(s==-110&&r.exit_code==137&&elapsed<2000000000))return stage;}return 0;}
+''')
+        if a.capture:
+            run(flags+['-I'+str(ROOT/'runtime'),delayed]+refs+fallback_os+['-o',exe]);run([exe,child])
         entry=d/'entry.lir'
         path_literal=''.join('\\x%02x'%x for x in str(child).encode()+b'\0')
         entry.write_text('ir_version "1"\nruntime_abi "1"\ndata child_path align 1 = "'+path_literal+'"\nexport function main() -> Int32:\n Ptr(count) = alloc8(8)\n Int32(status) = call luxrt_'+corpus+'_cases(child_path,count)\n return status\nend\n')
@@ -69,6 +83,8 @@ int main(int argc,char **argv){(void)argc;test_bad_proc=1;const char *args[]={"c
             run(flags+common+host+fallback_os+['-o',exe])
             assert subprocess.check_output([str(exe),str(child)],timeout=60)==expected
             run(flags+['-I'+str(ROOT/'runtime'),bad]+host+fallback_os+['-o',exe]);run([exe,child])
+            if a.capture:
+                run(flags+['-I'+str(ROOT/'runtime'),delayed]+host+fallback_os+['-o',exe]);run([exe,child])
             binary=d/'raw'
             run(['python3',ROOT/'tools/luxir_build.py','--backend',backend,'-t',a.target,'-o',binary,entry,ROOT/('tests/runtime/'+corpus+'_cases.lir')])
             result=subprocess.run(RUNNERS[a.target]+[str(binary)],capture_output=True,timeout=90)
@@ -76,7 +92,7 @@ int main(int argc,char **argv){(void)argc;test_bad_proc=1;const char *args[]={"c
             blob=binary.read_bytes();assert previous is None or previous==blob;previous=blob
         run(['cc','-O1','-g','-fsanitize=address,undefined']+common+refs+osfiles+['-o',exe])
         assert subprocess.check_output([str(exe),str(child)],env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0'),timeout=60)==expected
-    report={'capture':a.capture,'target':a.target,'oracle':expected.decode().strip(),'assembly_parity_targets':TARGETS,'raw_binary_identical':True,'c_asan_ubsan':True,'procfs_fallback':True,'substituted_procfs_rejected':True,'runner':RUNNERS[a.target],'emulator':subprocess.check_output(RUNNERS[a.target]+['--version']).decode().splitlines()[0] if RUNNERS[a.target] else None}
+    report={'capture':a.capture,'target':a.target,'oracle':expected.decode().strip(),'assembly_parity_targets':TARGETS,'raw_binary_identical':True,'c_asan_ubsan':True,'exec_handoff_deadline_fault_injection':a.capture,'procfs_fallback':True,'substituted_procfs_rejected':True,'runner':RUNNERS[a.target],'emulator':subprocess.check_output(RUNNERS[a.target]+['--version']).decode().splitlines()[0] if RUNNERS[a.target] else None}
     if a.report:a.report.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 if __name__=='__main__':main()

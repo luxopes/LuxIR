@@ -5,7 +5,8 @@
  * Request: seven 8-byte fields, 56 bytes; result: 40 bytes, offsets 0/8/16/24/28/32.
  * Buffers must not alias input/request/result or each other; capacities <= INT64_MAX.
  * timeout_ms=0 waits indefinitely, otherwise <= INT32_MAX. Deadline is checked
- * from before spawn, but synchronous exec handoff itself cannot be interrupted.
+ * from before spawn, including nonblocking child setup/exec handoff. OS calls
+ * themselves and mandatory reap after SIGKILL are not hard real-time bounded.
  * Caller must permit child reaping (SIGCHLD not ignored/SA_NOCLDWAIT); capture
  * temporarily blocks SIGCHLD and restores the original mask after cleanup.
  * Input uses a Unix stream socket with MSG_NOSIGNAL (not a pipe/terminal).

@@ -68,7 +68,7 @@ data .Lstring.31 align 1 = "mask\x00"
 data .Lstring.32 align 1 = "1\x00"
 data .Lstring.33 align 1 = "0\x00"
 data .Lstring.34 align 1 = "/luxrt/does-not-exist\x00"
-data .Lstring.35 align 1 = "luxrt_process_capture(\"/luxrt/does-not-exist\",args,0,&q,&r)==-2&&r.pid==0&&r.input_sent==0&&r.output_size==0&&r.error_size==0\n\x00"
+data .Lstring.35 align 1 = "luxrt_process_capture(\"/luxrt/does-not-exist\",args,0,&q,&r)==-2&&r.pid>0&&r.input_sent<=q.input_size&&r.output_size==0&&r.error_size==0\n\x00"
 data .Lstring.36 align 1 = "luxrt_process_capture(child,args,0,&q,&r)==-22&&r.pid==0\n\x00"
 data .Lstring.37 align 1 = "luxrt_signal_action(17,&ignore,&old)==0\n\x00"
 data .Lstring.38 align 1 = "luxrt_signal_action(17,&old,0)==0\n\x00"
@@ -119,18 +119,18 @@ start.9:
     Int64(.457) = alloc8(8)
     Int64(.474) = alloc8(8)
     Int64(.496) = alloc8(8)
-    Int64(.525) = alloc8(8)
-    Int64(.535) = alloc8(8)
-    Int64(.550) = alloc8(8)
-    Int64(.570) = alloc8(8)
-    Int64(.577) = alloc8(24)
-    Int64(.578) = alloc8(24)
-    Int64(.589) = alloc8(8)
-    Int64(.603) = alloc8(8)
-    Int64(.614) = alloc8(8)
-    Int64(.628) = alloc8(8)
-    Int64(.641) = alloc8(8)
-    Int64(.657) = alloc8(8)
+    Int64(.528) = alloc8(8)
+    Int64(.538) = alloc8(8)
+    Int64(.553) = alloc8(8)
+    Int64(.573) = alloc8(8)
+    Int64(.580) = alloc8(24)
+    Int64(.581) = alloc8(24)
+    Int64(.592) = alloc8(8)
+    Int64(.606) = alloc8(8)
+    Int64(.617) = alloc8(8)
+    Int64(.631) = alloc8(8)
+    Int64(.644) = alloc8(8)
+    Int64(.660) = alloc8(8)
 body.10:
     Int64(.6) = sext32(0)
     store(.6, .5)
@@ -943,256 +943,259 @@ do_body.171:
 logic_and.179:
     Int64(.513) = add(.93, 32)
     Int64(.514) = load(.513)
-    Int32(.515) = ne(.514, 0)
-    if .515 goto if_true.174 else logic_and.178
+    Int64(.515) = sext32(0)
+    Int32(.516) = gt(.514, .515)
+    if .516 goto logic_and.178 else if_true.174
 logic_and.178:
-    Int64(.516) = add(.93, 0)
-    Int64(.517) = load(.516)
-    Int32(.518) = ne(.517, 0)
-    if .518 goto if_true.174 else logic_and.177
-logic_and.177:
-    Int64(.519) = add(.93, 8)
+    Int64(.517) = add(.93, 0)
+    Int64(.518) = load(.517)
+    Int64(.519) = add(.77, 8)
     Int64(.520) = load(.519)
-    Int32(.521) = ne(.520, 0)
-    if .521 goto if_true.174 else logic_and.176
-logic_and.176:
-    Int64(.522) = add(.93, 16)
+    Int32(.521) = ule(.518, .520)
+    if .521 goto logic_and.177 else if_true.174
+logic_and.177:
+    Int64(.522) = add(.93, 8)
     Int64(.523) = load(.522)
     Int32(.524) = ne(.523, 0)
-    if .524 goto if_true.174 else if_false.175
+    if .524 goto if_true.174 else logic_and.176
+logic_and.176:
+    Int64(.525) = add(.93, 16)
+    Int64(.526) = load(.525)
+    Int32(.527) = ne(.526, 0)
+    if .527 goto if_true.174 else if_false.175
 if_true.174:
-    Int64(.526) = sext32(2)
-    Int64(.527) = sext32(1)
-    Int64(.528) = sub(127, .527)
-    Int64(.529) = call extern(luxrt_write_full)(Int64(.526), Int64(.Lstring.35), Int64(.528), Int64(.525))
+    Int64(.529) = sext32(2)
+    Int64(.530) = sext32(1)
+    Int64(.531) = sub(137, .530)
+    Int64(.532) = call extern(luxrt_write_full)(Int64(.529), Int64(.Lstring.35), Int64(.531), Int64(.528))
     return 49
 if_false.175:
 do_cond.172:
     if 0 goto do_body.171 else do_join.173
 do_join.173:
 do_body.180:
-    Int64(.530) = load(.5)
-    Int64(.531) = add(.530, 1)
-    store(.531, .5)
-    Int64(.532) = call fd_count()
-    Int64(.533) = load(.9)
-    Int32(.534) = eq(.532, .533)
-    if .534 goto if_false.184 else if_true.183
+    Int64(.533) = load(.5)
+    Int64(.534) = add(.533, 1)
+    store(.534, .5)
+    Int64(.535) = call fd_count()
+    Int64(.536) = load(.9)
+    Int32(.537) = eq(.535, .536)
+    if .537 goto if_false.184 else if_true.183
 if_true.183:
-    Int64(.536) = sext32(2)
-    Int64(.537) = sext32(1)
-    Int64(.538) = sub(17, .537)
-    Int64(.539) = call extern(luxrt_write_full)(Int64(.536), Int64(.Lstring.13), Int64(.538), Int64(.535))
+    Int64(.539) = sext32(2)
+    Int64(.540) = sext32(1)
+    Int64(.541) = sub(17, .540)
+    Int64(.542) = call extern(luxrt_write_full)(Int64(.539), Int64(.Lstring.13), Int64(.541), Int64(.538))
     return 50
 if_false.184:
 do_cond.181:
     if 0 goto do_body.180 else do_join.182
 do_join.182:
-    Int64(.540) = add(.77, 48)
-    store(Int64(2147483648), .540)
+    Int64(.543) = add(.77, 48)
+    store(Int64(2147483648), .543)
 do_body.185:
-    Int64(.541) = load(.5)
-    Int64(.542) = add(.541, 1)
-    store(.542, .5)
-    Int64(.543) = load(.2)
-    Int64(.544) = sext32(0)
-    Int32(.545) = call extern(luxrt_process_capture)(Int64(.543), Int64(.94), Int64(.544), Int64(.77), Int64(.93))
-    Int32(.546) = eq(.545, 18446744073709551594)
-    if .546 goto logic_and.190 else if_true.188
+    Int64(.544) = load(.5)
+    Int64(.545) = add(.544, 1)
+    store(.545, .5)
+    Int64(.546) = load(.2)
+    Int64(.547) = sext32(0)
+    Int32(.548) = call extern(luxrt_process_capture)(Int64(.546), Int64(.94), Int64(.547), Int64(.77), Int64(.93))
+    Int32(.549) = eq(.548, 18446744073709551594)
+    if .549 goto logic_and.190 else if_true.188
 logic_and.190:
-    Int64(.547) = add(.93, 32)
-    Int64(.548) = load(.547)
-    Int32(.549) = ne(.548, 0)
-    if .549 goto if_true.188 else if_false.189
+    Int64(.550) = add(.93, 32)
+    Int64(.551) = load(.550)
+    Int32(.552) = ne(.551, 0)
+    if .552 goto if_true.188 else if_false.189
 if_true.188:
-    Int64(.551) = sext32(2)
-    Int64(.552) = sext32(1)
-    Int64(.553) = sub(58, .552)
-    Int64(.554) = call extern(luxrt_write_full)(Int64(.551), Int64(.Lstring.36), Int64(.553), Int64(.550))
+    Int64(.554) = sext32(2)
+    Int64(.555) = sext32(1)
+    Int64(.556) = sub(58, .555)
+    Int64(.557) = call extern(luxrt_write_full)(Int64(.554), Int64(.Lstring.36), Int64(.556), Int64(.553))
     return 52
 if_false.189:
 do_cond.186:
     if 0 goto do_body.185 else do_join.187
 do_join.187:
-    Int64(.555) = sext32(1000)
-    Int64(.556) = add(.77, 48)
-    store(.555, .556)
-    Int64(.557) = sext32(0)
-    Int64(.558) = add(.77, 0)
-    store(.557, .558)
-    Int64(.559) = sext32(1)
-    Int64(.560) = add(.77, 8)
-    store(.559, .560)
+    Int64(.558) = sext32(1000)
+    Int64(.559) = add(.77, 48)
+    store(.558, .559)
+    Int64(.560) = sext32(0)
+    Int64(.561) = add(.77, 0)
+    store(.560, .561)
+    Int64(.562) = sext32(1)
+    Int64(.563) = add(.77, 8)
+    store(.562, .563)
 do_body.191:
-    Int64(.561) = load(.5)
-    Int64(.562) = add(.561, 1)
-    store(.562, .5)
-    Int64(.563) = load(.2)
-    Int64(.564) = sext32(0)
-    Int32(.565) = call extern(luxrt_process_capture)(Int64(.563), Int64(.94), Int64(.564), Int64(.77), Int64(.93))
-    Int32(.566) = eq(.565, 18446744073709551594)
-    if .566 goto logic_and.196 else if_true.194
+    Int64(.564) = load(.5)
+    Int64(.565) = add(.564, 1)
+    store(.565, .5)
+    Int64(.566) = load(.2)
+    Int64(.567) = sext32(0)
+    Int32(.568) = call extern(luxrt_process_capture)(Int64(.566), Int64(.94), Int64(.567), Int64(.77), Int64(.93))
+    Int32(.569) = eq(.568, 18446744073709551594)
+    if .569 goto logic_and.196 else if_true.194
 logic_and.196:
-    Int64(.567) = add(.93, 32)
-    Int64(.568) = load(.567)
-    Int32(.569) = ne(.568, 0)
-    if .569 goto if_true.194 else if_false.195
+    Int64(.570) = add(.93, 32)
+    Int64(.571) = load(.570)
+    Int32(.572) = ne(.571, 0)
+    if .572 goto if_true.194 else if_false.195
 if_true.194:
-    Int64(.571) = sext32(2)
-    Int64(.572) = sext32(1)
-    Int64(.573) = sub(58, .572)
-    Int64(.574) = call extern(luxrt_write_full)(Int64(.571), Int64(.Lstring.36), Int64(.573), Int64(.570))
+    Int64(.574) = sext32(2)
+    Int64(.575) = sext32(1)
+    Int64(.576) = sub(58, .575)
+    Int64(.577) = call extern(luxrt_write_full)(Int64(.574), Int64(.Lstring.36), Int64(.576), Int64(.573))
     return 54
 if_false.195:
 do_cond.192:
     if 0 goto do_body.191 else do_join.193
 do_join.193:
-    Int64(.575) = sext32(0)
-    Int64(.576) = add(.77, 8)
-    store(.575, .576)
-    Int64(.579) = sext32(1)
-    store(.579, .578)
-    Int64(.580) = add(.578, 8)
-    Int64(.581) = sext32(0)
-    store(.581, .580)
-    Int64(.582) = add(.578, 16)
-    Int64(.583) = sext32(0)
-    store(.583, .582)
+    Int64(.578) = sext32(0)
+    Int64(.579) = add(.77, 8)
+    store(.578, .579)
+    Int64(.582) = sext32(1)
+    store(.582, .581)
+    Int64(.583) = add(.581, 8)
+    Int64(.584) = sext32(0)
+    store(.584, .583)
+    Int64(.585) = add(.581, 16)
+    Int64(.586) = sext32(0)
+    store(.586, .585)
 do_body.197:
-    Int64(.584) = load(.5)
-    Int64(.585) = add(.584, 1)
-    store(.585, .5)
-    Int64(.586) = sext32(17)
-    Int64(.587) = call extern(luxrt_signal_action)(Int64(.586), Int64(.578), Int64(.577))
-    Int32(.588) = ne(.587, 0)
-    if .588 goto if_true.200 else if_false.201
+    Int64(.587) = load(.5)
+    Int64(.588) = add(.587, 1)
+    store(.588, .5)
+    Int64(.589) = sext32(17)
+    Int64(.590) = call extern(luxrt_signal_action)(Int64(.589), Int64(.581), Int64(.580))
+    Int32(.591) = ne(.590, 0)
+    if .591 goto if_true.200 else if_false.201
 if_true.200:
-    Int64(.590) = sext32(2)
-    Int64(.591) = sext32(1)
-    Int64(.592) = sub(41, .591)
-    Int64(.593) = call extern(luxrt_write_full)(Int64(.590), Int64(.Lstring.37), Int64(.592), Int64(.589))
+    Int64(.593) = sext32(2)
+    Int64(.594) = sext32(1)
+    Int64(.595) = sub(41, .594)
+    Int64(.596) = call extern(luxrt_write_full)(Int64(.593), Int64(.Lstring.37), Int64(.595), Int64(.592))
     return 57
 if_false.201:
 do_cond.198:
     if 0 goto do_body.197 else do_join.199
 do_join.199:
 do_body.202:
-    Int64(.594) = load(.5)
-    Int64(.595) = add(.594, 1)
-    store(.595, .5)
-    Int64(.596) = load(.2)
-    Int64(.597) = sext32(0)
-    Int32(.598) = call extern(luxrt_process_capture)(Int64(.596), Int64(.94), Int64(.597), Int64(.77), Int64(.93))
-    Int32(.599) = eq(.598, 18446744073709551594)
-    if .599 goto logic_and.207 else if_true.205
+    Int64(.597) = load(.5)
+    Int64(.598) = add(.597, 1)
+    store(.598, .5)
+    Int64(.599) = load(.2)
+    Int64(.600) = sext32(0)
+    Int32(.601) = call extern(luxrt_process_capture)(Int64(.599), Int64(.94), Int64(.600), Int64(.77), Int64(.93))
+    Int32(.602) = eq(.601, 18446744073709551594)
+    if .602 goto logic_and.207 else if_true.205
 logic_and.207:
-    Int64(.600) = add(.93, 32)
-    Int64(.601) = load(.600)
-    Int32(.602) = ne(.601, 0)
-    if .602 goto if_true.205 else if_false.206
+    Int64(.603) = add(.93, 32)
+    Int64(.604) = load(.603)
+    Int32(.605) = ne(.604, 0)
+    if .605 goto if_true.205 else if_false.206
 if_true.205:
-    Int64(.604) = sext32(2)
-    Int64(.605) = sext32(1)
-    Int64(.606) = sub(58, .605)
-    Int64(.607) = call extern(luxrt_write_full)(Int64(.604), Int64(.Lstring.36), Int64(.606), Int64(.603))
+    Int64(.607) = sext32(2)
+    Int64(.608) = sext32(1)
+    Int64(.609) = sub(58, .608)
+    Int64(.610) = call extern(luxrt_write_full)(Int64(.607), Int64(.Lstring.36), Int64(.609), Int64(.606))
     return 58
 if_false.206:
 do_cond.203:
     if 0 goto do_body.202 else do_join.204
 do_join.204:
 do_body.208:
-    Int64(.608) = load(.5)
-    Int64(.609) = add(.608, 1)
-    store(.609, .5)
-    Int64(.610) = sext32(17)
-    Int64(.611) = sext32(0)
-    Int64(.612) = call extern(luxrt_signal_action)(Int64(.610), Int64(.577), Int64(.611))
-    Int32(.613) = ne(.612, 0)
-    if .613 goto if_true.211 else if_false.212
+    Int64(.611) = load(.5)
+    Int64(.612) = add(.611, 1)
+    store(.612, .5)
+    Int64(.613) = sext32(17)
+    Int64(.614) = sext32(0)
+    Int64(.615) = call extern(luxrt_signal_action)(Int64(.613), Int64(.580), Int64(.614))
+    Int32(.616) = ne(.615, 0)
+    if .616 goto if_true.211 else if_false.212
 if_true.211:
-    Int64(.615) = sext32(2)
-    Int64(.616) = sext32(1)
-    Int64(.617) = sub(35, .616)
-    Int64(.618) = call extern(luxrt_write_full)(Int64(.615), Int64(.Lstring.38), Int64(.617), Int64(.614))
+    Int64(.618) = sext32(2)
+    Int64(.619) = sext32(1)
+    Int64(.620) = sub(35, .619)
+    Int64(.621) = call extern(luxrt_write_full)(Int64(.618), Int64(.Lstring.38), Int64(.620), Int64(.617))
     return 59
 if_false.212:
 do_cond.209:
     if 0 goto do_body.208 else do_join.210
 do_join.210:
 do_body.213:
-    Int64(.619) = load(.5)
-    Int64(.620) = add(.619, 1)
-    store(.620, .5)
-    Int64(.621) = sext32(2)
-    Int64(.622) = sext32(0)
-    Int64(.623) = call extern(luxrt_signal_mask)(Int64(.621), Int64(.622), Int64(.8))
-    Int32(.624) = ne(.623, 0)
-    if .624 goto if_true.216 else logic_and.218
+    Int64(.622) = load(.5)
+    Int64(.623) = add(.622, 1)
+    store(.623, .5)
+    Int64(.624) = sext32(2)
+    Int64(.625) = sext32(0)
+    Int64(.626) = call extern(luxrt_signal_mask)(Int64(.624), Int64(.625), Int64(.8))
+    Int32(.627) = ne(.626, 0)
+    if .627 goto if_true.216 else logic_and.218
 logic_and.218:
-    Int64(.625) = load(.8)
-    Int64(.626) = load(.7)
-    Int32(.627) = eq(.625, .626)
-    if .627 goto if_false.217 else if_true.216
+    Int64(.628) = load(.8)
+    Int64(.629) = load(.7)
+    Int32(.630) = eq(.628, .629)
+    if .630 goto if_false.217 else if_true.216
 if_true.216:
-    Int64(.629) = sext32(2)
-    Int64(.630) = sext32(1)
-    Int64(.631) = sub(47, .630)
-    Int64(.632) = call extern(luxrt_write_full)(Int64(.629), Int64(.Lstring.14), Int64(.631), Int64(.628))
+    Int64(.632) = sext32(2)
+    Int64(.633) = sext32(1)
+    Int64(.634) = sub(47, .633)
+    Int64(.635) = call extern(luxrt_write_full)(Int64(.632), Int64(.Lstring.14), Int64(.634), Int64(.631))
     return 60
 if_false.217:
 do_cond.214:
     if 0 goto do_body.213 else do_join.215
 do_join.215:
 do_body.219:
-    Int64(.633) = load(.5)
-    Int64(.634) = add(.633, 1)
-    store(.634, .5)
-    Int64(.635) = load(.34)
-    Int64(.636) = load(.33)
-    Int64(.637) = sext32(4)
-    Int64(.638) = mul(.636, .637)
-    Int64(.639) = call extern(luxrt_os_unmap)(Int64(.635), Int64(.638))
-    Int32(.640) = ne(.639, 0)
-    if .640 goto if_true.222 else if_false.223
+    Int64(.636) = load(.5)
+    Int64(.637) = add(.636, 1)
+    store(.637, .5)
+    Int64(.638) = load(.34)
+    Int64(.639) = load(.33)
+    Int64(.640) = sext32(4)
+    Int64(.641) = mul(.639, .640)
+    Int64(.642) = call extern(luxrt_os_unmap)(Int64(.638), Int64(.641))
+    Int32(.643) = ne(.642, 0)
+    if .643 goto if_true.222 else if_false.223
 if_true.222:
-    Int64(.642) = sext32(2)
-    Int64(.643) = sext32(1)
-    Int64(.644) = sub(56, .643)
-    Int64(.645) = call extern(luxrt_write_full)(Int64(.642), Int64(.Lstring.39), Int64(.644), Int64(.641))
+    Int64(.645) = sext32(2)
+    Int64(.646) = sext32(1)
+    Int64(.647) = sub(56, .646)
+    Int64(.648) = call extern(luxrt_write_full)(Int64(.645), Int64(.Lstring.39), Int64(.647), Int64(.644))
     return 61
 if_false.223:
 do_cond.220:
     if 0 goto do_body.219 else do_join.221
 do_join.221:
 do_body.224:
-    Int64(.646) = load(.5)
-    Int64(.647) = add(.646, 1)
-    store(.647, .5)
-    Int64(.648) = call fd_count()
-    Int64(.649) = load(.9)
-    Int32(.650) = eq(.648, .649)
-    if .650 goto logic_and.229 else if_true.227
+    Int64(.649) = load(.5)
+    Int64(.650) = add(.649, 1)
+    store(.650, .5)
+    Int64(.651) = call fd_count()
+    Int64(.652) = load(.9)
+    Int32(.653) = eq(.651, .652)
+    if .653 goto logic_and.229 else if_true.227
 logic_and.229:
-    Int32(.651) = neg(1)
-    Int64(.652) = sext32(.651)
-    Int64(.653) = add(.93, 24)
-    Int64(.654) = sext32(1)
-    Int64(.655) = call extern(luxrt_os_wait)(Int64(.652), Int64(.653), Int64(.654))
-    Int32(.656) = eq(.655, 18446744073709551606)
-    if .656 goto if_false.228 else if_true.227
+    Int32(.654) = neg(1)
+    Int64(.655) = sext32(.654)
+    Int64(.656) = add(.93, 24)
+    Int64(.657) = sext32(1)
+    Int64(.658) = call extern(luxrt_os_wait)(Int64(.655), Int64(.656), Int64(.657))
+    Int32(.659) = eq(.658, 18446744073709551606)
+    if .659 goto if_false.228 else if_true.227
 if_true.227:
-    Int64(.658) = sext32(2)
-    Int64(.659) = sext32(1)
-    Int64(.660) = sub(57, .659)
-    Int64(.661) = call extern(luxrt_write_full)(Int64(.658), Int64(.Lstring.21), Int64(.660), Int64(.657))
+    Int64(.661) = sext32(2)
+    Int64(.662) = sext32(1)
+    Int64(.663) = sub(57, .662)
+    Int64(.664) = call extern(luxrt_write_full)(Int64(.661), Int64(.Lstring.21), Int64(.663), Int64(.660))
     return 62
 if_false.228:
 do_cond.225:
     if 0 goto do_body.224 else do_join.226
 do_join.226:
-    Int64(.662) = load(.5)
-    Int64(.663) = load(.4)
-    store(.662, .663)
+    Int64(.665) = load(.5)
+    Int64(.666) = load(.4)
+    store(.665, .666)
     return 0
 end
 
