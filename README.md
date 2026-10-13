@@ -226,3 +226,9 @@ layoutů, statusů a size queries: [doc/abi-v1.md](doc/abi-v1.md).
 Manifest scalar IR signatur: [runtime/abi-v1.json](runtime/abi-v1.json).
 Frontend rootuje živé Values před alokačními calls; automatické stackmaps
 a shared-heap managed threads zatím nejsou součástí tohoto profilu.
+
+Managed lokály lze označit `Value`, funkci dát entry `gc_heap(context)`: backend
+vloží precise shadow frames, aktualizuje je po definicích/Phi a uklidí při
+normálním i chybovém návratu. Native PC stackmaps/STW a last-use clearing
+zůstávají otevřené. `luxir --features` vypíše dostupné compiler capabilities
+v JSON; podrobnosti v [doc/ir.md](doc/ir.md).

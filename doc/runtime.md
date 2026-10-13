@@ -9,8 +9,8 @@ Normativní kontrakt je v [abi-v1.md](abi-v1.md); strojově čitelný seznam
 
 ABI 1 hlavička přidá retenovanou relokaci na revision symbol; chybějící
 nebo jiná revize runtime neprojde linkerem ani při section GC.
-`tools/luxir_build.py` připojí knihovnu automaticky. Nevkládá automatické
-stackmaps, neinicializuje heap za frontend a neslibuje shared-heap threads.
+`tools/luxir_build.py` připojí knihovnu automaticky. Backend může vložit precise shadow frames podle `Value`/`gc_heap`;
+native PC stackmaps nejsou implementované. Driver neinicializuje heap za frontend a neslibuje shared-heap threads.
 Windows/macOS tuto revizi zatím odmítnou před emitováním definic.
 
 ## Externí platformní služby

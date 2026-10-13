@@ -32,6 +32,7 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	chmod +x build/luxir
 
 check: c native
+	$(PYTHON) tests/gcroot.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/invoke.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tools/runtime_manifest.py --check
 	$(PYTHON) tests/runtime_abi.py --backend src/luxir --backend build/luxir

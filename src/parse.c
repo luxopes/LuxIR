@@ -88,6 +88,7 @@ enum {
 	Whalt,
 	Wcall,
 	Winvoke,
+	Wgcheap,
 	Wphi,
 	Wstore,
 	Wblit,
@@ -110,6 +111,7 @@ enum {
 	WFloat32,
 	WFloat64,
 	WPtr,
+	WValue,
 	WEnv,
 	Nkw,
 
@@ -159,6 +161,7 @@ static char *kwname[Nkw] = {
 	[Whalt] = "halt",
 	[Wcall] = "call",
 	[Winvoke] = "invoke",
+	[Wgcheap] = "gc_heap",
 	[Wphi] = "phi",
 	[Wstore] = "store",
 	[Wblit] = "blit",
@@ -179,6 +182,7 @@ static char *kwname[Nkw] = {
 	[WFloat32] = "Float32",
 	[WFloat64] = "Float64",
 	[WPtr] = "Ptr",
+	[WValue] = "Value",
 	[WEnv] = "Env",
 };
 
@@ -911,6 +915,7 @@ typecls(char *s, int *tyn, int n)
 	case WInt32: return Kw;
 	case WInt64: return Kl;
 	case WPtr: return Kl;
+	case WValue: if (runtimeabi == 1) return Kl; break;
 	case WFloat32: return Ks;
 	case WFloat64: return Kd;
 	case WEnv: return Kenv;
@@ -982,6 +987,7 @@ typeclsid(int id, int *tyn)
 	case WInt32: return Kw;
 	case WInt64: return Kl;
 	case WPtr: return Kl;
+	case WValue: if (runtimeabi == 1) return Kl; break;
 	case WFloat32: return Ks;
 	case WFloat64: return Kd;
 	case WEnv: return Kenv;
@@ -1506,7 +1512,7 @@ parseline(PState ps)
 	Ref r, a0, a1;
 	Con *c;
 	Blk *b;
-	int t, w, k, tyn, n;
+	int t, w, k, tyn, n, isvalue;
 
 	t = nextnl();
 	if (t == Tfnend)
@@ -1561,6 +1567,30 @@ parseline(PState ps)
 		expect(Tnl);
 		closeblk();
 		return PLbl;
+	case Wgcheap:
+		if (runtimeabi != 1)
+			err("gc_heap requires runtime ABI 1");
+		if (!req(curf->gcheap, R))
+			err("duplicate gc_heap directive");
+		if (curb != curf->start)
+			err("gc_heap must be in the entry block");
+		for (n=0; &insb[n]<curi; n++)
+			if (!ispar(insb[n].op))
+				err("gc_heap must precede body instructions");
+		if (nopds(o, 1) != 1)
+			err("gc_heap expects one heap context");
+		plain(o);
+		curf->gcheap = mkref(o, Kl);
+		if (rtype(curf->gcheap) != RTmp && (rtype(curf->gcheap) != RCon
+		|| curf->con[curf->gcheap.val].type != CAddr))
+			err("gc_heap needs a heap parameter or symbol address");
+		if (rtype(curf->gcheap) == RTmp) {
+			for (n=0; &insb[n]<curi; n++)
+				if (req(insb[n].to, curf->gcheap)) break;
+			if (&insb[n] == curi)
+				err("gc_heap needs a heap parameter or symbol address");
+		}
+		break;
 	case Winvoke:
 		r = newtmp("invoke", Kw, curf);
 		parsecall(r, Kw, 0);
@@ -1632,6 +1662,7 @@ parseline(PState ps)
 			break;
 		}
 		/* Type(jméno) = ... */
+		isvalue = runtimeabi == 1 && w == WValue;
 		k = typeclsid(tid, &tyn);
 		if (k == Kx || k == Kenv) {
 			if (w >= WOp)
@@ -1641,6 +1672,7 @@ parseline(PState ps)
 		expect(Tlparen);
 		expect(Tid);
 		r = tmpid(tid);
+		if (isvalue) curf->tmp[r.val].gcroot = 1;
 		expect(Trparen);
 		expect(Teq);
 		w = Wnone;
@@ -1803,7 +1835,7 @@ typecheck(Fn *fn)
 static int
 parseparams()
 {
-	int k, tyn, vararg, hasenv;
+	int k, tyn, vararg, hasenv, isvalue;
 	Ref r;
 
 	vararg = 0;
@@ -1818,6 +1850,7 @@ parseparams()
 		} else {
 			if (next() != Tid)
 				err("parameter expected, e.g. Int32(x)");
+			isvalue = runtimeabi == 1 && iskw(WValue);
 			k = typeclsid(tid, &tyn);
 			if (k == Kx)
 				err("unknown parameter type %s", tstr);
@@ -1826,6 +1859,7 @@ parseparams()
 			if (fnloc[tid] == NLoc)
 				fnloc[tid] = basecls(k);
 			r = tmpid(tid);
+			if (isvalue) curf->tmp[r.val].gcroot = 1;
 			expect(Trparen);
 			if (k == Kenv) {
 				if (hasenv)
@@ -1995,6 +2029,9 @@ parsefn(Lnk *lnk)
 	curf->rpo = vnew(nblk, sizeof curf->rpo[0], PFn);
 	for (b=curf->start; b; b=b->link)
 		b->dlink = 0;
+	for (i=Tmp0; i<curf->ntmp; i++)
+		if (curf->tmp[i].gcroot && req(curf->gcheap, R))
+			err("Value locals require an entry gc_heap directive");
 	typecheck(curf);
 	return curf;
 }
@@ -2101,7 +2138,8 @@ parsetyp()
 	ty->nunion = 0;
 	if (next() != Tid)
 		err("type name expected");
-	if (namefind(tstr) != Wnone || typecls(tstr, &tyn, ntyp-1) != Kx)
+	if ((namefind(tstr) != Wnone && !(runtimeabi != 1 && namefind(tstr) == WValue))
+	|| typecls(tstr, &tyn, ntyp-1) != Kx)
 		err("type name %s is reserved or already defined", tstr);
 	ty->name = strf(PHeap, "%s", tstr);
 	t = next();

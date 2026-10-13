@@ -3772,8 +3772,12 @@
     "vacant_root": 0,
     "user_type_id_min": 256
   },
+  "compiler_features": [
+    "status-invoke",
+    "Value/gc_heap automatic shadow roots"
+  ],
   "limitations": [
-    "no automatic stack maps",
+    "no native PC stack maps",
     "no shared-heap managed threads",
     "no Windows/macOS runtime implementation",
     "OS flags and kernel buffers use documented Linux raw contracts"

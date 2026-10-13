@@ -9,4 +9,6 @@
 #define LUXIR_RUNTIME_ABI_SYMBOL "luxrt_abi_v1_le64_explicit"
 #define LUXIR_VERSION_TEXT "LuxIR " LUXIR_RELEASE_VERSION " (IR " LUXIR_IR_VERSION "; runtime ABI " LUXIR_RUNTIME_ABI_LIST ")"
 
+#define LUXIR_FEATURES_TEXT "{\"ir_version\":\"1\",\"runtime_abi_profiles\":[\"none\",\"1\"],\"features\":[\"status-invoke\",\"automatic-shadow-roots\",\"bounded-local-inline\",\"elf-split-sections\",\"numeric-intrinsics\",\"sc-atomics\"],\"managed_targets\":[\"amd64_sysv\",\"arm64\",\"rv64\"]}"
+
 #endif

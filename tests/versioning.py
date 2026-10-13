@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Protocol headers: compatibility, diagnostics and C/LSL parity."""
 import argparse
+import json
 import subprocess
 import tempfile
 from pathlib import Path
@@ -37,7 +38,10 @@ def main():
         for backend in backends:
             r = run(backend, ['--version'])
             assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.2-dev (IR 1; runtime ABI none, 1)\n', b''), r
-            checks += 1
+            features = run(backend, ["--features"])
+            data = json.loads(features.stdout)
+            assert features.returncode == 0 and not features.stderr and data["ir_version"] == "1" and data["runtime_abi_profiles"] == ["none", "1"] and "automatic-shadow-roots" in data["features"]
+            checks += 2
         # Headers must leave every target's code byte-identical to legacy IR.
         for target in TARGETS:
             reference = None

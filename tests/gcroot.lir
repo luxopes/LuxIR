@@ -1,0 +1,60 @@
+ir_version "1"
+runtime_abi "1"
+export function gc_parameter(Ptr(h), Value(v)) -> Value:
+    gc_heap(h)
+    Int32(status) = call gc_force(h)
+    return v
+end
+export function gc_locals(Ptr(h), Int64(n)) -> Int64:
+    gc_heap(h)
+    Value(a) = call gc_make_box(h, n)
+    Int64(next) = add(n, 1)
+    Value(b) = call gc_make_box(h, next)
+    Ptr(saved) = h
+    Ptr(h) = 0
+    Int32(status) = call gc_force(saved)
+    Int64(result) = call gc_xor_boxes(a, b)
+    return result
+end
+export function gc_phi(Ptr(h), Value(v), Int32(choose)) -> Value:
+entry:
+    gc_heap(h)
+    if choose goto left else right
+left:
+    Int64(leftvalue) = v
+    Value(v) = 0
+    goto join
+right:
+    Int64(rightvalue) = v
+    Value(v) = 0
+    goto join
+join:
+    Value(selected) = phi(left: leftvalue, right: rightvalue)
+    Int32(status) = call gc_force(h)
+    return selected
+end
+export function gc_borrow(Ptr(h), Value(v)) -> Int64:
+    gc_heap(h)
+    Ptr(payload) = call luxrt_object_payload(v)
+    Int32(status) = call gc_force(h)
+    Int64(result) = load(payload)
+    return result
+end
+export function gc_error(Ptr(h), Value(v)) -> Int32:
+    gc_heap(h)
+    Int32(status) = invoke gc_fail(h) else failed goto ok
+failed:
+    return status
+ok:
+    return 1
+end
+export function gc_leaf(Ptr(h), Value(v)) -> Value:
+    gc_heap(h)
+    return v
+end
+export function gc_unbalanced(Ptr(h), Value(v)) -> Int32:
+    gc_heap(h)
+    Ptr(extra) = alloc8(24)
+    Int32(status) = call luxrt_roots_push(h, extra, Ptr(0), Int64(0))
+    return 0
+end

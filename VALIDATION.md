@@ -399,3 +399,18 @@ a úspěšná init/Tuple/destroy cesta na třech Linux cílech (QEMU ARM/RV).
 Protokol a předchozí executable/error fixtures nadále prošly.
 Nejde o nativní exception unwinding, automatic roots/cleanup nebo
 negativní-errno model count-returning OS calls.
+
+## Automatic precise shadow roots — 13. 10. 2026
+
+60 002 kontrol na C/LSL variantu s/bez `-i`: externally unrooted parameter,
+allocation locals, Phi selection po vymazání původního rootu, borrowed
+payload owner, invoke error returns, přepis původního heap parametru,
+no-call leaf elision, vyvážení všech frame a úplné uvolnění mappingů.
+Raw execution celé sady na Linux x86-64/ARM64/RV64 (QEMU ARM/RV),
+shodný assembler tří cílů. Nevyvážený ruční root frame v samostatném
+programu trapne před return; sedm malformed metadata vstupů odmítnuto.
+Legacy aggregate type `Value` zůstává povolený pod no-header/none.
+C runtime ASan/UBSan prošel. Generováno 475/475 funkcí.
+Jde o whole-function-lifetime shadow maps, nikoli native PC stackmaps,
+automatic last-use clearing, native exception unwinding nebo shared-heap STW.
+Heap operations nesmějí běžet reentrant/async v signal handleru.

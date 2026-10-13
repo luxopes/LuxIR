@@ -1,0 +1,46 @@
+{
+  "target": "rv64",
+  "results": [
+    {
+      "backend": "src/luxir",
+      "inline": false,
+      "oracle": "60002 automatic shadow-root checks passed"
+    },
+    {
+      "backend": "src/luxir",
+      "inline": true,
+      "oracle": "60002 automatic shadow-root checks passed"
+    },
+    {
+      "backend": "build/luxir",
+      "inline": false,
+      "oracle": "60002 automatic shadow-root checks passed"
+    },
+    {
+      "backend": "build/luxir",
+      "inline": true,
+      "oracle": "60002 automatic shadow-root checks passed"
+    }
+  ],
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "arm64",
+    "rv64"
+  ],
+  "raw_forced_gc_execution": true,
+  "unbalanced_manual_frame_traps": true,
+  "c_runtime_asan_ubsan": true,
+  "syntax_rejections": 7,
+  "legacy_Value_type_preserved": true,
+  "models": [
+    "unrooted input parameter",
+    "automatic allocation locals",
+    "Phi root with cleared previous owner",
+    "borrowed payload owner",
+    "invoke error returns",
+    "heap parameter reassignment",
+    "leaf root elision",
+    "all frames popped and mappings released"
+  ],
+  "mode": "single-owner precise shadow roots, whole-function local lifetime; no native PC stackmaps or STW"
+}

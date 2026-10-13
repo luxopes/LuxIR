@@ -106,9 +106,13 @@ Windows a macOS (navíc):
   `luxrt_abi_v1_le64_explicit`; automatické připojení runtime driverem,
   size queries a manifest 156 public scalar funkcí. `none` zůstává
   legacy/external. Automatické stackmaps, STW a další OS zůstávají níže.
-- [ ] Popis layoutu objektů frontendu: ukazatelové mapy typů, kořeny,
-  safepointy. Frontend řekne *co* je ukazatel, LuxIR rozhodne *jak* GC
-  prochází zásobník a registry (stack mapy).
+- [x] Descriptor pointer maps a compiler `Value`/`gc_heap` metadata:
+  backend generuje přesné shadow-root slots pro parametry/lokály/Phi,
+  pop na normal/error return, no-call leaf elision. 60 002 kontrol
+  s forced GC na třech Linux cílech. Lokály žijí do přepisu/return.
+- [ ] Native PC/register stackmaps, automatické last-use clearing,
+  safepoint coordination a STW shared-heap vlákna. Shadow roots nejsou
+  touto optimalizovanou implementací; borrowing owner musí zůstat rooted.
 - [x] Status `invoke` call s explicitní success/error hranou v IR;
   typed Int32 nebo discarded status, direct/extern/indirect callees,
   žádný skrytý TLS příznak. Backend sníží na call/branch před SSA a

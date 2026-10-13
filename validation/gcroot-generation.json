@@ -1,0 +1,12 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "tests/runtime/gcroot_cases.c",
+      "source_sha256": "3f7cb3791b0b244388e176499cc1a4b6d25288a337f6a90aa04ef449f15792bb",
+      "ir_sha256": "d27b3787b96eef8ae67f85053af9a3865daa7403ea26becfdf0ce37fe66f51c5"
+    }
+  ]
+}

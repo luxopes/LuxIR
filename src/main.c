@@ -68,6 +68,7 @@ func(Fn *fn)
 	}
 	if (inlinefunctions)
 		inlapply(fn);
+	gcprepare(fn);
 	T.abi0(fn);
 	fillcfg(fn);
 	filluse(fn);
@@ -152,6 +153,10 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
+	if (ac == 2 && strcmp(av[1], "--features") == 0) {
+		puts(LUXIR_FEATURES_TEXT);
+		exit(0);
+	}
 	while ((c = getopt(ac, av, "hispVd:o:t:")) != -1)
 		switch (c) {
 		case 'i':
@@ -204,6 +209,7 @@ main(int ac, char *av[])
 			fprintf(hf, "%s [OPTIONS] {file.lir, -}\n", av[0]);
 			fprintf(hf, "\t%-11s prints this help\n", "-h");
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
+			fprintf(hf, "\t%-11s prints compiler capabilities as JSON (standalone)\n", "--features");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s inline small preceding definitions (local binding)\n", "-i");

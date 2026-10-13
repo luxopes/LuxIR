@@ -363,6 +363,7 @@ struct Tmp {
 	} width;
 	int visit;
 	uint gcmbid;
+	char gcroot; /* source-level Value, before SSA */
 };
 
 struct Con {
@@ -409,6 +410,7 @@ struct Fn {
 	uint nblk;
 	int retty; /* index in typ[], -1 if no aggregate return */
 	Ref retr;
+	Ref gcheap; /* entry heap for automatic Value shadow roots */
 	Blk **rpo;
 	bits reg;
 	int slot;
@@ -645,3 +647,5 @@ void inlrecord(Fn *);
 void inlapply(Fn *);
 
 extern int runtimeabi;
+
+void gcprepare(Fn *);

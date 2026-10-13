@@ -82,13 +82,18 @@ payload. Use `object_payload` to obtain its address. Objects do not move.
 
 Initialize a caller-owned heap with max mapped bytes and page size.
 Each heap has one owner; no concurrent calls or shared-heap managed values.
+Heap APIs are not async-signal-safe: no allocation/collection from signal
+handlers or reentrant heap operations.
 Multiple independent heaps are allowed. A collection follows explicit
 root frames and descriptor Value maps. There is no conservative scanning
-of machine words, no global object registry and no automatic stack maps.
+of machine words or global object registry. Optional compiler `Value`/
+`gc_heap` metadata generates precise shadow frames; native PC stack maps
+are not implemented.
 
 A 24-byte root frame is `{previous Ptr, slots Ptr, count UInt64}`. Push
 live Values with `roots_push` before any allocation-capable call, and pop
-in LIFO order. Initialize unused slots to 0. Slots and frames must remain
+in LIFO order, or annotate managed locals with compiler `Value`/`gc_heap`
+so those function-local frames are generated automatically. Initialize unused slots to 0. Slots and frames must remain
 valid and immobile until popped. Root all other live Values, not merely
 arguments: a call may trigger GC. Calls documented to root their own
 arguments do not protect unrelated locals/globals. A borrowed span into a

@@ -387,3 +387,45 @@ TLS error flag, native stack unwinding or automatic cleanup. The frontend
 emits any root-frame pop/resource cleanup required by its error blocks.
 Do not use it for count-returning raw Linux calls: their successful positive
 results are not a zero-success status. Requires LuxIR 0.1.2 or newer.
+
+## Managed Value shadow roots (ABI 1)
+
+```text
+runtime_abi "1"
+export function keep(Ptr(heap), Value(value)) -> Value:
+    gc_heap(heap)
+    Int32(status) = call luxrt_heap_collect(heap)
+    return value
+end
+```
+
+`Value` has the same native scalar representation as Int64, and additionally
+marks a parameter/local/Phi destination as a managed GC root. Its words
+must be valid ABI 1 Values (or 0 for an unused/cleared root). Every function
+with Value locals requires exactly one `gc_heap(...)` before entry body
+instructions. The context is an already initialized heap parameter or a
+symbol address, owned by this invocation's thread. It is captured on entry
+even if the user later reassigns the original parameter.
+
+Before SSA the backend creates a stack root frame and one slot per Value
+variable, initializes slots, stores parameters and every Value definition
+(including Phi), and registers the frame. All normal/error returns pop it;
+an unexpected unbalanced manual frame traps rather than returning dangling
+stack roots. A no-call leaf cannot collect and omits this machinery.
+Collection must be synchronous; heap APIs are not async-signal-safe.
+
+This is a precise shadow-root map, not native PC/register stack maps. Local
+root lifetimes extend to overwrite/explicit `Value(x) = 0`/function return;
+last-use clearing is not automatic. Do not clear an owner while a borrowed
+payload pointer remains live. Raw Ptr/Int64 variables are not scanned.
+Descriptors still define pointer maps inside objects, and startup/global
+roots remain explicit. Raw entry code initializes a heap before calling
+managed functions; there is no implicit process-wide heap. Manual root
+frames must be balanced, and native longjmp/unwinding across these functions
+is unsupported. `Value` remains available as an ordinary aggregate type
+name in legacy/no-header/`none` mode.
+
+`luxir --features` (standalone) reports compiler capabilities as JSON.
+A frontend can require `automatic-shadow-roots` and `status-invoke` before
+emitting the corresponding syntax; unknown capabilities must not be
+assumed merely because the runtime guard revision matches.
