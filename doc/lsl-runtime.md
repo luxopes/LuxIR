@@ -7,19 +7,24 @@ standardizuje LuxIR a LSL se mu přizpůsobí. Tento dokument popisuje, co
 dnešní LSL od runtime potřebuje, aby šlo dnešní ručně psaný x86-64 runtime
 LSL nahradit runtime z LuxIR beze změny chování a bez zpomalení.
 
-## Dnešní stav (LSL větev `work/runtime-luxir`, LuxIR 0.1.1)
+## Stav (LuxIR 0.1.2)
 
-- Kód programu: LSL → LuxIR (`compiler/pure/qbe_emit.lsl`) → `luxir` → GNU as.
-- Runtime: `compiler/qbe/runtime.o`, generovaný z emitorů x86-64 v LSL
-  (`compiler/pure/*_runtime_linux_x86_64.lsl`, ~10 000 řádků, ~53 KB kódu)
-  nástrojem `compiler/pure/qbe_runtime_dump.lsl` a `tools/qbe/runtime_object.py`.
-  Tyto soubory jsou referenční implementace chování; po převzetí z LuxIR se
-  z LSL odstraní.
+- Runtime patří LuxIR: zdroje `runtime/lsl/linux-x86_64/` (převzaté emitory
+  x86-64 v LSL z LSL `461dd58`), sestavení `make runtime-lsl`, objekt
+  `luxir-runtime/lsl-0/amd64_sysv.o`, bajtově shodný s dřívějším
+  `compiler/qbe/runtime.o` z LSL.
+- Frontend zapíše `ir_version "1"` a `runtime_abi "lsl-0"` a zavolá
+  `luxir -x -t amd64_sysv -o program program.lir`; zbytek (assembler, linker,
+  runtime) udělá LuxIR. Ověřeno na LSL: kompilátor v pevném bodu a bajtově
+  shodný s dosavadní cestou, 227 binárek testů a benchmarků shodných,
+  rychlá i plná sada testů LSL prošla (VALIDATION.md).
 - Volání z vygenerovaného kódu: SysV funkce `rt_runtime_<jméno>` (můstek
   nastaví stavový registr a volá interní x86 rutinu), dále `qbe_error_set`,
   `qbe_error_flag`, `qbe_error_pending`, `qbe_error_catch`, `qbe_error_clear`,
-  `qbe_exit`, `lsl_state`, `lsl_entry`, `lsl_globals`, `lsl_global_bytes`,
-  `lsl_global_flags`, `lsl_init_literals`.
+  `qbe_exit`. Program definuje `lsl_entry`, `lsl_globals`, `lsl_global_bytes`,
+  `lsl_global_flags` a obvykle `lsl_init_literals`.
+- Zbývá: přepsat runtime z emitorů x86 do přenositelného LuxIR a změnit ABI
+  podle požadavků níže (sekce Výkon); LSL pak přejde na novou verzi ABI.
 
 ## Model hodnot a objektů (musí zůstat kompatibilní, nebo se LSL přizpůsobí)
 
@@ -219,3 +224,29 @@ LSL testy: `build/dev/lsl-test qbe-fast|qbe <lslc>` v repozitáři LSL, plus
 benchmarky v `tests/benchmarks/v089` a programy „autobusy“ a „vrah“ (TODO).
 Nahrazení runtime nesmí změnit výstupy testů ani zpomalit překlad či běh
 proti předchozímu vydání LSL.
+
+## Výkon runtime pro překladač LSL (profil 13. 10. 2026)
+
+Překlad kompilátoru LSL (frontend + generování LuxIR, ~2,1 s po optimalizacích
+frontendu) tráví asi **35 % času v GC a alokátoru** dnešního runtime:
+
+| Místo | Podíl | Příčina |
+|---|---|---|
+| konzervativní test ukazatele (`is_heap_allocation`) při značkování | ~16 % | každé slovo každého živého objektu se ověřuje přes bitmapu a hlavičku bloku |
+| sweep | ~13 % | prochází všechny bloky haldy při každém GC |
+| hledání volného bloku (`alloc_reuse_loop`) | ~9 % | až 128 pokusů v seznamu velikostní třídy |
+| `is_heap_object` u hodnot Any | ~10 % | rozlišení surový Int / ukazatel |
+
+Požadavky na runtime LuxIR (frontend dodá potřebné informace):
+
+- [ ] **Přesné GC:** frontend zná u každého slotu, zda nese ukazatel (typovaný
+  Int/Float/Bool vs. Any/objekt); LuxIR potřebuje způsob, jak to vyjádřit
+  (typ `Ref`/`Any` v IR, mapy zásobníku a objektů), aby značkování nemuselo
+  testovat každé slovo.
+- [ ] **Tagované hodnoty Any** místo bitmapy: test ukazatele jednou instrukcí.
+- [ ] **Rychlá alokace malých objektů** (bump/TLAB nebo segregované volné
+  seznamy bez prohledávání) a sweep, který nechodí přes celou haldu
+  (generační nebo líný sweep po stránkách).
+- [ ] **Slovník s kapacitou:** `dict_new(kapacita)` pro literály; AST a tokeny
+  frontendu jsou malé slovníky (4-8 klíčů), dnes vždy s kapacitou 16
+  (2 × 128 B polí + hlavičky), což zdvojnásobuje živou haldu i práci GC.

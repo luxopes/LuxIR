@@ -21,13 +21,21 @@ LuxIR, LSL se mu přizpůsobí. Požadavky a dnešní rozhraní (144 funkcí):
 `doc/lsl-runtime.md`; referenční kód slovníku a řetězců v LuxIR:
 `doc/lsl-runtime/`; referenční chování: x86 emitory runtime v repozitáři LSL.
 
-- [ ] **Návrh rozhraní:** standardní managed ABI (hodnoty, tagy, layouty,
-  chyby, GC kořeny) a seznam funkcí; verze v hlavičce `runtime_abi`.
-- [ ] **Implementace pro Linux x86_64** se stejným chováním a výkonem jako
-  dnešní runtime LSL (měřítka v `doc/lsl-runtime.md`).
+- [x] **Runtime LSL v LuxIR (0.1.2):** zdroje runtime převzaté z LSL do
+  `runtime/lsl/`, sestavení `make runtime-lsl`, ABI `runtime_abi "lsl-0"`
+  (dnešní rozhraní LSL beze změny) a `luxir -x`: z `.lir` spustitelný
+  program (GNU as/ld z pevných cest, runtime vedle `luxir`). Objekt i
+  binárky LSL bajtově shodné s dosavadní cestou; testy `tests/link.py`.
+- [ ] **Předání LSL:** LSL zapíše hlavičku `runtime_abi "lsl-0"`, volá
+  `luxir -x` a odstraní své kopie emitorů runtime, `runtime.o`,
+  `qbe_runtime_dump` a přímý backend; instaluje `lib/luxir/lsl-0/`.
+  Ověřeno ve worktree LSL (VALIDATION.md), v LSL zatím necommitnuto.
+- [ ] **Návrh stabilního rozhraní (`lsl-1`):** tagované hodnoty, layouty,
+  chyby, GC kořeny a mapy, seznam funkcí; frontend se mu přizpůsobí.
+- [ ] **Přepis runtime do přenositelného LuxIR** se stejným chováním a
+  výkonem jako emitory x86 (měřítka v `doc/lsl-runtime.md`); emitory pak
+  z `runtime/lsl/` zmizí.
 - [ ] **Linux arm64 a rv64**, pak Windows a macOS.
-- [ ] **Předání LSL:** jakmile je rozhraní hotové, LSL přepne `qbe_emit` na
-  něj a odstraní své x86 emitory, `runtime.o` a přímý backend.
 
 ## Požadavky LSL pro přesun runtime do LuxIR — 13. 10. 2026
 

@@ -633,3 +633,17 @@ void pe_emitfin(FILE *);
 
 /* main.c: explicit static-PIE address mode (currently rv64). */
 extern int pic;
+
+/* parse.c: runtime ABI z hlavičky runtime_abi (RTnone nebo RTlsl0). */
+enum { RTnone, RTlsl0 };
+extern int rtabi;
+
+/* main.c: dočasný assembler režimu -x; chybové ukončení ho smaže. */
+extern char *tmpasm;
+void luxir_abort(void) __attribute__((noreturn));
+
+/* tool.c: externí nástroje pro režim -x (jen C; LSL má vlastní protějšky). */
+int luxir_run(char **);
+int luxir_exists(char *);
+char *luxir_exedir(void);
+int luxir_unlink(char *);

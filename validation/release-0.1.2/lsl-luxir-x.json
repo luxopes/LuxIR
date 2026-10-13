@@ -1,0 +1,37 @@
+{
+  "lsl_base_commit": "461dd58 (work/runtime-luxir)",
+  "lsl_changes": "qbe_emit: header ir_version 1 + runtime_abi lsl-0; qbe_toolchain: luxir -x instead of as/ld + runtime.o; install/update/test_runner: runtime in lib/luxir/lsl-0",
+  "compiler_fixed_point": true,
+  "compiler_identical_to_previous_pipeline": true,
+  "programs_compared": 347,
+  "result_counts": {
+    "ERR-SAME": 88,
+    "BIN-SAME": 227,
+    "ERR-DIFF": 29,
+    "BIN-DIFF": 3
+  },
+  "explained_differences": "BIN-DIFF only for programs importing modified LSL modules (update_install, qbe_emit, qbe_toolchain); ERR-DIFF only in absolute checkout paths (0 after path normalisation)",
+  "lsl_test_qbe_fast": "passed",
+  "lsl_test_qbe_full": "passed",
+  "compile_time_seconds": {
+    "compiler": {
+      "old_median": 2.934,
+      "new_median": 2.904,
+      "identical_output": false
+    },
+    "luxir": {
+      "old_median": 13.479,
+      "new_median": 13.405,
+      "identical_output": true
+    },
+    "hello": {
+      "old_median": 0.211,
+      "new_median": 0.193,
+      "identical_output": true
+    }
+  },
+  "compile_time_note": "compiler output differs only because the new compiler source includes the LSL changes above",
+  "runtime_object_sha256": "492b695fa0c3e976a567a5db97dddf27e0c63a422cec2aca2826bb2dbb2ec0e8",
+  "runtime_object_identical_to_lsl_compiler_qbe_runtime_o": true,
+  "luxir_sha256": "1e8dec77cbb937e1a83d498e29abefffe1cbb3cd123c8086b2ba02949975027f"
+}

@@ -3,6 +3,8 @@
 #   make                 C reference src/luxir
 #   make lsl             přegeneruje lsl/luxir.lsl z src/ (Python + pycparser)
 #   make native          sestaví build/luxir LSL compilerem
+#   make runtime-lsl     runtime LSL (ABI lsl-0) pro luxir -x:
+#                        build/luxir-runtime/lsl-0/amd64_sysv.o
 #   make check           testy C reference a native backendu
 #
 # LSLC je LSL compiler (lslc) s podporou modulů označených
@@ -31,8 +33,23 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	$(LSLC) lsl/luxir.lsl build/luxir $(LSLC_BACKEND)
 	chmod +x build/luxir
 
-check: c native
+# Runtime LSL (ABI lsl-0, Linux x86_64). Emitory strojového kódu v LSL
+# vypíšou bajty, štítky a fixupy; runtime_object.py z nich udělá objekt.
+RUNTIME_LSL = runtime/lsl/linux-x86_64
+RUNTIME_LSL_OBJ = build/luxir-runtime/lsl-0/amd64_sysv.o
+
+runtime-lsl: $(RUNTIME_LSL_OBJ)
+
+$(RUNTIME_LSL_OBJ): $(wildcard $(RUNTIME_LSL)/*.lsl) $(RUNTIME_LSL)/runtime_object.py
+	mkdir -p build/runtime-lsl build/luxir-runtime/lsl-0
+	$(LSLC) $(RUNTIME_LSL)/runtime_dump.lsl build/runtime-lsl/dump $(LSLC_BACKEND)
+	build/runtime-lsl/dump build/runtime-lsl/runtime
+	$(PYTHON) $(RUNTIME_LSL)/runtime_object.py build/runtime-lsl/runtime
+	cp build/runtime-lsl/runtime.o $@
+
+check: c native runtime-lsl
 	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/link.py --backend src/luxir --backend build/luxir
 	$(MAKE) check-dominance check-bitsets
 	$(PYTHON) tests/run_tests.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/differential.py --reference $(QBE) --backend src/luxir
@@ -55,6 +72,10 @@ check-bitsets:
 	$(CC) -O2 -std=c99 -ffunction-sections -fdata-sections -Wl,--gc-sections \
 		tests/bitset_count.c src/util.c -o build/bitset-count-test
 	build/bitset-count-test
+
+# Režim -x s runtime LSL (examples/lsl-runtime-hello.lir).
+check-link: c native runtime-lsl
+	$(PYTHON) tests/link.py --backend src/luxir --backend build/luxir
 
 check-runtime: c native
 	$(PYTHON) tests/runtime/run_io.py --backend src/luxir --backend build/luxir
@@ -86,4 +107,4 @@ clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross runtime-lsl check-link clean

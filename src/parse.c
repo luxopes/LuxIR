@@ -272,6 +272,9 @@ static uchar *src;
 static uint64_t spos;
 static uint64_t slen;
 static char *inpath;
+/* Runtime ABI ze všech vstupních souborů; RTnone, dokud hlavička chybí. */
+int rtabi;
+static int rtabiseen;
 static int lnum;
 static int depth;
 static int thead;
@@ -340,6 +343,8 @@ err(char *s, ...)
 	vfprintf(stderr, s, ap);
 	fprintf(stderr, "\n");
 	va_end(ap);
+	if (tmpasm)
+		luxir_unlink(tmpasm);
 	exit(1);
 }
 
@@ -2330,7 +2335,7 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 {
 	Lnk lnk;
 	uint n;
-	int t, definition, irseen, abiseen;
+	int t, definition, irseen, abiseen, abi;
 
 	lexinit();
 	readall(f);
@@ -2365,8 +2370,18 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 					err("duplicate runtime_abi header");
 				abiseen = 1;
 				expect(Tstr);
-				if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI "\"") != 0)
-					err("unsupported runtime ABI %s; supported: " LUXIR_RUNTIME_ABI, tstr);
+				/* lsl-0: runtime LSL dodávaný s LuxIR (runtime/lsl/);
+				 * určuje runtime, se kterým režim -x slinkuje program. */
+				if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI "\"") == 0)
+					abi = RTnone;
+				else if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI_LSL "\"") == 0)
+					abi = RTlsl0;
+				else
+					err("unsupported runtime ABI %s; supported: " LUXIR_RUNTIME_ABIS, tstr);
+				if (rtabiseen && abi != rtabi)
+					err("conflicting runtime_abi headers in input files");
+				rtabi = abi;
+				rtabiseen = 1;
 			}
 			t = next();
 			if (t == Teof)

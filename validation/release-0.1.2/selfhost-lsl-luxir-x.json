@@ -1,0 +1,27 @@
+{
+  "initial_sha256": "1e8dec77cbb937e1a83d498e29abefffe1cbb3cd123c8086b2ba02949975027f",
+  "generations": [
+    {
+      "generation": 2,
+      "seconds": 13.650724336999701,
+      "limit_seconds": 60.0,
+      "exit_code": 0,
+      "backend": "LUXIR/build/luxir",
+      "log": "LUXIR/build/selfhost/stage2.log",
+      "sha256": "1e8dec77cbb937e1a83d498e29abefffe1cbb3cd123c8086b2ba02949975027f"
+    },
+    {
+      "generation": 3,
+      "seconds": 13.450512931000048,
+      "limit_seconds": 60.0,
+      "exit_code": 0,
+      "backend": "LUXIR/build/selfhost/luxir-stage2",
+      "log": "LUXIR/build/selfhost/stage3.log",
+      "sha256": "1e8dec77cbb937e1a83d498e29abefffe1cbb3cd123c8086b2ba02949975027f"
+    }
+  ],
+  "complete": true,
+  "fixed_point": true,
+  "time_gate_passed": true,
+  "target": "amd64_sysv"
+}

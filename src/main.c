@@ -6,6 +6,16 @@
 
 Target T;
 int pic;
+char *tmpasm;
+
+/* Vnitřní chyba (die): dočasný assembler režimu -x nesmí zůstat. */
+void
+luxir_abort(void)
+{
+	if (tmpasm)
+		luxir_unlink(tmpasm);
+	abort();
+}
 
 char debug['Z'+1] = {
 	['P'] = 0, /* parsing */
@@ -129,23 +139,131 @@ dbgfile(char *fn)
 	emitdbgfile(fn, outf);
 }
 
+/* Režim -x: z assembleru udělá spustitelný soubor s runtime podle
+ * hlavičky runtime_abi. Assembler a linker jsou zatím GNU as/ld z pevných
+ * systémových cest (nehledají se v PATH). */
+static char *
+systool(char *primary, char *fallback, char *label)
+{
+	if (luxir_exists(primary))
+		return primary;
+	if (luxir_exists(fallback))
+		return fallback;
+	fprintf(stderr, "luxir: trusted %s executable is required\n", label);
+	return 0;
+}
+
+static int
+findruntime(char *buf, int size, char *rtdir)
+{
+	char *dir;
+
+	if (rtdir) {
+		snprintf(buf, size, "%s/lsl-0/amd64_sysv.o", rtdir);
+		return luxir_exists(buf);
+	}
+	dir = luxir_exedir();
+	if (!dir)
+		return 0;
+	snprintf(buf, size, "%s/luxir-runtime/lsl-0/amd64_sysv.o", dir);
+	if (luxir_exists(buf))
+		return 1;
+	snprintf(buf, size, "%s/../lib/luxir/lsl-0/amd64_sysv.o", dir);
+	if (luxir_exists(buf))
+		return 1;
+	/* C reference src/luxir ve vývojovém checkoutu (make runtime-lsl). */
+	snprintf(buf, size, "%s/../build/luxir-runtime/lsl-0/amd64_sysv.o", dir);
+	return luxir_exists(buf);
+}
+
+static int
+tool(char **argv, char *stage)
+{
+	int status;
+
+	status = luxir_run(argv);
+	if (status != 0)
+		fprintf(stderr, "luxir: %s failed (status %d)\n", stage, status);
+	return status;
+}
+
+static int
+linkexe(char *out, char *asmpath, char *rtdir)
+{
+	char obj[4096], rt[4096];
+	char *as, *ld, *argv[24];
+	int status;
+
+	status = 1;
+	snprintf(obj, sizeof obj, "%s.o", out);
+	if (rtabi != RTlsl0)
+		fprintf(stderr, "luxir: -x needs a runtime_abi \"" LUXIR_RUNTIME_ABI_LSL "\" header\n");
+	else if (strcmp(T.name, "amd64_sysv") != 0)
+		fprintf(stderr, "luxir: runtime " LUXIR_RUNTIME_ABI_LSL " is available only for amd64_sysv\n");
+	else if (!findruntime(rt, sizeof rt, rtdir))
+		fprintf(stderr, "luxir: runtime " LUXIR_RUNTIME_ABI_LSL " object is missing (luxir-runtime/lsl-0/amd64_sysv.o)\n");
+	else {
+		as = systool("/usr/bin/as", "/bin/as", "assembler");
+		ld = systool("/usr/bin/ld", "/bin/ld", "linker");
+		if (as && ld) {
+			argv[0] = as;
+			argv[1] = "--64";
+			argv[2] = "-o";
+			argv[3] = obj;
+			argv[4] = asmpath;
+			argv[5] = 0;
+			status = tool(argv, "assembler");
+		}
+		if (as && ld && status == 0) {
+			/* Statický PIE bez dynamického loaderu. -z text zakáže
+			 * absolutní relokace ve spustitelných stránkách. */
+			argv[0] = ld;
+			argv[1] = "-nostdlib";
+			argv[2] = "-static";
+			argv[3] = "-pie";
+			argv[4] = "--no-dynamic-linker";
+			argv[5] = "-z";
+			argv[6] = "text";
+			argv[7] = "-z";
+			argv[8] = "noexecstack";
+			argv[9] = "--build-id=none";
+			argv[10] = "-s";
+			argv[11] = "-o";
+			argv[12] = out;
+			argv[13] = obj;
+			argv[14] = rt;
+			argv[15] = 0;
+			status = tool(argv, "linker");
+		}
+	}
+	luxir_unlink(asmpath);
+	luxir_unlink(obj);
+	if (status != 0)
+		luxir_unlink(out);
+	return status != 0;
+}
+
 int
 main(int ac, char *av[])
 {
 	Target **t;
 	FILE *inf, *hf;
-	char *f, *sep;
-	int c;
+	char *f, *sep, *out, *rtdir;
+	char asmpath[4096];
+	int c, exe;
 
 	T = Deftgt;
 	outf = stdout;
+	out = 0;
+	rtdir = 0;
+	exe = 0;
 	/* Long query is deliberately standalone: never mistake an -o operand
 	 * or an input filename for an option, and never truncate an output. */
 	if (ac == 2 && strcmp(av[1], "--version") == 0) {
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpVd:o:t:")) != -1)
+	while ((c = getopt(ac, av, "hpxVd:o:t:L:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
@@ -167,7 +285,15 @@ main(int ac, char *av[])
 					fprintf(stderr, "cannot open '%s'\n", optarg);
 					exit(1);
 				}
-			}
+				out = optarg;
+			} else
+				out = 0;
+			break;
+		case 'x':
+			exe = 1;
+			break;
+		case 'L':
+			rtdir = optarg;
 			break;
 		case 't':
 			if (strcmp(optarg, "?") == 0) {
@@ -192,6 +318,8 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s prints this help\n", "-h");
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
+			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
+			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s generate for a target among:\n", "-t <target>");
 			fprintf(hf, "\t%-11s ", "");
@@ -204,6 +332,23 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s dump debug information\n", "-d <flags>");
 			exit(c != 'h');
 		}
+
+	if (exe) {
+		/* Assembler jde do OUT.s; OUT zůstává až pro linker. */
+		if (!out || dbg) {
+			fprintf(stderr, "luxir: -x needs -o file and no -d\n");
+			exit(1);
+		}
+		fclose(outf);
+		luxir_unlink(out);
+		snprintf(asmpath, sizeof asmpath, "%s.s", out);
+		outf = fopen(asmpath, "w");
+		if (!outf) {
+			fprintf(stderr, "cannot open '%s'\n", asmpath);
+			exit(1);
+		}
+		tmpasm = asmpath;
+	}
 
 	do {
 		f = av[optind];
@@ -224,5 +369,12 @@ main(int ac, char *av[])
 	if (!dbg)
 		T.emitfin(outf);
 
+	if (exe) {
+		/* Jméno dočasného souboru se nesmí dostat do binárky. */
+		fputs("\n.file \"luxir\"\n", outf);
+		fclose(outf);
+		tmpasm = 0;
+		exit(linkexe(out, asmpath, rtdir));
+	}
 	exit(0);
 }

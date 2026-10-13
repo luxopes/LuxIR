@@ -59,7 +59,7 @@ die_(char *file, char *s, ...)
 	vfprintf(stderr, s, ap);
 	va_end(ap);
 	fputc('\n', stderr);
-	abort();
+	luxir_abort();
 }
 
 void *

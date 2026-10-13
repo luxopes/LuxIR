@@ -314,3 +314,41 @@ function c_exit(status):
     call stdio.fflush(0)
     exit(__lsl_qbe_raw_int(status))
 end
+
+# Protějšky src/tool.c pro režim -x (spouštění assembleru a linkeru).
+function c_luxir_run(raw_argv):
+    argv = __lsl_qbe_raw_int(raw_argv)
+    program = mem.text(__lsl_qbe_load64(argv))
+    arguments = []
+    offset = 8
+    while __lsl_qbe_load64(argv + offset) != 0:
+        arguments.append(mem.text(__lsl_qbe_load64(argv + offset)))
+        offset += 8
+    end
+    call stdio.fflush(0)
+    return run(program, arguments)
+end
+
+function c_luxir_exists(raw_path):
+    if exists(mem.text(__lsl_qbe_raw_int(raw_path))):
+        return 1
+    end
+    return 0
+end
+
+function c_luxir_exedir():
+    path = executable_path()
+    if path == None:
+        return 0
+    end
+    parts = String(path).split("/")
+    directory = "/".join(parts[0:len(parts) - 1])
+    if directory == "":
+        return 0
+    end
+    return mem.cstr(directory)
+end
+
+function c_luxir_unlink(raw_path):
+    return unlink(mem.text(__lsl_qbe_raw_int(raw_path)))
+end

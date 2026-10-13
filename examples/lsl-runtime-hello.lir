@@ -1,0 +1,39 @@
+# Nejmenší program nad runtime LSL (ABI lsl-0, doc/lsl-runtime.md).
+# Sestavení: luxir -x -o hello examples/lsl-runtime-hello.lir
+# Vypíše "hello, lsl-0", součet 1..100 a skončí kódem 3.
+ir_version "1"
+runtime_abi "lsl-0"
+
+# Kořeny GC: jeden slot pro String vytvořený z literálu.
+export data lsl_globals align 8 = zero(8)
+data lsl_global_bytes align 8 = Int64(8)
+data lsl_global_flags align 8 = zero(8)
+data greeting align 8 = [Int64(1, 13), "hello, lsl-0\n", Int8(0)]
+data newline align 8 = [Int64(1, 1), "\n", Int8(0)]
+
+export function lsl_entry() -> Int64:
+start:
+    Int64(size) = load(lsl_global_bytes)
+    Int64(roots) = add(lsl_globals, size)
+    call rt_runtime_set_global_roots(lsl_globals, roots)
+    Int64(text) = call rt_runtime_string_clone(greeting)
+    store(text, lsl_globals)
+    Int64(slot) = load(lsl_globals)
+    call rt_runtime_print_string(slot)
+    Int64(total) = 0
+    Int64(i) = 1
+    goto loop
+loop:
+    Int32(more) = le(i, 100)
+    if more goto body else done
+body:
+    Int64(total) = add(total, i)
+    Int64(i) = add(i, 1)
+    goto loop
+done:
+    Int64(digits) = call rt_runtime_int_to_string(total)
+    call rt_runtime_print_string(digits)
+    Int64(eol) = call rt_runtime_string_clone(newline)
+    call rt_runtime_print_string(eol)
+    return 3
+end

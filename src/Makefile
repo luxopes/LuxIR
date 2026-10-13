@@ -11,19 +11,21 @@ AMD64OBJ = amd64/targ.o amd64/sysv.o amd64/isel.o amd64/emit.o amd64/winabi.o
 ARM64OBJ = arm64/targ.o arm64/abi.o arm64/isel.o arm64/emit.o
 RV64OBJ  = rv64/targ.o rv64/abi.o rv64/isel.o rv64/emit.o
 OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ)
+# Spouštění nástrojů jen v C; do LSL se nepřekládá (viz tool.c).
+TOOLOBJ  = tool.o
 
 SRCALL   = $(OBJ:.o=.c)
 
 CC       = cc
 CFLAGS   = -std=c99 -O2 -Wall -Wextra -Wpedantic
 
-luxir: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $@
+luxir: $(OBJ) $(TOOLOBJ)
+	$(CC) $(LDFLAGS) $(OBJ) $(TOOLOBJ) -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ): all.h ops.h
+$(OBJ) $(TOOLOBJ): all.h ops.h
 $(AMD64OBJ): amd64/all.h
 $(ARM64OBJ): arm64/all.h
 $(RV64OBJ): rv64/all.h

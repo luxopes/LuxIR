@@ -8,11 +8,14 @@ from pathlib import Path
 TARGETS = ['amd64_sysv', 'amd64_win', 'amd64_apple', 'arm64', 'arm64_apple', 'rv64']
 BODY = 'export function answer() -> Int32:\n    return 42\nend\n'
 HEAD = 'ir_version "1"\nruntime_abi "none"\n'
+HEAD_LSL = 'ir_version "1"\nruntime_abi "lsl-0"\n'
 ERRORS = [
     ('ir', 'ir_version "2"\n', 'unsupported IR version "2"'),
     ('ir-zero', 'ir_version "0"\n', 'unsupported IR version "0"'),
     ('ir-overflow', 'ir_version "18446744073709551617"\n', 'unsupported IR version'),
     ('abi', 'runtime_abi "1"\n', 'unsupported runtime ABI "1"'),
+    ('abi-lsl', 'runtime_abi "lsl-1"\n', 'unsupported runtime ABI "lsl-1"; supported: none, lsl-0'),
+    ('duplicate-mixed', 'runtime_abi "none"\nruntime_abi "lsl-0"\n', 'duplicate runtime_abi'),
     ('duplicate-ir', 'ir_version "1"\nir_version "1"\n', 'duplicate ir_version'),
     ('duplicate-abi', 'runtime_abi "none"\nruntime_abi "none"\n', 'duplicate runtime_abi'),
     ('late-ir', BODY + 'ir_version "1"\n', 'version headers must precede definitions'),
@@ -36,14 +39,15 @@ def main():
         source = Path(directory) / 'input.lir'
         for backend in backends:
             r = run(backend, ['--version'])
-            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.1 (IR 1; runtime ABI none)\n', b''), r
+            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.2 (IR 1; runtime ABI none, lsl-0)\n', b''), r
             checks += 1
         # Headers must leave every target's code byte-identical to legacy IR.
         for target in TARGETS:
             reference = None
             for text in [BODY, HEAD + BODY, '# comment\n\n' + HEAD + BODY,
                          'runtime_abi "none"\nir_version "1"\n' + BODY,
-                         'ir_version "1"\n' + BODY, 'runtime_abi "none"\n' + BODY]:
+                         'ir_version "1"\n' + BODY, 'runtime_abi "none"\n' + BODY,
+                         HEAD_LSL + BODY, 'runtime_abi "lsl-0"\n' + BODY]:
                 source.write_text(text)
                 for backend in backends:
                     r = run(backend, ['-t', target, source])
@@ -54,7 +58,7 @@ def main():
                     checks += 1
         source.write_text('')
         empty = run(backends[0], [source]).stdout
-        for text in ['ir_version "1"', 'runtime_abi "none"', HEAD]:
+        for text in ['ir_version "1"', 'runtime_abi "none"', HEAD, 'runtime_abi "lsl-0"', HEAD_LSL]:
             source.write_text(text)
             for backend in backends:
                 r = run(backend, [source])
@@ -85,6 +89,19 @@ def main():
                                capture_output=True, timeout=30)
             assert r.returncode == 0 and not r.stderr, r
             checks += 2
+        # runtime_abi platí pro celý program: soubory se nesmí rozcházet.
+        other = Path(directory) / 'other.lir'
+        other.write_text(HEAD_LSL)
+        for backend in backends:
+            r = run(backend, [source, other])
+            assert r.returncode != 0 and b'conflicting runtime_abi headers' in r.stderr, r
+            checks += 1
+            # Soubor bez hlavičky runtime ABI nemění.
+            source.write_text(BODY)
+            r = run(backend, [other, source])
+            assert r.returncode == 0 and not r.stderr, r
+            source.write_text(HEAD)
+            checks += 1
     print(f'{checks} protocol checks passed ({len(backends)} backends, 6 targets)')
 
 if __name__ == '__main__':

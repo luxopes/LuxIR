@@ -1,6 +1,6 @@
 # LuxIR
 
-Aktuální vydání: **0.1.1**. Změny a omezení: [RELEASE-0.1.1.md](RELEASE-0.1.1.md).
+Aktuální vydání: **0.1.2**. Změny a omezení: [RELEASE-0.1.2.md](RELEASE-0.1.2.md).
 
 LuxIR je samostatný backend překladače, podobně jako QBE. Má vlastní IR se
 syntaxí ve stylu LSL a v produkci běží jako program napsaný v LSL.
@@ -10,6 +10,16 @@ z něj vytvoří assembler:
 ```text
 luxir -t amd64_sysv -o program.s program.lir
 ```
+
+Program pro runtime LSL (hlavička `runtime_abi "lsl-0"`) LuxIR rovnou
+sestaví a slinkuje se svým runtime do spustitelného souboru:
+
+```text
+luxir -x -o program program.lir
+```
+
+Frontend LSL tak jen zapíše LuxIR; runtime jazyka i linkování patří LuxIR.
+Podrobnosti: [doc/runtime.md](doc/runtime.md).
 
 Optimalizace a generování kódu pocházejí z QBE 1.3: SSA, alias analýza,
 GVN/GCM, if-conversion, alokace registrů a ABI. LuxIR přidává vlastní vstupní
@@ -46,6 +56,7 @@ Typ `Ptr` je v IR připravený pro pozdější 32bitové a 8bitové cíle.
 | `src/` | C reference backendu: QBE 1.3 s čtečkou LuxIR v `parse.c` |
 | `lsl/luxir.lsl` | backend v LSL, vygenerovaný z `src/` (commitnutý) |
 | `lsl/luxir_*.lsl` | LSL runtime pro generovaný kód (paměť, stdio, libc, float) |
+| `runtime/lsl/` | runtime jazyka LSL (ABI `lsl-0`) pro `luxir -x` |
 | `tools/translate.py` | převod C reference na LSL (pycparser) |
 | `tools/qbe2lir.py` | převod QBE IL na LuxIR |
 | `tests/` | testy jazyka, diferenční testy proti QBE, fuzzing |
@@ -70,6 +81,12 @@ make lsl                                  # přegeneruje lsl/luxir.lsl (Python 3
 make native LSLC=/cesta/k/lslc            # build/luxir
 ```
 
+Runtime LSL pro `luxir -x` (`build/luxir-runtime/lsl-0/amd64_sysv.o`):
+
+```sh
+make runtime-lsl LSLC=/cesta/k/lslc
+```
+
 `lsl/luxir.lsl` a jeho moduly mají značku `# lsl: internal-abi`. LSL
 compiler je musí přeložit s interním ABI, i když leží mimo jeho strom
 `compiler/pure/`. Pro reprodukci použijte LSL 0.9.1; jeho frontend i bootstrap
@@ -82,6 +99,8 @@ svůj strom nezpracuje správně a výsledný backend za běhu skončí `MemoryE
 make check LSLC=/cesta/k/lslc QBE=/cesta/k/qbe-1.3
 ```
 
+- `tests/link.py`: `luxir -x` s runtime LSL (výstup, determinismus,
+  vlastnosti obrazu, hledání runtime, chybové cesty, shoda C a LSL verze).
 - `tests/run_tests.py`: spustitelné programy v LuxIR (aritmetika,
   desetinná čísla, paměť a data, řízení toku, volání a ABI, varargs, env,
   TLS) s nezávisle spočítaným výstupem a 36 chybových vstupů s očekávaným

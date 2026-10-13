@@ -5,7 +5,7 @@ Existing LSL compiler is a toolchain input, never modified. It may need its
 own resource working directory. A deadline failure leaves logs for diagnosis
 and never counts as successful self-host. The limit is machine-specific.
 """
-import argparse,hashlib,json,subprocess,time,os,signal
+import argparse,hashlib,json,subprocess,time,os,signal,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -13,6 +13,10 @@ def main():
  ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--compiler',type=Path,required=True);ap.add_argument('--backend',type=Path,required=True);ap.add_argument('--compiler-cwd',type=Path,default=ROOT);ap.add_argument('--limit',type=float,default=60);ap.add_argument('--report',type=Path,default=ROOT/'build/selfhost.json');a=ap.parse_args()
  if a.limit<=0:ap.error('--limit must be positive')
  directory=ROOT/'build/selfhost';directory.mkdir(parents=True,exist_ok=True);rows=[];backend=a.backend.resolve();initial=sha(backend)
+ # Frontend volající luxir -x potřebuje runtime vedle každé generace backendu.
+ runtime=backend.parent/'luxir-runtime'
+ if runtime.is_dir():
+  shutil.rmtree(directory/'luxir-runtime',ignore_errors=True);shutil.copytree(runtime,directory/'luxir-runtime')
  for generation in [2,3]:
   output=directory/('luxir-stage'+str(generation));log=directory/('stage'+str(generation)+'.log');cmd=[str(a.compiler.resolve()),str(ROOT/'lsl/luxir.lsl'),str(output),str(backend)];start=time.monotonic()
   with log.open('wb') as stream:

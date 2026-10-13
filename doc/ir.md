@@ -28,7 +28,7 @@ end
 ## Verze protokolu
 
 `luxir --version` (samostatný příkaz) vypíše podporovanou revizi IR a
-runtime kontrakt. Aktuálně: `LuxIR 0.1.1 (IR 1; runtime ABI none)`.
+runtime kontrakty. Aktuálně: `LuxIR 0.1.2 (IR 1; runtime ABI none, lsl-0)`.
 Číslo původního QBE není verzí rozhraní LuxIR.
 
 Frontend může před všemi definicemi a direktivou `file` zapsat:
@@ -46,9 +46,14 @@ Opakovaná, pozdní nebo nekompatibilní hlavička skončí diagnostikou s cesto
 a řádkem. Přijatá hlavička nemění generovaný assembler.
 
 `runtime_abi "none"` znamená, že backend nespravuje integrované luxrt ABI.
-Nezakazuje externí volání ani stávající runtime LSL. Jiné runtime ABI se
-odmítá, dokud není implementováno a ověřeno; přijetí IR není důkazem
-kompatibility externě slinkované knihovny. Viz [runtime.md](runtime.md).
+Nezakazuje externí volání; přijetí IR není důkazem kompatibility externě
+slinkované knihovny.
+
+`runtime_abi "lsl-0"` označuje program pro runtime LSL, který dodává LuxIR
+(`runtime/lsl/`, rozhraní v [lsl-runtime.md](lsl-runtime.md)). Assembler se
+tím nemění; hlavička určuje, se kterým runtime `luxir -x` program slinkuje.
+Všechny vstupní soubory jednoho překladu musí mít stejné runtime ABI (soubor
+bez hlavičky ho nemění). Jiné hodnoty se odmítají. Viz [runtime.md](runtime.md).
 
 ## Lexikální pravidla
 

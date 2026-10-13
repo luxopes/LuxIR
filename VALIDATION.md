@@ -1,3 +1,35 @@
+# Release 0.1.2 — runtime LSL a `luxir -x`
+
+`luxir --version`: `LuxIR 0.1.2 (IR 1; runtime ABI none, lsl-0)`.
+Stav 13. 10. 2026, Linux x86_64. SHA-256 `build/luxir`:
+`1e8dec77cbb937e1a83d498e29abefffe1cbb3cd123c8086b2ba02949975027f`,
+runtime `lsl-0/amd64_sysv.o`:
+`492b695fa0c3e976a567a5db97dddf27e0c63a422cec2aca2826bb2dbb2ec0e8`
+(shodný s `compiler/qbe/runtime.o` LSL `461dd58`).
+
+- `make check`: 144 protokolových kontrol, 31 kontrol `-x` (C i LSL verze,
+  shodné binárky, determinismus, statický PIE bez INTERP/build-id/TEXTREL,
+  nespustitelný zásobník, tři rozložení hledání runtime, chyby assembleru,
+  linkeru, parseru a chybějícího runtime bez zbylých souborů), 456/456 QBE
+  dvojic pro C i LSL, 36/36 chybových vstupů, 300 fuzz případů bez
+  internal error, dominance a bitsety. 467/467 C funkcí přegenerováno.
+- `make check-runtime`: všechny kontroly prošly (beze změny modulů).
+- Self-host: přes LSL compiler s dosavadní cestou (as/ld + runtime.o v LSL)
+  i přes LSL přepnuté na `luxir -x` stage 1 == stage 2 == stage 3,
+  13,4–13,7 s na generaci (limit 60 s).
+- LSL ve worktree (`461dd58` + hlavička `runtime_abi "lsl-0"`, volání
+  `luxir -x`, instalace runtime do `lib/luxir/lsl-0`): kompilátor v pevném
+  bodu a bajtově shodný s kompilátorem z dosavadní cesty. 347 programů
+  (testy, benchmarky, příklady) přeloženo oběma cestami: 227 binárek a 88
+  diagnostik shodných, 29 diagnostik se liší jen absolutní cestou checkoutu,
+  3 binárky jen proto, že načítají upravené moduly LSL. `lsl-test qbe-fast`
+  i `lsl-test qbe` prošly. Medián překladu (7/3 běhů): compiler 2,934 s →
+  2,904 s, LuxIR 13,479 s → 13,405 s, malý program 0,211 s → 0,193 s.
+
+Neověřeno: jiné cíle než Linux x86_64 (runtime `lsl-0` pro ně neexistuje),
+remote CI. Změny LSL nejsou v repozitáři LSL commitnuté. Záznamy:
+`validation/release-0.1.2/`.
+
 # Release 0.1.1 — finální binárka
 
 `luxir --version`: `LuxIR 0.1.1 (IR 1; runtime ABI none)`.
