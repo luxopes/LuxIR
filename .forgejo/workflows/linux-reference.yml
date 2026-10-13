@@ -11,6 +11,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-venv clang qemu-user gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu
+      - name: Install corrected RISC-V signal emulation
+        run: |
+          curl -fL --retry 3 https://deb.debian.org/debian/pool/main/q/qemu/qemu-user_10.0.13+ds-0+deb13u1_amd64.deb -o "$RUNNER_TEMP/qemu.deb"
+          echo "ca6ede739327a20ae5a3498230c8a3a9a072c586e131bc6bcc1201eb1725e336  $RUNNER_TEMP/qemu.deb" | sha256sum -c -
+          dpkg-deb -x "$RUNNER_TEMP/qemu.deb" "$RUNNER_TEMP/qemu-fixed"
+          echo "$RUNNER_TEMP/qemu-fixed/usr/bin" >> "$GITHUB_PATH"
       - name: Regenerate complete LSL source and build C reference
         run: |
           python3 -m venv .venv
@@ -38,6 +44,7 @@ jobs:
           python3 tests/runtime/run_managed.py --backend src/luxir
           python3 tests/runtime/run_collections.py --backend src/luxir
           python3 tests/runtime/run_collections.py --inline --backend src/luxir
+          python3 tests/runtime/run_process.py --backend src/luxir
           python3 tests/runtime/run_extended.py --backend src/luxir
           python3 tests/runtime/run_float64.py --backend src/luxir
           python3 tests/runtime/float64.py --backend src/luxir
@@ -68,6 +75,7 @@ jobs:
             python3 tests/runtime/run_arena.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_managed.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_collections.py --inline --target "$target" --backend src/luxir
+            python3 tests/runtime/run_process.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_extended.py --inline --target "$target" --backend src/luxir
             python3 tests/runtime/run_float64.py --target "$target" --backend src/luxir
             python3 tests/numeric.py --target "$target" --backend src/luxir

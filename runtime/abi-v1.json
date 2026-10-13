@@ -23,6 +23,7 @@
     "runtime/memory.h",
     "runtime/numeric.h",
     "runtime/os.h",
+    "runtime/process.h",
     "runtime/relocate.h",
     "runtime/signal.h",
     "runtime/startup.h",
@@ -1403,6 +1404,32 @@
       ]
     },
     {
+      "name": "luxrt_os_dup_flags",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "newfd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
       "name": "luxrt_os_exec",
       "return_ir_type": "Int64",
       "parameters": [
@@ -1445,11 +1472,60 @@
       ]
     },
     {
+      "name": "luxrt_os_fcntl",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "command",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "argument",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
       "name": "luxrt_os_fork",
       "return_ir_type": "Int64",
       "parameters": [],
       "targets": [
-        "amd64_sysv"
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_fstatfs",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
       ]
     },
     {
@@ -2363,6 +2439,78 @@
           "name": "output",
           "ir_type": "Ptr",
           "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_process_spawn",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "argv",
+          "ir_type": "Ptr",
+          "c_type": "const char * const *"
+        },
+        {
+          "name": "envp",
+          "ir_type": "Ptr",
+          "c_type": "const char * const *"
+        },
+        {
+          "name": "input_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "error_fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "pid",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_process_wait",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "pid",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "raw_status",
+          "ir_type": "Ptr",
+          "c_type": "uint32_t *"
+        },
+        {
+          "name": "exit_code",
+          "ir_type": "Ptr",
+          "c_type": "int32_t *"
         }
       ],
       "targets": [

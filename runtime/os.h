@@ -53,5 +53,9 @@ int64_t luxrt_os_getsockopt(int64_t fd,int64_t level,int64_t option,void * value
 int64_t luxrt_os_poll(void * fds,uint64_t count,void * timeout);
 int64_t luxrt_os_ioctl(int64_t fd,uint64_t request,void * argument);
 int64_t luxrt_os_futex(void * address,int64_t operation,int64_t value,void * timeout,void * address2,int64_t value3);
-int64_t luxrt_os_fork(void); /* x86_64 only; single-threaded caller */
+int64_t luxrt_os_fork(void); /* single-threaded caller; clone(SIGCHLD) on generic ABIs */
+int64_t luxrt_os_dup_flags(int64_t fd,int64_t newfd,int64_t flags);
+/* Linux LP64 statfs; caller reserves >=128 bytes (f_type is the first word). */
+int64_t luxrt_os_fstatfs(int64_t fd,void *buffer);
+int64_t luxrt_os_fcntl(int64_t fd,int64_t command,int64_t argument);
 #endif

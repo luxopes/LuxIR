@@ -1,0 +1,32 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/process.c",
+      "source_sha256": "27889e48b73762c8428208804280bf37dfd9e687e9bd90cd4a071ef17d59860a",
+      "ir_sha256": "2fb5f0233c53054597f60543ec4b7cd1eb27be0495f265ca4c0bb90cf3dc93d8"
+    },
+    {
+      "source": "runtime/linux-x86_64/os.c",
+      "source_sha256": "6791c1c5d5b02a4a1fdc6533972620774dae2b4a72be81e1bf195b867ca00094",
+      "ir_sha256": "11fc5029e41f31512612be8471ba81c4ca3f07e1e0e5fbeb1db11ce7ed668dc4"
+    },
+    {
+      "source": "runtime/linux-arm64/os.c",
+      "source_sha256": "9c64b9f9f8bcdc3b7586590ddabd3d187dcd4f3753d2b18ab18b931226eb67c3",
+      "ir_sha256": "cfe7070011fab21cd161ec23ff36f80be8266b3f33ba17a6bf3cf3d47e119233"
+    },
+    {
+      "source": "runtime/linux-rv64/os.c",
+      "source_sha256": "9c64b9f9f8bcdc3b7586590ddabd3d187dcd4f3753d2b18ab18b931226eb67c3",
+      "ir_sha256": "cfe7070011fab21cd161ec23ff36f80be8266b3f33ba17a6bf3cf3d47e119233"
+    },
+    {
+      "source": "tests/runtime/process_cases.c",
+      "source_sha256": "219c1c12e8527f0ea6b90083587556fed3229d9a9a6c31a1b4b0ac0711b60513",
+      "ir_sha256": "320f848c4fd630e2d1e259f9f550b95de7cdfa7fb4b9d80a5fabf819a80dc74f"
+    }
+  ]
+}

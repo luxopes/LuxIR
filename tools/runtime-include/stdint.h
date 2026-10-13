@@ -9,6 +9,9 @@ typedef unsigned int uint32_t;
 typedef long int64_t;
 typedef unsigned long uint64_t;
 typedef unsigned long uintptr_t;
+#define UINT32_MAX 4294967295U
+#define INT32_MAX 2147483647
+#define INT32_MIN (-2147483647-1)
 #define UINT64_C(x) x##UL
 #define INT64_C(x) x##L
 #define UINT64_MAX 18446744073709551615UL

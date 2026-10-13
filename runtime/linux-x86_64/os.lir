@@ -1,233 +1,1006 @@
 ir_version "1"
 runtime_abi "none"
-# Raw Linux x86_64 wrappers; the architecture trap is syscall.S.
-export function luxrt_os_map(Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(9), Int64(0), size, Int64(3), Int64(34), Int64(-1), Int64(0))
-    return result
-end
-export function luxrt_os_unmap(Ptr(address), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(11), address, size, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_protect(Ptr(address), Int64(size), Int64(protection)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(10), address, size, protection, Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_open(Ptr(path), Int64(flags), Int64(mode)) -> Int64:
-    Int64(cloexec) = or(flags, 524288)
-    Int64(result) = call luxrt_syscall6(Int64(257), Int64(-100), path, cloexec, mode, Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_read(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(0), fd, buffer, size, Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_write(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(1), fd, buffer, size, Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_close(Int64(fd)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(3), fd, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_seek(Int64(fd), Int64(offset), Int64(whence)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(8), fd, offset, whence, Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_random(Ptr(buffer), Int64(size), Int64(flags)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(318), buffer, size, flags, Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_clock(Int64(clock_id), Ptr(timespec)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(228), clock_id, timespec, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
-end
-export function luxrt_os_sleep(Ptr(timespec), Ptr(remaining)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(35), timespec, remaining, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_map(Int64(.1)) -> Int64:
+start.1:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.2:
+    Int64(.3) = sext32(9)
+    Int64(.4) = sext32(0)
+    Int64(.5) = load(.2)
+    Int64(.6) = sext32(3)
+    Int64(.7) = sext32(34)
+    Int32(.8) = neg(1)
+    Int64(.9) = sext32(.8)
+    Int64(.10) = sext32(0)
+    Int64(.11) = call extern(luxrt_syscall6)(Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7), Int64(.9), Int64(.10))
+    return .11
 end
 
-export function luxrt_os_stat(Ptr(path), Int64(flags), Int64(mask), Ptr(result)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(332), Int64(-100), path, flags, mask, result, Int64(0))
-    return result
+export function luxrt_os_unmap(Int64(.1), Int64(.3)) -> Int64:
+start.3:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.4:
+    Int64(.5) = sext32(11)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
 end
 
-export function luxrt_os_list(Int64(fd), Ptr(buffer), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(217), fd, buffer, size, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_protect(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.5:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.6:
+    Int64(.7) = sext32(10)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_mkdir(Ptr(path), Int64(mode)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(258), Int64(-100), path, mode, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_open(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.7:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.8:
+    Int64(.7) = sext32(257)
+    Int32(.8) = neg(100)
+    Int64(.9) = sext32(.8)
+    Int64(.10) = load(.2)
+    Int64(.11) = load(.4)
+    Int64(.12) = sext32(524288)
+    Int64(.13) = or(.11, .12)
+    Int64(.14) = load(.6)
+    Int64(.15) = sext32(0)
+    Int64(.16) = sext32(0)
+    Int64(.17) = call extern(luxrt_syscall6)(Int64(.7), Int64(.9), Int64(.10), Int64(.13), Int64(.14), Int64(.15), Int64(.16))
+    return .17
 end
 
-export function luxrt_os_unlink(Ptr(path), Int64(flags)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(263), Int64(-100), path, flags, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_read(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.9:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.10:
+    Int64(.7) = sext32(0)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_rename(Ptr(oldpath), Ptr(newpath)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(264), Int64(-100), oldpath, Int64(-100), newpath, Int64(0), Int64(0))
-    return result
+export function luxrt_os_write(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.11:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.12:
+    Int64(.7) = sext32(1)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_chmod(Int64(fd), Int64(mode)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(91), fd, mode, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_close(Int64(.1)) -> Int64:
+start.13:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.14:
+    Int64(.3) = sext32(3)
+    Int64(.4) = load(.2)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = call extern(luxrt_syscall6)(Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9))
+    return .10
 end
 
-export function luxrt_os_symlink(Ptr(target), Ptr(path)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(266), target, Int64(-100), path, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_seek(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.15:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.16:
+    Int64(.7) = sext32(8)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_readlink(Ptr(path), Ptr(buffer), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(267), Int64(-100), path, buffer, size, Int64(0), Int64(0))
-    return result
+export function luxrt_os_random(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.17:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.18:
+    Int64(.7) = sext32(318)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_cwd(Ptr(buffer), Int64(size)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(79), buffer, size, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_clock(Int64(.1), Int64(.3)) -> Int64:
+start.19:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.20:
+    Int64(.5) = sext32(228)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
 end
 
-export function luxrt_os_chdir(Ptr(path)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(80), path, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_sleep(Int64(.1), Int64(.3)) -> Int64:
+start.21:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.22:
+    Int64(.5) = sext32(35)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
 end
 
-export function luxrt_os_pipe(Ptr(fds), Int64(flags)) -> Int64:
-    Int64(cloexec) = or(flags, 524288)
-    Int64(result) = call luxrt_syscall6(Int64(293), fds, cloexec, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_stat(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int64:
+start.23:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+body.24:
+    Int64(.9) = sext32(332)
+    Int32(.10) = neg(100)
+    Int64(.11) = sext32(.10)
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.6)
+    Int64(.15) = load(.8)
+    Int64(.16) = sext32(0)
+    Int64(.17) = call extern(luxrt_syscall6)(Int64(.9), Int64(.11), Int64(.12), Int64(.13), Int64(.14), Int64(.15), Int64(.16))
+    return .17
 end
 
-export function luxrt_os_dup(Int64(fd), Int64(newfd)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(292), fd, newfd, Int64(524288), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_list(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.25:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.26:
+    Int64(.7) = sext32(217)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_wait(Int64(pid), Ptr(status), Int64(options)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(61), pid, status, options, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_mkdir(Int64(.1), Int64(.3)) -> Int64:
+start.27:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.28:
+    Int64(.5) = sext32(258)
+    Int32(.6) = neg(100)
+    Int64(.7) = sext32(.6)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = call extern(luxrt_syscall6)(Int64(.5), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12))
+    return .13
 end
 
-export function luxrt_os_kill(Int64(pid), Int64(signal)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(62), pid, signal, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_unlink(Int64(.1), Int64(.3)) -> Int64:
+start.29:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.30:
+    Int64(.5) = sext32(263)
+    Int32(.6) = neg(100)
+    Int64(.7) = sext32(.6)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = call extern(luxrt_syscall6)(Int64(.5), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12))
+    return .13
 end
 
-export function luxrt_os_exec(Ptr(path), Ptr(argv), Ptr(envp)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(59), path, argv, envp, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_rename(Int64(.1), Int64(.3)) -> Int64:
+start.31:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.32:
+    Int64(.5) = sext32(264)
+    Int32(.6) = neg(100)
+    Int64(.7) = sext32(.6)
+    Int64(.8) = load(.2)
+    Int32(.9) = neg(100)
+    Int64(.10) = sext32(.9)
+    Int64(.11) = load(.4)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.5), Int64(.7), Int64(.8), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
+end
+
+export function luxrt_os_chmod(Int64(.1), Int64(.3)) -> Int64:
+start.33:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.34:
+    Int64(.5) = sext32(91)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+
+export function luxrt_os_symlink(Int64(.1), Int64(.3)) -> Int64:
+start.35:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.36:
+    Int64(.5) = sext32(266)
+    Int64(.6) = load(.2)
+    Int32(.7) = neg(100)
+    Int64(.8) = sext32(.7)
+    Int64(.9) = load(.4)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12))
+    return .13
+end
+
+export function luxrt_os_readlink(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.37:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.38:
+    Int64(.7) = sext32(267)
+    Int32(.8) = neg(100)
+    Int64(.9) = sext32(.8)
+    Int64(.10) = load(.2)
+    Int64(.11) = load(.4)
+    Int64(.12) = load(.6)
+    Int64(.13) = sext32(0)
+    Int64(.14) = sext32(0)
+    Int64(.15) = call extern(luxrt_syscall6)(Int64(.7), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13), Int64(.14))
+    return .15
+end
+
+export function luxrt_os_cwd(Int64(.1), Int64(.3)) -> Int64:
+start.39:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.40:
+    Int64(.5) = sext32(79)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+
+export function luxrt_os_chdir(Int64(.1)) -> Int64:
+start.41:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.42:
+    Int64(.3) = sext32(80)
+    Int64(.4) = load(.2)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = call extern(luxrt_syscall6)(Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9))
+    return .10
+end
+
+export function luxrt_os_pipe(Int64(.1), Int64(.3)) -> Int64:
+start.43:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.5) = alloc8(8)
+body.44:
+    Int64(.6) = load(.4)
+    Int64(.7) = sext32(524288)
+    Int64(.8) = or(.6, .7)
+    store(.8, .5)
+    Int64(.9) = sext32(293)
+    Int64(.10) = load(.2)
+    Int64(.11) = load(.5)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = sext32(0)
+    Int64(.15) = sext32(0)
+    Int64(.16) = call extern(luxrt_syscall6)(Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13), Int64(.14), Int64(.15))
+    return .16
+end
+
+export function luxrt_os_dup(Int64(.1), Int64(.3)) -> Int64:
+start.45:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.46:
+    Int64(.5) = sext32(292)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(524288)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+
+export function luxrt_os_wait(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.47:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.48:
+    Int64(.7) = sext32(61)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
+end
+
+export function luxrt_os_kill(Int64(.1), Int64(.3)) -> Int64:
+start.49:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.50:
+    Int64(.5) = sext32(62)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+
+export function luxrt_os_exec(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.51:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.52:
+    Int64(.7) = sext32(59)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
 export function luxrt_os_pid() -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(39), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+start.53:
+body.54:
+    Int64(.1) = sext32(39)
+    Int64(.2) = sext32(0)
+    Int64(.3) = sext32(0)
+    Int64(.4) = sext32(0)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = call extern(luxrt_syscall6)(Int64(.1), Int64(.2), Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7))
+    return .8
 end
 
 export function luxrt_os_ppid() -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(110), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+start.55:
+body.56:
+    Int64(.1) = sext32(110)
+    Int64(.2) = sext32(0)
+    Int64(.3) = sext32(0)
+    Int64(.4) = sext32(0)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = call extern(luxrt_syscall6)(Int64(.1), Int64(.2), Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7))
+    return .8
 end
 
-export function luxrt_os_close_range(Int64(first), Int64(last), Int64(flags)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(436), first, last, flags, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_close_range(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.57:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.58:
+    Int64(.7) = sext32(436)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_exit(Int64(status)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(231), status, Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_exit(Int64(.1)) -> Int64:
+start.59:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+body.60:
+    Int64(.3) = sext32(231)
+    Int64(.4) = load(.2)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = call extern(luxrt_syscall6)(Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9))
+    return .10
 end
 
-export function luxrt_os_socket(Int64(domain), Int64(type), Int64(protocol)) -> Int64:
-    Int64(cloexec) = or(type, 524288)
-    Int64(result) = call luxrt_syscall6(Int64(41), domain, cloexec, protocol, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_socket(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.61:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.7) = alloc8(8)
+body.62:
+    Int64(.8) = load(.4)
+    Int64(.9) = sext32(524288)
+    Int64(.10) = or(.8, .9)
+    store(.10, .7)
+    Int64(.11) = sext32(41)
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.7)
+    Int64(.14) = load(.6)
+    Int64(.15) = sext32(0)
+    Int64(.16) = sext32(0)
+    Int64(.17) = sext32(0)
+    Int64(.18) = call extern(luxrt_syscall6)(Int64(.11), Int64(.12), Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17))
+    return .18
 end
 
-export function luxrt_os_socketpair(Int64(domain), Int64(type), Int64(protocol), Ptr(fds)) -> Int64:
-    Int64(cloexec) = or(type, 524288)
-    Int64(result) = call luxrt_syscall6(Int64(53), domain, cloexec, protocol, fds, Int64(0), Int64(0))
-    return result
+export function luxrt_os_socketpair(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int64:
+start.63:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+body.64:
+    Int64(.10) = load(.4)
+    Int64(.11) = sext32(524288)
+    Int64(.12) = or(.10, .11)
+    store(.12, .9)
+    Int64(.13) = sext32(53)
+    Int64(.14) = load(.2)
+    Int64(.15) = load(.9)
+    Int64(.16) = load(.6)
+    Int64(.17) = load(.8)
+    Int64(.18) = sext32(0)
+    Int64(.19) = sext32(0)
+    Int64(.20) = call extern(luxrt_syscall6)(Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17), Int64(.18), Int64(.19))
+    return .20
 end
 
-export function luxrt_os_bind(Int64(fd), Ptr(address), Int64(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(49), fd, address, length, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_bind(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.65:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.66:
+    Int64(.7) = sext32(49)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_listen(Int64(fd), Int64(backlog)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(50), fd, backlog, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_listen(Int64(.1), Int64(.3)) -> Int64:
+start.67:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.68:
+    Int64(.5) = sext32(50)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
 end
 
-export function luxrt_os_accept(Int64(fd), Ptr(address), Ptr(length), Int64(flags)) -> Int64:
-    Int64(cloexec) = or(flags, 524288)
-    Int64(result) = call luxrt_syscall6(Int64(288), fd, address, length, cloexec, Int64(0), Int64(0))
-    return result
+export function luxrt_os_accept(Int64(.1), Int64(.3), Int64(.5), Int64(.7)) -> Int64:
+start.69:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.9) = alloc8(8)
+body.70:
+    Int64(.10) = load(.8)
+    Int64(.11) = sext32(524288)
+    Int64(.12) = or(.10, .11)
+    store(.12, .9)
+    Int64(.13) = sext32(288)
+    Int64(.14) = load(.2)
+    Int64(.15) = load(.4)
+    Int64(.16) = load(.6)
+    Int64(.17) = load(.9)
+    Int64(.18) = sext32(0)
+    Int64(.19) = sext32(0)
+    Int64(.20) = call extern(luxrt_syscall6)(Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17), Int64(.18), Int64(.19))
+    return .20
 end
 
-export function luxrt_os_connect(Int64(fd), Ptr(address), Int64(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(42), fd, address, length, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_connect(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.71:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.72:
+    Int64(.7) = sext32(42)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_send(Int64(fd), Ptr(buffer), Int64(size), Int64(flags), Ptr(address), Int64(length)) -> Int64:
-    Int64(nosignal) = or(flags, 16384)
-    Int64(result) = call luxrt_syscall6(Int64(44), fd, buffer, size, nosignal, address, length)
-    return result
+export function luxrt_os_send(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9), Int64(.11)) -> Int64:
+start.73:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.12) = alloc8(8)
+    store(.11, .12)
+    Int64(.13) = alloc8(8)
+body.74:
+    Int64(.14) = load(.8)
+    Int64(.15) = sext32(16384)
+    Int64(.16) = or(.14, .15)
+    store(.16, .13)
+    Int64(.17) = sext32(44)
+    Int64(.18) = load(.2)
+    Int64(.19) = load(.4)
+    Int64(.20) = load(.6)
+    Int64(.21) = load(.13)
+    Int64(.22) = load(.10)
+    Int64(.23) = load(.12)
+    Int64(.24) = call extern(luxrt_syscall6)(Int64(.17), Int64(.18), Int64(.19), Int64(.20), Int64(.21), Int64(.22), Int64(.23))
+    return .24
 end
 
-export function luxrt_os_recv(Int64(fd), Ptr(buffer), Int64(size), Int64(flags), Ptr(address), Ptr(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(45), fd, buffer, size, flags, address, length)
-    return result
+export function luxrt_os_recv(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9), Int64(.11)) -> Int64:
+start.75:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.12) = alloc8(8)
+    store(.11, .12)
+body.76:
+    Int64(.13) = sext32(45)
+    Int64(.14) = load(.2)
+    Int64(.15) = load(.4)
+    Int64(.16) = load(.6)
+    Int64(.17) = load(.8)
+    Int64(.18) = load(.10)
+    Int64(.19) = load(.12)
+    Int64(.20) = call extern(luxrt_syscall6)(Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17), Int64(.18), Int64(.19))
+    return .20
 end
 
-export function luxrt_os_shutdown(Int64(fd), Int64(how)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(48), fd, how, Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_shutdown(Int64(.1), Int64(.3)) -> Int64:
+start.77:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.78:
+    Int64(.5) = sext32(48)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
 end
 
-export function luxrt_os_sockname(Int64(fd), Ptr(address), Ptr(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(51), fd, address, length, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_sockname(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.79:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.80:
+    Int64(.7) = sext32(51)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_peername(Int64(fd), Ptr(address), Ptr(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(52), fd, address, length, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_peername(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.81:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.82:
+    Int64(.7) = sext32(52)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_setsockopt(Int64(fd), Int64(level), Int64(option), Ptr(value), Int64(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(54), fd, level, option, value, length, Int64(0))
-    return result
+export function luxrt_os_setsockopt(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9)) -> Int64:
+start.83:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+body.84:
+    Int64(.11) = sext32(54)
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.6)
+    Int64(.15) = load(.8)
+    Int64(.16) = load(.10)
+    Int64(.17) = sext32(0)
+    Int64(.18) = call extern(luxrt_syscall6)(Int64(.11), Int64(.12), Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17))
+    return .18
 end
 
-export function luxrt_os_getsockopt(Int64(fd), Int64(level), Int64(option), Ptr(value), Ptr(length)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(55), fd, level, option, value, length, Int64(0))
-    return result
+export function luxrt_os_getsockopt(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9)) -> Int64:
+start.85:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+body.86:
+    Int64(.11) = sext32(55)
+    Int64(.12) = load(.2)
+    Int64(.13) = load(.4)
+    Int64(.14) = load(.6)
+    Int64(.15) = load(.8)
+    Int64(.16) = load(.10)
+    Int64(.17) = sext32(0)
+    Int64(.18) = call extern(luxrt_syscall6)(Int64(.11), Int64(.12), Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17))
+    return .18
 end
 
-export function luxrt_os_poll(Ptr(fds), Int64(count), Ptr(timeout)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(271), fds, count, timeout, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_poll(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.87:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.88:
+    Int64(.7) = sext32(271)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_ioctl(Int64(fd), Int64(request), Ptr(argument)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(16), fd, request, argument, Int64(0), Int64(0), Int64(0))
-    return result
+export function luxrt_os_ioctl(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.89:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.90:
+    Int64(.7) = sext32(16)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
 end
 
-export function luxrt_os_futex(Ptr(address), Int64(operation), Int64(value), Ptr(timeout), Ptr(address2), Int64(value3)) -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(202), address, operation, value, timeout, address2, value3)
-    return result
+export function luxrt_os_futex(Int64(.1), Int64(.3), Int64(.5), Int64(.7), Int64(.9), Int64(.11)) -> Int64:
+start.91:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+    Int64(.8) = alloc8(8)
+    store(.7, .8)
+    Int64(.10) = alloc8(8)
+    store(.9, .10)
+    Int64(.12) = alloc8(8)
+    store(.11, .12)
+body.92:
+    Int64(.13) = sext32(202)
+    Int64(.14) = load(.2)
+    Int64(.15) = load(.4)
+    Int64(.16) = load(.6)
+    Int64(.17) = load(.8)
+    Int64(.18) = load(.10)
+    Int64(.19) = load(.12)
+    Int64(.20) = call extern(luxrt_syscall6)(Int64(.13), Int64(.14), Int64(.15), Int64(.16), Int64(.17), Int64(.18), Int64(.19))
+    return .20
 end
 
 export function luxrt_os_fork() -> Int64:
-    Int64(result) = call luxrt_syscall6(Int64(57), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0), Int64(0))
-    return result
+start.93:
+body.94:
+    Int64(.1) = sext32(57)
+    Int64(.2) = sext32(0)
+    Int64(.3) = sext32(0)
+    Int64(.4) = sext32(0)
+    Int64(.5) = sext32(0)
+    Int64(.6) = sext32(0)
+    Int64(.7) = sext32(0)
+    Int64(.8) = call extern(luxrt_syscall6)(Int64(.1), Int64(.2), Int64(.3), Int64(.4), Int64(.5), Int64(.6), Int64(.7))
+    return .8
 end
+
+export function luxrt_os_dup_flags(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.95:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.96:
+    Int64(.7) = sext32(292)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
+end
+
+export function luxrt_os_fcntl(Int64(.1), Int64(.3), Int64(.5)) -> Int64:
+start.97:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+    Int64(.6) = alloc8(8)
+    store(.5, .6)
+body.98:
+    Int64(.7) = sext32(72)
+    Int64(.8) = load(.2)
+    Int64(.9) = load(.4)
+    Int64(.10) = load(.6)
+    Int64(.11) = sext32(0)
+    Int64(.12) = sext32(0)
+    Int64(.13) = sext32(0)
+    Int64(.14) = call extern(luxrt_syscall6)(Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11), Int64(.12), Int64(.13))
+    return .14
+end
+
+export function luxrt_os_fstatfs(Int64(.1), Int64(.3)) -> Int64:
+start.99:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.100:
+    Int64(.5) = sext32(138)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+

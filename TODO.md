@@ -245,6 +245,11 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   rename, unlink, mkdir, chmod, symlink, cesta k programu.
 - [ ] Procesy: spawn s argv, env a pipes; wait, exit, kill; zavírání
   zděděných deskriptorů.
+  Linux64: implementováno `luxrt_process_spawn/wait`, explicitní argv/env,
+  přesměrování stdio bez změny rodičovských FD, CLOEXEC error handshake,
+  close_range + ověřený procfs fallback, obnova masky/reset caught handlers,
+  úklid selhaného exec a dekódování exit/signal status. Volající je zatím
+  jednovláknový. Zachytávání proudů s timeoutem a ostatní OS zbývají.
 - [ ] Vlákna: spawn a join, čekání na adrese (futex / WaitOnAddress /
   ulock), TLS.
 - [ ] Čas, spánek, OS náhoda, proměnné prostředí, argumenty, pracovní adresář.

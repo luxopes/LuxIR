@@ -123,3 +123,26 @@ povolená; invalidation/version tracking zatím není implementovaný.
 Tato sada není celá standardní knihovna: Tuple, komplexní slice/mutace,
 unicode case data, typové coercions a další funkce z požadavků prvního
 frontendu zůstávají otevřené.
+
+### Linux process handoff
+
+`process.h` exports `luxrt_process_spawn` and `luxrt_process_wait` on all three
+Linux64 targets. Spawn takes an explicit executable path, NUL-terminated argv
+and envp, three borrowed stdio descriptors (or -1 to inherit), and a pid output.
+NULL envp selects an empty environment; no PATH search or shell expansion occurs.
+A single-threaded caller is required. Inherited stdio retains closed/CLOEXEC
+state; explicit redirection clears child CLOEXEC. Parent descriptor flags stay
+unchanged. Child setup blocks signals, preserves ignored handlers and the caller
+mask, resets caught handlers, and closes every inherited descriptor above stdio.
+The close_range fallback checks procfs identity before enumerating descriptors.
+An internal CLOEXEC pipe reports setup/exec errors; failed children are reaped
+and pid output is unchanged. Successful exec handoff is distinct from successful
+program exit. Wait returns the raw Linux status plus exit code or 128+signal.
+These calls do not yet supply concurrent buffered capture or a deadline.
+
+`tests/runtime/run_process.py` exercises C and emitted runtime IR, including
+779 checks, forced procfs fallback, substituted filesystem rejection, closed stdio, explicit
+environment, hundreds of inherited FDs, caught/ignored signals and failed exec
+cleanup. RISC-V signal tests require QEMU with upstream fix
+513823e7521a09ed7ad1e32e6454bac3b2cbf52d (QEMU 8.2.2 has an incorrect sigaction
+layout that overwrites the caller's adjacent storage).

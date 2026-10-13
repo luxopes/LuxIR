@@ -55,7 +55,7 @@ def main():
     for p in a.inputs:
         if not p.is_file():ap.error('input missing: '+str(p))
     arch,prefix=TARGETS[a.target];platform=ROOT/('runtime/linux-'+arch)
-    sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate','arena','float64','abi']]
+    sources=[ROOT/('runtime/'+name+'.lir') for name in ['memory','integer','checked','startup','io','tls','relocate','arena','float64','abi','process']]
     sources+=[platform/(name+'.lir') for name in ['os','thread','signal','tls-native']]
     if a.managed or any(re.search(r'^\s*runtime_abi\s+"1"(?:\s|$)', p.read_text(), re.M) for p in a.inputs):
         sources += [ROOT/('runtime/'+name+'.lir') for name in ['managed','collections','map','numeric','tuple']]

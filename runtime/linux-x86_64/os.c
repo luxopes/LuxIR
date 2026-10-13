@@ -86,3 +86,7 @@ int64_t luxrt_os_ioctl(int64_t fd,uint64_t request,void * argument){return luxrt
 int64_t luxrt_os_futex(void * address,int64_t operation,int64_t value,void * timeout,void * address2,int64_t value3){return luxrt_syscall6(202,P(address),operation,value,P(timeout),P(address2),value3);}
 
 int64_t luxrt_os_fork(void){return luxrt_syscall6(57,0,0,0,0,0,0);}
+
+int64_t luxrt_os_dup_flags(int64_t fd,int64_t newfd,int64_t flags){return luxrt_syscall6(292,fd,newfd,flags,0,0,0);}
+int64_t luxrt_os_fcntl(int64_t fd,int64_t command,int64_t argument){return luxrt_syscall6(72,fd,command,argument,0,0,0);}
+int64_t luxrt_os_fstatfs(int64_t fd,void *buffer){return luxrt_syscall6(138,fd,P(buffer),0,0,0,0);}
