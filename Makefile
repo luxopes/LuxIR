@@ -32,6 +32,7 @@ build/luxir: lsl/luxir.lsl lsl/luxir_memory.lsl lsl/luxir_stdio.lsl \
 	chmod +x build/luxir
 
 check: c native
+	$(PYTHON) tests/inline.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/atomic_ir.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/numeric.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/versioning.py --backend src/luxir --backend build/luxir

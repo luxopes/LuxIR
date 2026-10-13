@@ -84,8 +84,11 @@ Výkonové (náhrada existuje, ale je pomalejší):
 - [x] **clz, ctz, popcount** jako instrukce: vestavěné `popcount`,
   `trailing_zeros`, převody Float. Zero výsledky definované; baseline ISA
   nevyžaduje POPCNT/Zbb. C/LSL shoda, 1 110 145 kontrol na každý Linux cíl.
-- [ ] **Inlinování** malých funkcí (už v sekci Optimalizace): runtime volá
-  drobné pomocné funkce v horkých smyčkách (hash, porovnání, kontrola typu).
+- [x] Omezené inlinování malých scalar leaf funkcí: volitelné `-i`,
+  definice před voláním ve stejném vstupu, jeden blok, nejvýše 8 operací
+  a 6 parametrů. Lokální vazbu symbolů musí garantovat volající; default off.
+  120 000 kontrol na variantu, šest assemblerů, runtime na třech Linux cílech.
+  Rozšíření na více bloků a interprocedurální analýzu zůstává otevřené.
 
 Windows a macOS (navíc):
 - [ ] OS vrstva luxrt pro Win32 a libSystem, TLS na Windows (dnes odmítnuto),
@@ -302,9 +305,10 @@ zastávek a `IntArray` místo slovníků: 1,48 s. Cíl: řetězcová verze nejv�
 
 ## Optimalizace (převzít z frontendu a doplnit)
 
-- [ ] Inlinování malých funkcí (listové funkce, tělo jeden výraz). Benchmark
-  LSL `function_calls` je v 0.9.2 omezen latencí výpočtu; zbývá ~1 takt volání
-  na iteraci.
+- [ ] Rozšířit bounded `-i` na více bloků, forward/cross-module calls
+  a interprocedurální specializaci. Jednoblokové scalar leaf funkce jsou
+  implementované výše; end-to-end LSL `function_calls` benchmark a integrace
+  volby do cizího frontend driveru zůstává otevřená.
 - [ ] Smyčky: kanonická indukční proměnná a zjednodušení podmínky konce. Má to
   být obecná náhrada podmínky `rang` s literálovým krokem, kterou dnes dělá
   `qbe_emit` v LSL. Dále LICM, strength reduction a odstranění kontrol mezí.

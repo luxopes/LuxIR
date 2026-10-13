@@ -1,0 +1,43 @@
+{
+  "results": [
+    {
+      "backend": "src/luxir",
+      "inline": false,
+      "iterations": 2000000,
+      "trials": 9,
+      "median_ns_per_iteration": 1.8972605,
+      "checksum": 12676614189907942016
+    },
+    {
+      "backend": "src/luxir",
+      "inline": true,
+      "iterations": 2000000,
+      "trials": 9,
+      "median_ns_per_iteration": 1.4127125,
+      "checksum": 12676614189907942016
+    },
+    {
+      "backend": "build/luxir",
+      "inline": false,
+      "iterations": 2000000,
+      "trials": 9,
+      "median_ns_per_iteration": 1.9439005,
+      "checksum": 12676614189907942016
+    },
+    {
+      "backend": "build/luxir",
+      "inline": true,
+      "iterations": 2000000,
+      "trials": 9,
+      "median_ns_per_iteration": 1.447174,
+      "checksum": 12676614189907942016
+    }
+  ],
+  "excludes": [
+    "Python loop",
+    "allocation",
+    "GC",
+    "I/O"
+  ],
+  "caveat": "scalar helper microbenchmark; not an end-to-end LSL workload"
+}

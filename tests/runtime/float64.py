@@ -50,18 +50,18 @@ def verify(lib,reps,inputs):
  return checks
 
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--backend',type=Path,action='append',required=True);ap.add_argument('--report',type=Path);a=ap.parse_args();reps,inputs=corpus();rows=[];assemblies={}
+ ap=argparse.ArgumentParser();ap.add_argument('--backend',type=Path,action='append',required=True);ap.add_argument('--report',type=Path);ap.add_argument('--inline',action='store_true');a=ap.parse_args();reps,inputs=corpus();rows=[];assemblies={}
  with tempfile.TemporaryDirectory(prefix='luxrt-float64-') as d:
   d=Path(d);common=[ROOT/'runtime/memory.c',ROOT/'runtime/integer.c'];variants=[('C reference',ROOT/'runtime/float64.c')]
   for i,b in enumerate(a.backend):
    for t in TARGETS:
-    asm=subprocess.check_output([str(b.resolve()),'-t',t,str(ROOT/'runtime/float64.lir')],timeout=30)
+    asm=subprocess.check_output([str(b.resolve())]+(['-i'] if a.inline else [])+['-t',t,str(ROOT/'runtime/float64.lir')],timeout=30)
     if t in assemblies:assert asm==assemblies[t]
     assemblies[t]=asm
     if t=='amd64_sysv':p=d/('float'+str(i)+'.s');p.write_bytes(asm);variants.append((str(b),p))
   for i,(name,source) in enumerate(variants):
    lib=d/('lib'+str(i)+'.so');subprocess.run(['cc','-O2','-std=c11','-shared','-fPIC','-I'+str(ROOT/'runtime/vendor'),str(source),*map(str,common),'-o',str(lib)],check=True);checks=verify(ctypes.CDLL(str(lib)),reps,inputs);exe=d/('rounding'+str(i));subprocess.run(['cc','-O2',str(ROOT/'tests/runtime/float64_rounding.c'),str(source),*map(str,common),'-I'+str(ROOT/'runtime/vendor'),'-lm','-o',str(exe)],check=True);rounding=subprocess.check_output([str(exe)],timeout=30).decode().strip();rows.append({'implementation':name,'checks':checks,'rounding':rounding});print(name,checks,'checks passed;',rounding,flush=True)
- report={'target':'amd64_sysv','results':rows,'assembly_parity_targets':TARGETS,'oracle':'Python repr/float + Fraction exact midpoint corpus','random_bit_patterns':20000,'long_inputs':600,'midpoint_neighbors':len(inputs)-5614,'huge_input_digits':100000,'libc_float_conversion':False}
+ report={'target':'amd64_sysv','inline':a.inline,'results':rows,'assembly_parity_targets':TARGETS,'oracle':'Python repr/float + Fraction exact midpoint corpus','random_bit_patterns':20000,'long_inputs':600,'midpoint_neighbors':len(inputs)-5614,'huge_input_digits':100000,'libc_float_conversion':False}
  if a.report:a.report.parent.mkdir(parents=True,exist_ok=True);a.report.write_text(json.dumps(report,indent=2)+'\n')
  print(json.dumps(report))
 if __name__=='__main__':main()

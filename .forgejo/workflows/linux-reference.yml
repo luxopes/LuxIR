@@ -18,6 +18,7 @@ jobs:
           make c lsl check-dominance check-bitsets PYTHON=.venv/bin/python
       - name: Host programs and protocol
         run: |
+          python3 tests/inline.py --backend src/luxir
           python3 tests/atomic_ir.py --backend src/luxir
           python3 tests/numeric.py --backend src/luxir
           python3 tests/versioning.py --backend src/luxir
@@ -32,8 +33,10 @@ jobs:
           python3 tests/runtime/run_arena.py --backend src/luxir
           python3 tests/runtime/run_managed.py --backend src/luxir
           python3 tests/runtime/run_collections.py --backend src/luxir
+          python3 tests/runtime/run_collections.py --inline --backend src/luxir
           python3 tests/runtime/run_float64.py --backend src/luxir
           python3 tests/runtime/float64.py --backend src/luxir
+          python3 tests/runtime/float64.py --inline --backend src/luxir
           python3 tests/runtime/run_os.py --backend src/luxir
           python3 tests/runtime/run_startup.py --backend src/luxir
           python3 tests/runtime/run_io.py --backend src/luxir
@@ -56,7 +59,7 @@ jobs:
             python3 tests/runtime/run_relocate.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_arena.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_managed.py --target "$target" --backend src/luxir
-            python3 tests/runtime/run_collections.py --target "$target" --backend src/luxir
+            python3 tests/runtime/run_collections.py --inline --target "$target" --backend src/luxir
             python3 tests/runtime/run_float64.py --target "$target" --backend src/luxir
             python3 tests/numeric.py --target "$target" --backend src/luxir
             python3 tests/runtime/run_tls.py --target "$target" --backend src/luxir

@@ -7,6 +7,7 @@
 Target T;
 int pic;
 int splitsections;
+static int inlinefunctions;
 
 char debug['Z'+1] = {
 	['P'] = 0, /* parsing */
@@ -64,6 +65,8 @@ func(Fn *fn)
 		fprintf(stderr, "\n> After parsing:\n");
 		printfn(fn, stderr);
 	}
+	if (inlinefunctions)
+		inlapply(fn);
 	T.abi0(fn);
 	fillcfg(fn);
 	filluse(fn);
@@ -88,6 +91,8 @@ func(Fn *fn)
 	gcm(fn);
 	filluse(fn);
 	ssacheck(fn);
+	if (inlinefunctions)
+		inlrecord(fn);
 	if (T.cansel) {
 		ifconvert(fn);
 		fillcfg(fn);
@@ -146,8 +151,11 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hspVd:o:t:")) != -1)
+	while ((c = getopt(ac, av, "hispVd:o:t:")) != -1)
 		switch (c) {
+		case 'i':
+			inlinefunctions = 1;
+			break;
 		case 's':
 			splitsections = 1;
 			break;
@@ -197,6 +205,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
+			fprintf(hf, "\t%-11s inline small preceding definitions (local binding)\n", "-i");
 			fprintf(hf, "\t%-11s separate ELF function/data/literal sections\n", "-s");
 			fprintf(hf, "\t%-11s generate for a target among:\n", "-t <target>");
 			fprintf(hf, "\t%-11s ", "");
@@ -226,7 +235,9 @@ main(int ac, char *av[])
 				exit(1);
 			}
 		}
+		inlreset();
 		parse(inf, f, dbgfile, data, func);
+		inlreset();
 		fclose(inf);
 	} while (++optind < ac);
 

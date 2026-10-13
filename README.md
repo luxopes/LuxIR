@@ -199,3 +199,20 @@ Linux amd64_sysv, arm64 a rv64; cross GNU binutils musejí být na PATH.
 Používá externí GNU as/ld a Python při sestavení. Hotová binárka je nepotřebuje.
 Nejde ještě o standardní managed runtime, libovolné libc/dlopen volání nebo
 vlastní assembler/linker. Testovaný příklad je `examples/build-demo.lir`.
+
+### Volitelné inlinování
+
+`luxir -i input.lir` může vložit těla již definovaných malých funkcí do
+volajícího. Použijte jen tehdy, když definice mají lokální vazbu: žádná
+dynamická interpozice ani nahrazení symbolu jinou knihovnou. Export samo
+o sobě není překážka. Bez `-i` zůstává původní překlad.
+
+Streaming cache platí pro jeden vstupní soubor, pojme 128 funkcí; tělo
+obsahuje nejvýše 8 operací, 6 scalar parametrů a jeden blok. Store,
+atomiky, další call, stack allocation, aggregate/env/variadic ABI a CFG
+se nevkládají. Celkové rozšíření jedné funkce je omezené na 1024 operací.
+Forward calls a volání mezi moduly zůstávají běžná volání.
+
+`tools/luxir_build.py --inline ...` zapne tuto optimalizaci pro raw static
+PIE, kde linker zajišťuje lokální vazbu definic. Nevytváří automatické
+GC stackmaps ani neřeší managed safepoints.

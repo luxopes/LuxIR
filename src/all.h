@@ -638,3 +638,8 @@ extern int splitsections;
 
 /* Fixed-register target lowering, preserving explicit SC memory barriers. */
 void atomicisel(Ins, Fn *, int [6]);
+
+/* inline.c: opt-in local-binding streaming inliner */
+void inlreset(void);
+void inlrecord(Fn *);
+void inlapply(Fn *);

@@ -327,3 +327,31 @@ Nejde o všechny 2^64 inputs/formální důkaz ani benchmark Float parseru
 proti předchozímu LSL release. Long route je přesné porovnání midpointů,
 ne Eisel-Lemire. Vendored Ryu 4c0618b pod Boost 1.0, notices zachovány
 v C i generated IR.
+
+## Bounded scalar inlining — 13. 10. 2026
+
+`-i` ověřeno v C i native LSL backendu: 120 000 kontrol na variantu
+s/bez inlinování, nezávislý unsigned arithmetic/double oracle, přepis
+call-result do původního parametru, nepřímé volání a load/store sequencing.
+Store/atomic/stack/env/varargs/recursive/forward calls zůstávají volání;
+cache se resetuje mezi vstupy. Ověřeny limity 128 cached functions a
+1024 added operations na caller. Shodný assembler a skutečné sestavení
+pro šest cílů (Clang 18.1.3); neznamená Windows/macOS execution.
+ASan/UBSan build samotného C backendu prošel stejným fixture včetně
+limitů; LeakSanitizer vypnut. Generováno 471/471 LSL funkcí, bootstrap
+65,61 s původním C LSL frontendem; nejde o self-host minute gate.
+
+S `--inline` prošlo 799 669 collection/GC kontrol, C sanitizery a raw
+static PIE execution na Linux x86-64, ARM64 a RV64 (QEMU pro poslední
+dva). C/LSL binárky shodné. Float64: znovu 86 321 + 24 fenv kontrol
+pro každou implementaci a šest-target assembly parity. Default překlad
+prošel 6 executable fixtures a 36 negative inputs na backend, protocol
+108 kontrol.
+
+Izolovaný scalar helper loop (2M iterací, medián 9 trials): C-emitted
+IR 1,897 → 1,413 ns/iteration, LSL-emitted 1,944 → 1,447; checksum
+12676614189907942016. Tyto emitované varianty jsou identické; rozdíly
+časů jsou šum běhu. U map lookupu měření není dost stabilní na závěr
+o zrychlení (viz raw report), nejde o celkový výkon programů LSL.
+Lokální vazbu definic musí garantovat uživatel `-i`; default off.
+Víceblokové, forward a cross-module inlining zůstává otevřené.

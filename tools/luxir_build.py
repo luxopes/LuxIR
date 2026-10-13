@@ -48,6 +48,7 @@ def main():
     ap.add_argument('--backend',type=Path,default=ROOT/'build/luxir')
     ap.add_argument('--entry',default='main');ap.add_argument('--keep-runtime',action='store_true',help='disable section garbage collection')
     ap.add_argument('--managed',action='store_true',help='link experimental single-owner managed core and collections (explicit roots)')
+    ap.add_argument('--inline',action='store_true',help='inline small locally bound definitions within each IR input')
     a=ap.parse_args()
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',a.entry):ap.error('entry must be a plain IR symbol')
     if not a.backend.is_file():ap.error('backend missing; build LuxIR or pass --backend')
@@ -64,7 +65,7 @@ def main():
         tmp=Path(tmp);adapter=tmp/'entry.lir';adapter.write_text(ADAPTER.replace('ENTRY',a.entry))
         objects=[]
         for n,source in enumerate(a.inputs+[adapter]+sources):
-            cmd=[str(a.backend.resolve()),'-t',a.target,'-s']+(['-p'] if a.target=='rv64' else [])+[str(source.resolve())]
+            cmd=[str(a.backend.resolve()),'-t',a.target,'-s']+(['-i'] if a.inline else [])+(['-p'] if a.target=='rv64' else [])+[str(source.resolve())]
             r=subprocess.run(cmd,capture_output=True,timeout=60)
             if r.returncode:raise SystemExit(r.stderr.decode(errors='replace'))
             asm=tmp/(str(n)+'.s');asm.write_text(sections(r.stdout.decode(),str(n),a.target));obj=asm.with_suffix('.o')
