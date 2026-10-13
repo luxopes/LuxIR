@@ -249,7 +249,11 @@ Následující úzké části jsou hotové; širší položky níže zůstávaj�
   přesměrování stdio bez změny rodičovských FD, CLOEXEC error handshake,
   close_range + ověřený procfs fallback, obnova masky/reset caught handlers,
   úklid selhaného exec a dekódování exit/signal status. Volající je zatím
-  jednovláknový. Zachytávání proudů s timeoutem a ostatní OS zbývají.
+  jednovláknový. Doplněno souběžné bounded capture stdin/stdout/stderr, process
+  group, SIGPIPE-safe vstup, maska SIGCHLD a úklid při limitu/timeoutu. Přes
+  3,1 milionu kontrol na každém Linux cíli (C/LSL IR, sanitizéry a raw binárky).
+  Timeout kontroluje čas komunikace, zatím neumí přerušit blokující exec handoff;
+  asynchronní handoff s tvrdým deadline a ostatní OS stále zbývají.
 - [ ] Vlákna: spawn a join, čekání na adrese (futex / WaitOnAddress /
   ulock), TLS.
 - [ ] Čas, spánek, OS náhoda, proměnné prostředí, argumenty, pracovní adresář.

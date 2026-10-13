@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+static int write_all(int fd,const char *data,size_t size) {
+ while(size){ssize_t n=write(fd,data,size);if(n<0&&errno==EINTR)continue;if(n<=0)return -1;data+=n;size-=(size_t)n;}return 0;
+}
 int main(int argc,char **argv) {
     for (int fd=3;fd<4096;fd++) if(fcntl(fd,F_GETFD)>=0) return 81;
     if (argc<2) return 80;
@@ -17,6 +20,17 @@ int main(int argc,char **argv) {
         if(write(1,data,4)!=4||write(2,"ERR!",4)!=4)return 84;
         return 23;
     }
+    if (!strcmp(argv[1],"group")) return getpgrp()==getpid()?0:91;
+    if (!strcmp(argv[1],"mask")) {sigset_t mask;sigprocmask(SIG_SETMASK,0,&mask);return sigismember(&mask,SIGCHLD)==atoi(argv[2])?0:92;}
+    if (!strcmp(argv[1],"flood")) {
+        char data[8192];memset(data,'P',sizeof data);
+        for(int i=0;i<128;i++)if(write_all(1,data,sizeof data))return 87;
+        memset(data,'E',sizeof data);
+        for(int i=0;i<128;i++)if(write_all(2,data,sizeof data))return 88;
+        for(;;){ssize_t n=read(0,data,sizeof data);if(n<0&&errno==EINTR)continue;if(n<0)return 89;if(!n)break;if(write_all(1,data,(size_t)n))return 90;}
+        return 29;
+    }
+    if (!strcmp(argv[1],"closed-pause")) {close(0);close(1);close(2);for(;;)pause();}
     if (!strcmp(argv[1],"closed")) {
         int fd=atoi(argv[2]);return fcntl(fd,F_GETFD)<0&&errno==EBADF ? 0 : 85;
     }

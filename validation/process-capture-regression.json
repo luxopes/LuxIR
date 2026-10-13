@@ -1,0 +1,16 @@
+{
+  "capture": false,
+  "target": "amd64_sysv",
+  "oracle": "779 spawn/wait checks passed",
+  "assembly_parity_targets": [
+    "amd64_sysv",
+    "arm64",
+    "rv64"
+  ],
+  "raw_binary_identical": true,
+  "c_asan_ubsan": true,
+  "procfs_fallback": true,
+  "substituted_procfs_rejected": true,
+  "runner": [],
+  "emulator": null
+}

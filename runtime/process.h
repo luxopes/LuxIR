@@ -17,5 +17,15 @@
  */
 int32_t luxrt_process_spawn(const char *path, const char *const *argv, const char *const *envp,
                             int64_t input_fd, int64_t output_fd, int64_t error_fd, int64_t *pid);
+/* As spawn, but child starts its own process group (pgid=pid) before exec.
+ * Group termination uses luxrt_os_kill(-pid, signal); descendants can explicitly
+ * leave the group, so this is not a process-tree sandbox. */
+int32_t luxrt_process_spawn_group(const char *path, const char *const *argv, const char *const *envp,
+                                  int64_t input_fd, int64_t output_fd, int64_t error_fd, int64_t *pid);
+/* Group spawn with an explicit child signal mask; NULL inherits the caller mask.
+ * Parent mask restoration is unaffected. */
+int32_t luxrt_process_spawn_group_mask(const char *path, const char *const *argv, const char *const *envp,
+                                       int64_t input_fd, int64_t output_fd, int64_t error_fd, int64_t *pid,
+                                       const uint64_t *child_mask);
 int32_t luxrt_process_wait(int64_t pid, uint32_t *raw_status, int32_t *exit_code);
 #endif

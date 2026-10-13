@@ -13,12 +13,15 @@ def main():
     ap.add_argument('--backend',type=Path,action='append',required=True)
     ap.add_argument('--target',choices=TARGETS,default='amd64_sysv')
     ap.add_argument('--report',type=Path)
+    ap.add_argument('--capture',action='store_true',help='run bounded concurrent capture corpus')
     a=ap.parse_args();parity={}
+    modules=MODULES+(['capture'] if a.capture else [])
+    corpus='capture' if a.capture else 'process'
     flags=['cc','-O2','-std=c11','-Wall','-Wextra','-Werror']
-    common=[ROOT/'tests/runtime/process_cases.c',ROOT/'tests/runtime/process_main.c']
+    common=[ROOT/('tests/runtime/'+corpus+'_cases.c'),ROOT/('tests/runtime/'+corpus+'_main.c')]
     native=ROOT/'runtime/linux-x86_64'
     osfiles=[native/n for n in ['os.c','signal.c','syscall.S','signal.S']]
-    refs=[ROOT/('runtime/'+m+'.c') for m in MODULES]
+    refs=[ROOT/('runtime/'+m+'.c') for m in modules]
     with tempfile.TemporaryDirectory(prefix='luxrt-process-') as directory:
         d=Path(directory);child=d/'child';exe=d/'test'
         run(flags+[ROOT/'tests/runtime/process_child.c','-o',child])
@@ -49,11 +52,11 @@ int main(int argc,char **argv){(void)argc;test_bad_proc=1;const char *args[]={"c
         run([exe,child])
         entry=d/'entry.lir'
         path_literal=''.join('\\x%02x'%x for x in str(child).encode()+b'\0')
-        entry.write_text('ir_version "1"\nruntime_abi "1"\ndata child_path align 1 = "'+path_literal+'"\nexport function main() -> Int32:\n Ptr(count) = alloc8(8)\n Int32(status) = call luxrt_process_cases(child_path,count)\n return status\nend\n')
+        entry.write_text('ir_version "1"\nruntime_abi "1"\ndata child_path align 1 = "'+path_literal+'"\nexport function main() -> Int32:\n Ptr(count) = alloc8(8)\n Int32(status) = call luxrt_'+corpus+'_cases(child_path,count)\n return status\nend\n')
         previous=None
         for backend in a.backend:
             backend=backend.resolve();host=[]
-            for module in MODULES:
+            for module in modules:
                 for target in TARGETS:
                     asm=subprocess.check_output([str(backend),'-t',target,str(ROOT/('runtime/'+module+'.lir'))],timeout=60)
                     key=module,target
@@ -67,13 +70,13 @@ int main(int argc,char **argv){(void)argc;test_bad_proc=1;const char *args[]={"c
             assert subprocess.check_output([str(exe),str(child)],timeout=60)==expected
             run(flags+['-I'+str(ROOT/'runtime'),bad]+host+fallback_os+['-o',exe]);run([exe,child])
             binary=d/'raw'
-            run(['python3',ROOT/'tools/luxir_build.py','--backend',backend,'-t',a.target,'-o',binary,entry,ROOT/'tests/runtime/process_cases.lir'])
+            run(['python3',ROOT/'tools/luxir_build.py','--backend',backend,'-t',a.target,'-o',binary,entry,ROOT/('tests/runtime/'+corpus+'_cases.lir')])
             result=subprocess.run(RUNNERS[a.target]+[str(binary)],capture_output=True,timeout=90)
             assert result.returncode==0,(result.returncode,result.stdout,result.stderr)
             blob=binary.read_bytes();assert previous is None or previous==blob;previous=blob
         run(['cc','-O1','-g','-fsanitize=address,undefined']+common+refs+osfiles+['-o',exe])
         assert subprocess.check_output([str(exe),str(child)],env=dict(os.environ,ASAN_OPTIONS='detect_leaks=0'),timeout=60)==expected
-    report={'target':a.target,'oracle':expected.decode().strip(),'assembly_parity_targets':TARGETS,'raw_binary_identical':True,'c_asan_ubsan':True,'procfs_fallback':True,'substituted_procfs_rejected':True,'runner':RUNNERS[a.target],'emulator':subprocess.check_output(RUNNERS[a.target]+['--version']).decode().splitlines()[0] if RUNNERS[a.target] else None}
+    report={'capture':a.capture,'target':a.target,'oracle':expected.decode().strip(),'assembly_parity_targets':TARGETS,'raw_binary_identical':True,'c_asan_ubsan':True,'procfs_fallback':True,'substituted_procfs_rejected':True,'runner':RUNNERS[a.target],'emulator':subprocess.check_output(RUNNERS[a.target]+['--version']).decode().splitlines()[0] if RUNNERS[a.target] else None}
     if a.report:a.report.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 if __name__=='__main__':main()

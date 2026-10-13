@@ -57,5 +57,6 @@ int64_t luxrt_os_fork(void); /* single-threaded caller; clone(SIGCHLD) on generi
 int64_t luxrt_os_dup_flags(int64_t fd,int64_t newfd,int64_t flags);
 /* Linux LP64 statfs; caller reserves >=128 bytes (f_type is the first word). */
 int64_t luxrt_os_fstatfs(int64_t fd,void *buffer);
+int64_t luxrt_os_setpgid(int64_t pid,int64_t group);
 int64_t luxrt_os_fcntl(int64_t fd,int64_t command,int64_t argument);
 #endif

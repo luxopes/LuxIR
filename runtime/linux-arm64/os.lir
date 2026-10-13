@@ -1004,3 +1004,21 @@ body.100:
     return .12
 end
 
+export function luxrt_os_setpgid(Int64(.1), Int64(.3)) -> Int64:
+start.101:
+    Int64(.2) = alloc8(8)
+    store(.1, .2)
+    Int64(.4) = alloc8(8)
+    store(.3, .4)
+body.102:
+    Int64(.5) = sext32(154)
+    Int64(.6) = load(.2)
+    Int64(.7) = load(.4)
+    Int64(.8) = sext32(0)
+    Int64(.9) = sext32(0)
+    Int64(.10) = sext32(0)
+    Int64(.11) = sext32(0)
+    Int64(.12) = call extern(luxrt_syscall6)(Int64(.5), Int64(.6), Int64(.7), Int64(.8), Int64(.9), Int64(.10), Int64(.11))
+    return .12
+end
+

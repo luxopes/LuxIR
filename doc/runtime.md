@@ -138,7 +138,7 @@ The close_range fallback checks procfs identity before enumerating descriptors.
 An internal CLOEXEC pipe reports setup/exec errors; failed children are reaped
 and pid output is unchanged. Successful exec handoff is distinct from successful
 program exit. Wait returns the raw Linux status plus exit code or 128+signal.
-These calls do not yet supply concurrent buffered capture or a deadline.
+Concurrent bounded capture is provided separately by `capture.h`.
 
 `tests/runtime/run_process.py` exercises C and emitted runtime IR, including
 779 checks, forced procfs fallback, substituted filesystem rejection, closed stdio, explicit
@@ -146,3 +146,36 @@ environment, hundreds of inherited FDs, caught/ignored signals and failed exec
 cleanup. RISC-V signal tests require QEMU with upstream fix
 513823e7521a09ed7ad1e32e6454bac3b2cbf52d (QEMU 8.2.2 has an incorrect sigaction
 layout that overwrites the caller's adjacent storage).
+
+### Concurrent bounded process capture
+
+`luxrt_process_capture(path, argv, envp, request, result)` uses caller-owned
+request/result storage and byte spans. Size queries return 56 and 40 bytes;
+LP64 field order/offsets are defined in `capture.h`. No frontend-specific values
+or managed allocation are involved. The raw driver includes this module; unused
+functions and data are removed by section GC.
+
+The parent pumps input, stdout and stderr concurrently with nonblocking I/O and
+ppoll. Input is a Unix stream socket and uses MSG_NOSIGNAL, so early child stdin
+closure does not terminate the parent. Output/error are pipes. Counts report
+accepted input bytes and captured output bytes; output need not be NUL terminated.
+Exact-full buffers succeed if followed by EOF; an additional byte returns -28.
+A zero timeout waits indefinitely; positive milliseconds (up to INT32_MAX) use
+a monotonic deadline. Deadline measurement starts before spawn, but synchronous
+setup/exec handoff remains blocking and cannot itself be interrupted yet.
+
+Capture creates a child process group. Capacity overflow, timeout (-110), or
+communication error kills this group and reaps the direct child. A descendant
+that explicitly changes group/session can escape this cleanup; capture is not
+a process-tree sandbox. The leader is retained until pipes close, avoiding pgid
+reuse before cleanup. SIGCHLD is blocked in the parent for capture and restored
+after cleanup, while the child receives the original caller mask. Ignored
+SIGCHLD or SA_NOCLDWAIT are rejected because wait ownership cannot be guaranteed.
+
+The result is reset at entry and retains partial counts and wait status on error.
+Status zero means communication/wait succeeded; a child's nonzero exit code is
+reported separately. Valid, nonoverlapping spans and valid context pointers are
+caller obligations. `tests/runtime/run_process.py --capture` compares a 1 MiB
+input / 2 MiB output / 1 MiB stderr corpus, exact capacity and overflow cases,
+closed stdin, timeout before/after stream closure, child mask/group inheritance,
+error cleanup and descriptor/mask preservation.

@@ -89,3 +89,5 @@ int64_t luxrt_os_dup_flags(int64_t fd,int64_t newfd,int64_t flags){return luxrt_
 int64_t luxrt_os_fcntl(int64_t fd,int64_t command,int64_t argument){return luxrt_syscall6(25,fd,command,argument,0,0,0);}
 int64_t luxrt_os_fork(void){return luxrt_syscall6(220,17,0,0,0,0,0);}
 int64_t luxrt_os_fstatfs(int64_t fd,void *buffer){return luxrt_syscall6(44,fd,P(buffer),0,0,0,0);}
+
+int64_t luxrt_os_setpgid(int64_t pid,int64_t group){return luxrt_syscall6(154,pid,group,0,0,0,0);}
