@@ -16,8 +16,10 @@ jobs:
           python3 -m venv .venv
           .venv/bin/pip install pycparser==3.0
           make c lsl check-dominance check-bitsets PYTHON=.venv/bin/python
+          .venv/bin/python tools/runtime_manifest.py --check
       - name: Host programs and protocol
         run: |
+          python3 tests/runtime_abi.py --backend src/luxir
           python3 tests/inline.py --backend src/luxir
           python3 tests/atomic_ir.py --backend src/luxir
           python3 tests/numeric.py --backend src/luxir
@@ -54,6 +56,7 @@ jobs:
       - name: Linux cross execution
         run: |
           for target in arm64 rv64; do
+            python3 tests/runtime_abi.py --target "$target" --backend src/luxir
             python3 tests/atomic_ir.py --target "$target" --backend src/luxir
             python3 tests/build_driver.py --target "$target" --backend src/luxir
             python3 tests/data_sections.py --target "$target" --backend src/luxir

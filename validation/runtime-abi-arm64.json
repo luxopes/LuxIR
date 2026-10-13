@@ -1,0 +1,17 @@
+{
+  "target": "arm64",
+  "checks": 22,
+  "backends": [
+    "src/luxir",
+    "build/luxir"
+  ],
+  "retained_guard": "luxrt_abi_v1_le64_explicit",
+  "gc_sections_missing_runtime_rejected": true,
+  "auto_managed_modules": true,
+  "raw_binary_identical": true,
+  "advertised_symbols_linked": 155,
+  "unsupported_platforms_rejected": true,
+  "runner": [
+    "qemu-aarch64"
+  ]
+}

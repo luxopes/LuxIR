@@ -1,0 +1,28 @@
+ir_version "1"
+runtime_abi "none"
+export data luxrt_abi_v1_le64_explicit align 8 = [Int64(54238228534604), Int64(1), Int64(64), Int64(1)]
+export function luxrt_abi_revision() -> Int64:
+start.1:
+body.2:
+    Int64(.1) = sext32(1)
+    return .1
+end
+
+export function luxrt_heap_bytes() -> Int64:
+start.3:
+body.4:
+    return 336
+end
+
+export function luxrt_roots_bytes() -> Int64:
+start.5:
+body.6:
+    return 24
+end
+
+export function luxrt_descriptor_bytes() -> Int64:
+start.7:
+body.8:
+    return 48
+end
+

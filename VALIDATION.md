@@ -368,3 +368,21 @@ Raw standalone fixture spustil celý corpus na třech Linux cílech
 C ASan/UBSan prošly, všechny heap mappings uvolněny; šest-target
 assembly parity. Nejde o deep immutable objekty, Tuple hashing/equality
 ani automatické rooting frontendu.
+
+## Linux64 runtime ABI 1 — 13. 10. 2026
+
+Explicit-root profil s normativním kontraktem `doc/abi-v1.md` a manifestem
+156 public scalar funkcí. 22 ABI integration kontrol na cíl (C+LSL),
+raw execution Linux x86-64/ARM64/RV64, C/LSL assembler/binárky shodné.
+Guard `luxrt_abi_v1_le64_explicit` zůstává živý i při `--gc-sections`,
+empty unit, chybějící revize a pouze revision 2 symbol jsou link errors.
+Header reset mezi vstupy, size queries, automatické managed moduly
+bez `--managed`, zachování existujícího outputu při neznámém ABI
+a odmítnutí neimplementovaných Windows/macOS profilů ověřeny.
+Všechny manifest funkce skutečně slinkované a jejich pointery nenulové:
+156 na x86-64, 155 na ARM64/RV64 (fork pouze x86-64). Test tím
+neprovádí všechna OS volání; jejich execution evidence je v oddílech výše.
+Protocol 108 kontrol stále prošel, no-header/none assembler se nemění.
+Bootstrap nové native LSL verze 57,97 s původním C LSL frontendem;
+nejde o nový self-host stage2/3 ani splnění minutové brány.
+Profil neobsahuje automatic stackmaps/STW; normativní limity jsou explicitní.

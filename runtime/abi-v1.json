@@ -1,0 +1,3781 @@
+{
+  "runtime_abi": "1",
+  "guard_symbol": "luxrt_abi_v1_le64_explicit",
+  "profile": "Linux64 little-endian, native scalar C ABI, single-owner explicit roots",
+  "targets": [
+    "amd64_sysv",
+    "arm64",
+    "rv64"
+  ],
+  "calling_convention": "ordinary target C ABI; Value and Float bits use Int64",
+  "headers": [
+    "runtime/abi.h",
+    "runtime/arena.h",
+    "runtime/atomic.h",
+    "runtime/checked.h",
+    "runtime/collections.h",
+    "runtime/context.h",
+    "runtime/float64.h",
+    "runtime/integer.h",
+    "runtime/io.h",
+    "runtime/managed.h",
+    "runtime/map.h",
+    "runtime/memory.h",
+    "runtime/numeric.h",
+    "runtime/os.h",
+    "runtime/relocate.h",
+    "runtime/signal.h",
+    "runtime/startup.h",
+    "runtime/thread.h",
+    "runtime/tls.h",
+    "runtime/tuple.h"
+  ],
+  "functions": [
+    {
+      "name": "luxrt_abi_revision",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_arena_alloc",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "arena",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_arena *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "alignment",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "void **"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_arena_init",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "arena",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_arena *"
+        },
+        {
+          "name": "base",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "capacity",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_arena_rewind",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "arena",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_arena *"
+        },
+        {
+          "name": "mark",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_array_append",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "bits",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_array_get",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "index",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "bits",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_array_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "kind",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_array_pop",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "bits",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_array_set",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "index",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "bits",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_add32",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_add64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_cas32",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "expected",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        },
+        {
+          "name": "desired",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_cas64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "expected",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "desired",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_fence",
+      "return_ir_type": "Void",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_load32",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_load64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_store32",
+      "return_ir_type": "Void",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_store64",
+      "return_ir_type": "Void",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_swap32",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_atomic_swap64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "p",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_capture_regs",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "snapshot",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_checked_add",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "a",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "b",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_checked_floordiv",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "a",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "b",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_checked_mul",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "a",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "b",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_checked_sub",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "a",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "b",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "output",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_context_words",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_descriptor_bytes",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_float_to_string",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_format_float64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "bits",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "capacity",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_format_i64",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "capacity",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_getenv",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "env",
+          "ir_type": "Ptr",
+          "c_type": "char * const *"
+        },
+        {
+          "name": "name",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_hash_bytes",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "data",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_bytes",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_collect",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_destroy",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_heap_init",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "max_mapped_bytes",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "page_size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_int_to_string",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_clear",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_delete",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "old",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_get",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_length",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_next",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "cursor",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        },
+        {
+          "name": "key",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        },
+        {
+          "name": "value",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_map_set",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "map",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_memchr",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "data",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "byte",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_memcmp",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "left",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "right",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_memcpy",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "dst",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "src",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_memmove",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "dst",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "src",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_memset",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "dst",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "byte",
+          "ir_type": "Int32",
+          "c_type": "uint32_t"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_object_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "const luxrt_descriptor *"
+        },
+        {
+          "name": "payload_bytes",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_object_payload",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_accept",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_bind",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_chdir",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_chmod",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "mode",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_clock",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "clock_id",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "timespec",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_close",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_close_range",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "first",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "last",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_connect",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_cwd",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_dup",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "newfd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_exec",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "argv",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "envp",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_exit",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "status",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_fork",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv"
+      ]
+    },
+    {
+      "name": "luxrt_os_futex",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "operation",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "value",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "timeout",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "address2",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "value3",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_getsockopt",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "level",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "option",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "value",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_ioctl",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "request",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "argument",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_kill",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "pid",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "signal",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_list",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_listen",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "backlog",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_map",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_mkdir",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "mode",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_open",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "mode",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_peername",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_pid",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_pipe",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fds",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_poll",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fds",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "count",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "timeout",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_ppid",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_protect",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "protection",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_random",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_read",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_readlink",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_recv",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_rename",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "oldpath",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "newpath",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_seek",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "offset",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "whence",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_send",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_setsockopt",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "level",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "option",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "value",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_shutdown",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "how",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_sleep",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "timespec",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "remaining",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_socket",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "domain",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "type",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "protocol",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_socketpair",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "domain",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "type",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "protocol",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "fds",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_sockname",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_stat",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "mask",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "result",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_symlink",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "target",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_unlink",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "path",
+          "ir_type": "Ptr",
+          "c_type": "const char *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_unmap",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "address",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_wait",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "pid",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "status",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "options",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_os_write",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_parse_float64",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "text",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "bits",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_parse_i64",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "text",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "length",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "output",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_read_full",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "count",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_roots_bytes",
+      "return_ir_type": "Int64",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_roots_pop",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_roots *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_roots_push",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_roots *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_set_add",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "set",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_set_contains",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "set",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "int32_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_set_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "flags",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_set_remove",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "set",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "key",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_signal_action",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "signal",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "action",
+          "ir_type": "Ptr",
+          "c_type": "const struct luxrt_signal_action *"
+        },
+        {
+          "name": "old",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_signal_action *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_signal_mask",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "how",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "mask",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "old",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_signal_thread",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "pid",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "tid",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "signal",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_argc",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_argv",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_env",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_pagesize",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_relocate",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "base",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "dynamic",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "relative_type",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_startup_stack_top",
+      "return_ir_type": "Ptr",
+      "parameters": [
+        {
+          "name": "kernel_stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_compare",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "int32_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_concat",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_equal",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "int32_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_info",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "bytes",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        },
+        {
+          "name": "characters",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        },
+        {
+          "name": "data",
+          "ir_type": "Ptr",
+          "c_type": "const void **"
+        },
+        {
+          "name": "hash",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_slice",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "begin",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "end",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_split",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "separator",
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_to_float",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_string_to_int",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_thread_join",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "tid",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_thread_spawn",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fn",
+          "ir_type": "Ptr",
+          "c_type": "void (*)(void *)"
+        },
+        {
+          "name": "arg",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "tid",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_thread_spawn_tls",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fn",
+          "ir_type": "Ptr",
+          "c_type": "void (*)(void *)"
+        },
+        {
+          "name": "arg",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "tid",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        },
+        {
+          "name": "tp",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_allocate",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "t",
+          "ir_type": "Ptr",
+          "c_type": "const struct luxrt_tls_template *"
+        },
+        {
+          "name": "model",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_tls_block *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_allocate_native",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "t",
+          "ir_type": "Ptr",
+          "c_type": "const struct luxrt_tls_template *"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_tls_block *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_get",
+      "return_ir_type": "Ptr",
+      "parameters": [],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_main",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_tls_block *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_release",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "block",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_tls_block *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_set",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "tp",
+          "ir_type": "Ptr",
+          "c_type": "void *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tls_template_from_stack",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "stack",
+          "ir_type": "Ptr",
+          "c_type": "const uint64_t *"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "struct luxrt_tls_template *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_concat",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_from_values",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_get",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "index",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_length",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "const luxrt_value *"
+        },
+        {
+          "name": "count",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_tuple_slice",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "begin",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "end",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_utf8_valid",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": "data",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "n",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_value_float_bits",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_value_get_float_bits",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_value_get_int",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "int64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_value_int",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "out",
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_value_type",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_append",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_clear",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_get",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_new",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": "capacity",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_pop",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_value *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_values_set",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "luxrt_heap *"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_vector_length",
+      "return_ir_type": "Int32",
+      "parameters": [
+        {
+          "name": null,
+          "ir_type": "Int64",
+          "c_type": "luxrt_value"
+        },
+        {
+          "name": null,
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    },
+    {
+      "name": "luxrt_write_full",
+      "return_ir_type": "Int64",
+      "parameters": [
+        {
+          "name": "fd",
+          "ir_type": "Int64",
+          "c_type": "int64_t"
+        },
+        {
+          "name": "buffer",
+          "ir_type": "Ptr",
+          "c_type": "const void *"
+        },
+        {
+          "name": "size",
+          "ir_type": "Int64",
+          "c_type": "uint64_t"
+        },
+        {
+          "name": "count",
+          "ir_type": "Ptr",
+          "c_type": "uint64_t *"
+        }
+      ],
+      "targets": [
+        "amd64_sysv",
+        "arm64",
+        "rv64"
+      ]
+    }
+  ],
+  "layouts": {
+    "heap_bytes_query": "luxrt_heap_bytes",
+    "roots_bytes_query": "luxrt_roots_bytes",
+    "descriptor_bytes_query": "luxrt_descriptor_bytes",
+    "descriptor_fields": [
+      "type_id",
+      "reference_count",
+      "reference_offsets",
+      "repeat_offset",
+      "count_offset",
+      "stride"
+    ],
+    "descriptor_field_bytes": 8,
+    "root_fields": [
+      "previous",
+      "slots",
+      "count"
+    ],
+    "value_tag_bits": 3,
+    "small_int_tag": 1,
+    "none": 2,
+    "false": 3,
+    "true": 11,
+    "vacant_root": 0,
+    "user_type_id_min": 256
+  },
+  "limitations": [
+    "no automatic stack maps",
+    "no shared-heap managed threads",
+    "no Windows/macOS runtime implementation",
+    "OS flags and kernel buffers use documented Linux raw contracts"
+  ]
+}

@@ -28,7 +28,7 @@ end
 ## Verze protokolu
 
 `luxir --version` (samostatný příkaz) vypíše podporovanou revizi IR a
-runtime kontrakt. Aktuálně: `LuxIR 0.1.1 (IR 1; runtime ABI none)`.
+runtime kontrakt. Aktuálně: `LuxIR 0.1.2-dev (IR 1; runtime ABI none, 1)`.
 Číslo původního QBE není verzí rozhraní LuxIR.
 
 Frontend může před všemi definicemi a direktivou `file` zapsat:
@@ -43,12 +43,15 @@ hlavičky zachovávají dnešní význam (IR 1, externí runtime). Verze jsou
 kanonické řetězce bez escape sekvencí, nikoli číselné operandy: nepřetékají
 modulo 2^64. Komentáře a prázdné řádky před hlavičkou jsou povolené.
 Opakovaná, pozdní nebo nekompatibilní hlavička skončí diagnostikou s cestou
-a řádkem. Přijatá hlavička nemění generovaný assembler.
+a řádkem. Hlavička `none` nemění generovaný assembler.
 
 `runtime_abi "none"` znamená, že backend nespravuje integrované luxrt ABI.
-Nezakazuje externí volání ani stávající runtime LSL. Jiné runtime ABI se
-odmítá, dokud není implementováno a ověřeno; přijetí IR není důkazem
-kompatibility externě slinkované knihovny. Viz [runtime.md](runtime.md).
+Nezakazuje externí volání ani stávající runtime LSL. `runtime_abi "1"`
+vybírá Linux64 little-endian kontrakt s explicitními GC roots a přidá
+retained relocation na `luxrt_abi_v1_le64_explicit`. Linker musí najít
+přesně tento revision symbol i při `--gc-sections`; driver automaticky
+připojí ABI 1 runtime. Ostatní verze se odmítají. ABI 1 není pro Windows
+a macOS ani automatické stackmaps; viz [abi-v1.md](abi-v1.md).
 
 ## Lexikální pravidla
 

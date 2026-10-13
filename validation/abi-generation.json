@@ -1,0 +1,12 @@
+{
+  "cproc_source_commit": "d1c53ddf56571573a7025324c8dd5c6d547a4d1f",
+  "abi": "LP64 layouts, scalar public APIs, abstract internal aggregate ABI",
+  "checked_only": true,
+  "modules": [
+    {
+      "source": "runtime/abi.c",
+      "source_sha256": "5a5199289ace3921cdf214d44a151069049b48729c9c60128fd83817096cc93f",
+      "ir_sha256": "6d5e6bf38275ecd400f07e5901b2911a3154be8e449cb7a064e6b6b0678a8d01"
+    }
+  ]
+}

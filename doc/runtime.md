@@ -1,20 +1,17 @@
 # Kontrakt runtime LuxIR
 
-Aktuální LuxIR vytváří assembler a neobsahuje integrovanou knihovnu luxrt.
-Podporovaná deklarace je proto `runtime_abi "none"`; knihovnu pro externí
-volání a její kompatibilitu stále zajišťuje frontend a linker.
+Podporované kontrakty jsou `runtime_abi "none"` a `runtime_abi "1"`.
+Legacy/no-header/none nemění assembler a neurčuje kompatibilitu externí
+knihovny. ABI 1 je Linux64 little-endian profil, native scalar C calling
+convention, Value model a přesný single-owner GC s explicitními roots.
+Normativní kontrakt je v [abi-v1.md](abi-v1.md); strojově čitelný seznam
+156 public funkcí je v [runtime/abi-v1.json](../runtime/abi-v1.json).
 
-`luxir --version` vypisuje podporovaný kontrakt. Čtečka přijme explicitní
-`ir_version "1"` a `runtime_abi "none"`; neznámé verze odmítne před
-zpracováním definic. Vstup bez hlavičky zůstává kompatibilní se stávajícím
-frontendem LSL. Hlavičky se kontrolují pro každý vstupní soubor samostatně.
-
-To je základ verzování, nikoli implementace luxrt nebo certifikace ABI
-externího runtime. Budoucí číslované luxrt ABI musí popsat obecné služby, volání/chyby, OS vrstvu a způsob předávání
-frontendových metadat (layouty, GC mapy a safepointy). Konkrétní layout
-hodnot a objektů nesmí být pevně převzat z jednoho jazyka. Teprve poté se přidá
-podporovaná revize a kontrola kombinace IR/runtime při linkování.
-
+ABI 1 hlavička přidá retenovanou relokaci na revision symbol; chybějící
+nebo jiná revize runtime neprojde linkerem ani při section GC.
+`tools/luxir_build.py` připojí knihovnu automaticky. Nevkládá automatické
+stackmaps, neinicializuje heap za frontend a neslibuje shared-heap threads.
+Windows/macOS tuto revizi zatím odmítnou před emitováním definic.
 
 ## Externí platformní služby
 
@@ -25,8 +22,8 @@ je v [runtime/README.md](../runtime/README.md) a v hlavičkách `runtime/`.
 Frontend může používat tyto moduly bez znalosti jejich syscallů či instrukcí;
 musí přitom splnit zdokumentované ABI a životnost předávaných bloků.
 
-Tyto moduly nemění `runtime_abi "none"`: stále jde o explicitně připojené
-externí služby a sestavení přes assembler/linker. Neimplikují integrovaný
+Moduly lze stále explicitně připojit s `runtime_abi "none"`; ABI 1
+je také připojí automaticky přes driver. Neimplikují integrovaný
 GC, automatické safepointy, libc-kompatibilní raw threads nebo podporu
 Windows/macOS. IR `thread(symbol)` již existuje; nová služba poskytuje
 inicializované TLS bloky pro hlavní i nová raw vlákna.
@@ -40,8 +37,9 @@ požadavků do dokumentace sám o sobě neznamená implementaci těchto služeb.
 
 ## Experimentální managed core (`runtime/managed.h/.c/.lir`)
 
-Zatím se explicitně linkuje pod `runtime_abi "none"`. Není deklarován
-jako dokončené integrované ABI 1. Layout v této vývojové větvi je: Value
+Core se dá explicitně linkovat pod `runtime_abi "none"` nebo jako
+ABI 1 profil s link guardem. Profil neobsahuje automatické stackmaps
+ani STW. ABI 1 layout je: Value
 64 bitů, tag v dolních třech bitech. Tag 1 je signed 61bitové celé číslo
 (posun 3), 2 je None, 3/11 False/True. Nenulová hodnota s tagem 0 je
 pointer na managed objekt. Nula je prázdný GC root, nikoli None.

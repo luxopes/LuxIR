@@ -216,3 +216,13 @@ Forward calls a volání mezi moduly zůstávají běžná volání.
 `tools/luxir_build.py --inline ...` zapne tuto optimalizaci pro raw static
 PIE, kde linker zajišťuje lokální vazbu definic. Nevytváří automatické
 GC stackmaps ani neřeší managed safepoints.
+
+### Runtime ABI 1
+
+`runtime_abi "1"` vybírá Linux64 explicit-root managed profil a při
+sestavení připojí standardní luxrt automaticky. Missing/wrong runtime
+revision je link error, včetně `--gc-sections`. Popis Value, root frames,
+layoutů, statusů a size queries: [doc/abi-v1.md](doc/abi-v1.md).
+Manifest scalar IR signatur: [runtime/abi-v1.json](runtime/abi-v1.json).
+Frontend rootuje živé Values před alokačními calls; automatické stackmaps
+a shared-heap managed threads zatím nejsou součástí tohoto profilu.

@@ -643,3 +643,5 @@ void atomicisel(Ins, Fn *, int [6]);
 void inlreset(void);
 void inlrecord(Fn *);
 void inlapply(Fn *);
+
+extern int runtimeabi;

@@ -2382,6 +2382,7 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 	ntyp = 0;
 	typ = vnew(0, sizeof typ[0], PHeap);
 	definition = irseen = abiseen = 0;
+	runtimeabi = 0;
 	for (;;) {
 		lnk = (Lnk){0};
 		switch (parselnk(&lnk)) {
@@ -2389,8 +2390,7 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 			err("top-level definition expected");
 		case Wirversion:
 		case Wruntimeabi:
-			/* Only header metadata is handled here. It does not certify
-			 * an externally linked runtime or change generated code. */
+			/* Numbered contracts require a retained link-time ABI guard. */
 			if (definition)
 				err("version headers must precede definitions");
 			if (iskw(Wirversion)) {
@@ -2405,8 +2405,12 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 					err("duplicate runtime_abi header");
 				abiseen = 1;
 				expect(Tstr);
-				if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI "\"") != 0)
-					err("unsupported runtime ABI %s; supported: " LUXIR_RUNTIME_ABI, tstr);
+				if (strcmp(tstr, "\"1\"") == 0) {
+					if (T.apple || T.windows)
+						err("runtime ABI 1 requires an ELF target");
+					runtimeabi = 1;
+				} else if (strcmp(tstr, "\"" LUXIR_RUNTIME_ABI "\"") != 0)
+					err("unsupported runtime ABI %s; supported: " LUXIR_RUNTIME_ABI_LIST, tstr);
 			}
 			t = next();
 			if (t == Teof)

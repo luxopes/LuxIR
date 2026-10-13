@@ -7,6 +7,7 @@
 Target T;
 int pic;
 int splitsections;
+int runtimeabi;
 static int inlinefunctions;
 
 char debug['Z'+1] = {
@@ -238,6 +239,9 @@ main(int ac, char *av[])
 		inlreset();
 		parse(inf, f, dbgfile, data, func);
 		inlreset();
+		if (runtimeabi && !dbg)
+			fprintf(outf, "\n.section .data.rel.ro.luxir.abi,\"awR\",%sprogbits\n.balign 8\n.quad " LUXIR_RUNTIME_ABI_SYMBOL "\n",
+				strncmp(T.name, "arm64", 5) == 0 ? "%" : "@");
 		fclose(inf);
 	} while (++optind < ac);
 

@@ -12,7 +12,7 @@ ERRORS = [
     ('ir', 'ir_version "2"\n', 'unsupported IR version "2"'),
     ('ir-zero', 'ir_version "0"\n', 'unsupported IR version "0"'),
     ('ir-overflow', 'ir_version "18446744073709551617"\n', 'unsupported IR version'),
-    ('abi', 'runtime_abi "1"\n', 'unsupported runtime ABI "1"'),
+    ('abi', 'runtime_abi "2"\n', 'unsupported runtime ABI "2"'),
     ('duplicate-ir', 'ir_version "1"\nir_version "1"\n', 'duplicate ir_version'),
     ('duplicate-abi', 'runtime_abi "none"\nruntime_abi "none"\n', 'duplicate runtime_abi'),
     ('late-ir', BODY + 'ir_version "1"\n', 'version headers must precede definitions'),
@@ -36,7 +36,7 @@ def main():
         source = Path(directory) / 'input.lir'
         for backend in backends:
             r = run(backend, ['--version'])
-            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.2-dev (IR 1; runtime ABI none)\n', b''), r
+            assert (r.returncode, r.stdout, r.stderr) == (0, b'LuxIR 0.1.2-dev (IR 1; runtime ABI none, 1)\n', b''), r
             checks += 1
         # Headers must leave every target's code byte-identical to legacy IR.
         for target in TARGETS:

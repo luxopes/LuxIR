@@ -1,0 +1,13 @@
+{
+  "target": "amd64_sysv",
+  "checks": 10,
+  "backends": [
+    "src/luxir"
+  ],
+  "retained_guard": "luxrt_abi_v1_le64_explicit",
+  "gc_sections_missing_runtime_rejected": true,
+  "auto_managed_modules": true,
+  "raw_binary_identical": true,
+  "unsupported_platforms_rejected": true,
+  "runner": []
+}

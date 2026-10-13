@@ -102,9 +102,10 @@ Windows a macOS (navíc):
   a pozdních hlaviček. Legacy IR zachovává výstup. C reference a
   přegenerovaná LSL verze mají shodné výstupy/diagnostiku; viz
   `tests/versioning.py` a `VALIDATION.md` (12. 10. 2026).
-- [ ] Číslované ABI integrované runtime knihovny luxrt a kontrola při
-  linkování. Dnešní `none` výslovně označuje externí runtime; nejde o
-  implementaci luxrt ani ověření kompatibility externí knihovny.
+- [x] Číslovaný Linux64 explicit-root profil ABI 1 a retained link guard
+  `luxrt_abi_v1_le64_explicit`; automatické připojení runtime driverem,
+  size queries a manifest 156 public scalar funkcí. `none` zůstává
+  legacy/external. Automatické stackmaps, STW a další OS zůstávají níže.
 - [ ] Popis layoutu objektů frontendu: ukazatelové mapy typů, kořeny,
   safepointy. Frontend řekne *co* je ukazatel, LuxIR rozhodne *jak* GC
   prochází zásobník a registry (stack mapy).
