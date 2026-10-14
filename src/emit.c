@@ -6,6 +6,18 @@ enum {
 	SecBss,
 };
 
+static void
+emitsecname(char *s, FILE *f)
+{
+	size_t n;
+
+	n = strlen(s);
+	if (T.apple && n >= 2 && s[0] == '"' && s[n-1] == '"')
+		fprintf(f, "%.*s", (int)(n - 2), s + 1);
+	else
+		fputs(s, f);
+}
+
 void
 emitlnk(char *n, Lnk *l, int s, FILE *f)
 {
@@ -39,9 +51,14 @@ emitlnk(char *n, Lnk *l, int s, FILE *f)
 		);
 	}
 	if (l->sec) {
-		fprintf(f, ".section %s", l->sec);
-		if (l->secf)
-			fprintf(f, ",%s", l->secf);
+		/* the Mach-O assembler takes segment,section
+		 * and its flags unquoted */
+		fputs(".section ", f);
+		emitsecname(l->sec, f);
+		if (l->secf) {
+			fputc(',', f);
+			emitsecname(l->secf, f);
+		}
 	} else
 		fputs(sec[l->thread != 0][s], f);
 	fputc('\n', f);
