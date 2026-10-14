@@ -1,0 +1,17 @@
+# Adresa symbolu s posunem mimo 24bitový addend relokací Mach-O arm64
+data fmt = ["%lld %lld\n", Int8(0)]
+export data base = Int64(0)
+
+function distance(Int64(x)) -> Int64:
+    Int64(d) = sub(x, base)
+    return d
+end
+
+export function main() -> Int32:
+    Int64(far) = add(base, 1073741824)
+    Int64(back) = add(base, -1073741824)
+    Int64(a) = call distance(Int64(far))
+    Int64(b) = call distance(Int64(back))
+    call printf(Ptr(fmt), ..., Int64(a), Int64(b))
+    return 0
+end

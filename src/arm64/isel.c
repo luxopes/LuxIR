@@ -103,6 +103,26 @@ fixarg(Ref *pr, int k, int phi, Fn *fn)
 			emit(Ocopy, Kl, r2, r3, R);
 			break;
 		}
+		/* Mach-O arm64 relocations hold only a 24-bit
+		 * signed addend; a larger offset is added after
+		 * loading the symbol address */
+		if (T.apple
+		&& c->type == CAddr
+		&& (c->bits.i >= (1 << 23) || c->bits.i < -(1 << 23))) {
+			r1 = newtmp("isel", Kl, fn);
+			r2 = newtmp("isel", Kl, fn);
+			r3 = newtmp("isel", Kl, fn);
+			*pr = r1;
+			emit(Oadd, Kl, r1, r2, r3);
+			cc = (Con){.type = CBits};
+			cc.bits.i = c->bits.i;
+			emit(Ocopy, Kl, r3, newcon(&cc, fn), R);
+			cc = *c;
+			cc.bits.i = 0;
+			r3 = newcon(&cc, fn);
+			emit(Ocopy, Kl, r2, r3, R);
+			break;
+		}
 		if (KBASE(k) == 0 && phi)
 			return;
 		r1 = newtmp("isel", k, fn);
