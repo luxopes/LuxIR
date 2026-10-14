@@ -687,6 +687,6 @@ arm64_emitfn(Fn *fn, FILE *out)
 		}
 	}
 	id0 += e->fn->nblk;
-	if (!T.apple)
+	if (!T.apple && !T.windows)
 		elf_emitfnfin(fn->name, out);
 }

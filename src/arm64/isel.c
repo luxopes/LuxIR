@@ -104,9 +104,10 @@ fixarg(Ref *pr, int k, int phi, Fn *fn)
 			break;
 		}
 		/* Mach-O arm64 relocations hold only a 24-bit
-		 * signed addend; a larger offset is added after
+		 * signed addend and COFF ones keep it in the
+		 * instruction; a larger offset is added after
 		 * loading the symbol address */
-		if (T.apple
+		if ((T.apple || T.windows)
 		&& c->type == CAddr
 		&& (c->bits.i >= (1 << 23) || c->bits.i < -(1 << 23))) {
 			r1 = newtmp("isel", Kl, fn);

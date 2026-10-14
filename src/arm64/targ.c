@@ -60,6 +60,17 @@ Target T_arm64_apple = {
 	ARM64_COMMON
 };
 
+/* Windows on ARM64: AAPCS64 with x18 reserved (the TEB), which every arm64
+ * target here already keeps out of allocation; COFF assembly */
+Target T_arm64_win = {
+	.name = "arm64_win",
+	.windows = 1,
+	.abi0 = elimsb,
+	.emitfin = pe_emitfin,
+	.asloc = ".L",
+	ARM64_COMMON
+};
+
 MAKESURE(globals_are_not_arguments,
 	(RGLOB & (BIT(R8+1) - 1)) == 0
 );
