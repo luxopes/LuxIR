@@ -392,7 +392,9 @@ emitins(Ins *i, E *e)
 		if (isload(i->op))
 			fixarg(&i->arg[0], loadsz(i), IP1, e);
 		if (isstore(i->op)) {
-			t = T.apple ? -1 : R18;
+			/* x18 is the platform register on Apple
+			 * and the TEB pointer on Windows */
+			t = T.apple || T.windows ? -1 : R18;
 			if (fixarg(&i->arg[1], storesz(i), t, e)) {
 				if (req(i->arg[0], TMP(IP1))) {
 					fprintf(e->f,
