@@ -44,6 +44,7 @@ struct Target {
 	char name[16];
 	char apple;
 	char windows;
+	char wasm;
 	int gpr0;   /* first general purpose reg */
 	int ngpr;
 	int fpr0;   /* first floating point reg */
@@ -630,6 +631,11 @@ void elf_emitfnfin(char *, FILE *);
 void elf_emitfin(FILE *);
 void macho_emitfin(FILE *);
 void pe_emitfin(FILE *);
+
+/* wasm/emit.c */
+void wasm_emitfn(Fn *, FILE *);
+void wasm_emitfin(FILE *);
+void wasm_emitdat(Dat *);
 
 /* main.c: explicit static-PIE address mode (currently rv64). */
 extern int pic;

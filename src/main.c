@@ -38,6 +38,7 @@ extern Target T_arm64;
 extern Target T_arm64_apple;
 extern Target T_arm64_win;
 extern Target T_rv64;
+extern Target T_wasm32;
 
 static Target *tlist[] = {
 	&T_amd64_sysv,
@@ -47,6 +48,7 @@ static Target *tlist[] = {
 	&T_arm64_apple,
 	&T_arm64_win,
 	&T_rv64,
+	&T_wasm32,
 	0
 };
 static FILE *outf;
@@ -57,6 +59,13 @@ data(Dat *d)
 {
 	if (dbg)
 		return;
+	if (T.wasm) {
+		/* data se skládají až na konci modulu */
+		wasm_emitdat(d);
+		if (d->type == DEnd)
+			freeall();
+		return;
+	}
 	emitdat(d, outf);
 	if (d->type == DEnd) {
 		fputs("/* end data */\n\n", outf);
@@ -105,6 +114,15 @@ func(Fn *fn)
 		filluse(fn);
 		filldom(fn);
 		ssacheck(fn);
+	}
+	if (T.wasm) {
+		/* WebAssembly: kód přímo z SSA (wasm/emit.c) */
+		if (!dbg) {
+			T.emitfn(fn, outf);
+			fprintf(outf, ";; end function %s\n\n", fn->name);
+		}
+		freeall();
+		return;
 	}
 	T.abi1(fn);
 	simpl(fn);
