@@ -103,8 +103,12 @@ check-cross: c native
 	done
 	tests/assemble.sh build/luxir tests/run/*.lir examples/*.lir
 
+# C pro 32bitové cíle (c32): clang pro riscv32, arm a i686, qemu-user.
+check-c32: c native
+	$(PYTHON) tests/run_c32.py --backend src/luxir --backend build/luxir
+
 clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross runtime-lsl check-link clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 runtime-lsl check-link clean

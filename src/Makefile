@@ -11,7 +11,8 @@ AMD64OBJ = amd64/targ.o amd64/sysv.o amd64/isel.o amd64/emit.o amd64/winabi.o
 ARM64OBJ = arm64/targ.o arm64/abi.o arm64/isel.o arm64/emit.o
 RV64OBJ  = rv64/targ.o rv64/abi.o rv64/isel.o rv64/emit.o
 WASMOBJ  = wasm/targ.o wasm/emit.o
-OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ)
+COBJ     = c/targ.o c/emit.o
+OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ) $(COBJ)
 # Spouštění nástrojů jen v C; do LSL se nepřekládá (viz tool.c).
 TOOLOBJ  = tool.o
 
