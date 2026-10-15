@@ -6,6 +6,7 @@
 
 Target T;
 int pic;
+int wasmthreads;
 char *tmpasm;
 
 /* Vnitřní chyba (die): dočasný assembler režimu -x nesmí zůstat. */
@@ -283,10 +284,13 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpxVd:o:t:L:")) != -1)
+	while ((c = getopt(ac, av, "hpgxVd:o:t:L:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
+			break;
+		case 'g':
+			wasmthreads = 1;
 			break;
 		case 'V':
 			puts(LUXIR_VERSION_TEXT);
@@ -341,6 +345,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
 			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
+			fprintf(hf, "\t%-11s wasm32: threads (shared memory, GC safepoints)\n", "-g");
 			fprintf(hf, "\t%-11s generate for a target among:\n", "-t <target>");
 			fprintf(hf, "\t%-11s ", "");
 			for (t=tlist, sep=""; *t; t++, sep=", ") {

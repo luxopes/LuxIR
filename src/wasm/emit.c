@@ -18,6 +18,17 @@
  * až na konci modulu (wasm_emitfin), takže nezáleží na pořadí definic.
  * Symboly, které LuxIR nedefinuje (data vrstvy architektury), dodá okolní
  * text modulu. Výstup je obsah (module ...) bez obalu.
+ *
+ * Prolog s rámcem kontroluje mez stínového zásobníku (globál
+ * $__stack_limit): při přetečení volá $__stack_overflow (dodá okolní text,
+ * nevrací se) místo přepsání paměti pod zásobníkem.
+ *
+ * S volbou -g (wasmthreads, vlákna podle wasi-threads) je modul určený pro
+ * více instancí nad jednou sdílenou pamětí: paměť dodá okolní text (import
+ * shared, nejméně $__memory_pages stránek), data jsou pasivní a do paměti
+ * je zapíše jen $__wasm_init_memory (volá ji start hlavního vlákna) a na
+ * vstupu funkce a na každém zpětném skoku je bezpečný bod pro GC: je-li
+ * slovo na adrese $__safepoint_flag nenulové, volá se $__safepoint.
  */
 
 enum {
@@ -168,6 +179,7 @@ static int *slotof;    /* posun hodnoty Kl v rámci, nebo -1 */
 static int *allocof;   /* posun oblasti alloc v rámci */
 static int framesize;
 static int nextblk;    /* index bloku, který následuje v pořadí */
+static int curblk;     /* index právě vypisovaného bloku */
 
 static char *ktype[] = {[Kw] = "i32", [Kl] = "i64", [Ks] = "f32", [Kd] = "f64"};
 
@@ -598,11 +610,22 @@ phicopies(Blk *b, Blk *s)
 }
 
 static void
+safepoint()
+{
+	if (!wasmthreads)
+		return;
+	fputs("\tglobal.get $__safepoint_flag\n\ti32.wrap_i64\n\ti32.load\n"
+		"\tif\n\tcall $__safepoint\n\tend\n", out);
+}
+
+static void
 jump(Blk *b, Blk *s)
 {
 	phicopies(b, s);
 	if ((int)s->id == nextblk)
 		return;
+	if ((int)s->id <= curblk)
+		safepoint();
 	fprintf(out, "\ti32.const %u\n\tlocal.set $bb\n\tbr $L\n", s->id);
 }
 
@@ -669,6 +692,10 @@ wasm_emitfn(Fn *f, FILE *o)
 	 * navíc jako u nativního zásobníku */
 	fprintf(out, "\tglobal.get $sp\n\ti32.const %d\n\ti32.sub\n"
 		"\tlocal.tee $fp\n\tglobal.set $sp\n", framesize);
+	if (framesize)
+		fputs("\tlocal.get $fp\n\tglobal.get $__stack_limit\n\ti32.lt_u\n"
+			"\tif\n\tcall $__stack_overflow\n\tunreachable\n\tend\n", out);
+	safepoint();
 	npar = 0;
 	for (i=fn->start->ins; i<&fn->start->ins[fn->start->nins]; i++)
 		if (ispar(i->op)) {
@@ -690,6 +717,7 @@ wasm_emitfn(Fn *f, FILE *o)
 		b = fn->rpo[n];
 		fprintf(out, "\tend\n");
 		nextblk = n + 1;
+		curblk = n;
 		args = 0;
 		for (i=b->ins; i<&b->ins[b->nins]; i++) {
 			if (ispar(i->op))
@@ -783,7 +811,15 @@ wasm_emitfin(FILE *f)
 		for (k=0; k<r->size; k++)
 			dbuf[r->at + k] = (v >> (8 * k)) & 0xff;
 	}
-	if (dlen) {
+	if (wasmthreads) {
+		fputs("(data $__data \"", f);
+		for (n=0; n<dlen; n++)
+			quoteput(f, dbuf[n]);
+		fputs("\")\n", f);
+		fprintf(f, "(func $__wasm_init_memory\n\ti32.const %d\n\ti32.const 0\n"
+			"\ti32.const %"PRId64"\n\tmemory.init $__data\n\tdata.drop $__data\n)\n",
+			DataBase, (int64_t)dlen);
+	} else if (dlen) {
 		fprintf(f, "(data (i32.const %d) \"", DataBase);
 		for (n=0; n<dlen; n++)
 			quoteput(f, dbuf[n]);
@@ -813,6 +849,10 @@ wasm_emitfin(FILE *f)
 	pages = (stack + 65535) / 65536 + 1;
 	fprintf(f, "(global $__stack_top i32 (i32.const %"PRId64"))\n", stack);
 	fprintf(f, "(global $sp (mut i32) (i32.const %"PRId64"))\n", stack);
+	fprintf(f, "(global $__stack_limit (mut i32) (i32.const %"PRId64"))\n", stack - StackBytes);
 	fprintf(f, "(global $__heap_base i64 (i64.const %"PRId64"))\n", pages * 65536);
-	fprintf(f, "(memory (export \"memory\") %"PRId64")\n", pages);
+	if (wasmthreads)
+		fprintf(f, "(global $__memory_pages i32 (i32.const %"PRId64"))\n", pages);
+	else
+		fprintf(f, "(memory (export \"memory\") %"PRId64")\n", pages);
 }

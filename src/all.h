@@ -639,6 +639,7 @@ void wasm_emitdat(Dat *);
 
 /* main.c: explicit static-PIE address mode (currently rv64). */
 extern int pic;
+extern int wasmthreads;
 
 /* parse.c: runtime ABI z hlavičky runtime_abi (RTnone nebo RTlsl0). */
 enum { RTnone, RTlsl0 };
