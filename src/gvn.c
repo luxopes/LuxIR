@@ -410,10 +410,12 @@ dedupjmp(Fn *fn, Blk *b)
 		propjnz0(fn, b, ps[eqval^1], ps[eqval], arg, cls);
 	}
 
-	/* collapse trivial/constant jnz to jmp */
+	/* collapse trivial/constant jnz to jmp; a symbol address is never
+	 * zero, so a jnz on one always takes s1 */
 	v = 1;
 	z = 0;
 	if (b->s1 == b->s2
+	|| (rtype(b->jmp.arg) == RCon && fn->con[b->jmp.arg.val].type == CAddr)
 	|| isconbits(fn, b->jmp.arg, &v)
 	|| zeroval(fn, b, b->jmp.arg, Kw, &z)) {
 		if (v == 0 || z)

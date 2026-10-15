@@ -1,6 +1,6 @@
 # LuxIR
 
-Aktuální vydání: **0.1.2**. Změny a omezení: [RELEASE-0.1.2.md](RELEASE-0.1.2.md).
+Aktuální vydání: **0.2.0**. Změny a omezení: [RELEASE-0.2.0.md](RELEASE-0.2.0.md).
 
 LuxIR je samostatný backend překladače, podobně jako QBE. Má vlastní IR se
 syntaxí ve stylu LSL a v produkci běží jako program napsaný v LSL.
@@ -43,9 +43,18 @@ end
 | `amd64_sysv` | Linux x86_64 (výchozí) |
 | `amd64_apple` | macOS x86_64 |
 | `amd64_win` | Windows x86_64 |
-| `arm64` | Linux AArch64 |
+| `arm64` | Linux AArch64 (také Android, Raspberry Pi) |
 | `arm64_apple` | macOS Apple Silicon |
-| `rv64` | Linux RISC-V 64 |
+| `arm64_win` | Windows on ARM64 |
+| `rv64` | Linux RISC-V 64, bare metal RISC-V (`-p`: adresy relativní k PC) |
+| `wasm32` | WebAssembly (text pro `wat2wasm`; `-g`: vlákna wasi-threads) |
+
+Výstup `wasm32` je obsah modulu `(module ...)` bez obalu; importy, paměť a
+vstupní bod dodá okolní text (u LSL vrstva architektury runtime). Hodnoty
+zůstávají 64bitové, adresy do lineární paměti 32bitové; každá funkce s
+rámcem kontroluje mez stínového zásobníku. S `-g` je modul pro více instancí
+nad sdílenou pamětí: pasivní data a bezpečné body pro GC na vstupu funkcí a
+zpětných skocích. Podrobnosti v komentáři `src/wasm/emit.c`.
 
 Typ `Ptr` je v IR připravený pro pozdější 32bitové a 8bitové cíle.
 

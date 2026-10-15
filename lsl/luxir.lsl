@@ -22753,28 +22753,38 @@ function q_f_gvn_dedupjmp(q_a0, q_a1):
     call __lsl_qbe_store32(q_s6_z, 0)
     q_v54 = __lsl_qbe_load64((q_param1 + 32))
     q_v56 = __lsl_qbe_load64((q_param1 + 40))
-    call __lsl_qbe_branch(Int(q_v54 == q_v56), 9, 13)
-    call __lsl_qbe_label(13)
-    q_v60 = __lsl_qbe_load32(((q_param1 + 20) + 4))
-    call __lsl_qbe_branch(__lsl_qbe_raw_int(q_f_isconbits(q_param0, q_v60, q_s2_v)), 9, 12)
-    call __lsl_qbe_label(12)
-    q_v69 = __lsl_qbe_load32(((q_param1 + 20) + 4))
-    call __lsl_qbe_branch(__lsl_qbe_raw_int(q_f_zeroval(q_param0, q_param1, q_v69, 0, q_s6_z)), 9, 10)
-    call __lsl_qbe_label(9)
-    q_v74 = __lsl_qbe_load64(q_s2_v)
-    call __lsl_qbe_branch(Int(q_v74 == 0), 14, 17)
-    call __lsl_qbe_label(17)
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_s6_z)), 14, 15)
+    call __lsl_qbe_branch(Int(q_v54 == q_v56), 9, 14)
     call __lsl_qbe_label(14)
-    q_v78 = __lsl_qbe_load64((q_param1 + 40))
-    call __lsl_qbe_store64((q_param1 + 32), q_v78)
-    call __lsl_qbe_jump(16)
+    q_v58 = __lsl_qbe_load32(((q_param1 + 20) + 4))
+    q_v60 = (q_v58 & 7) - Int(q_v58 == 0)
+    call __lsl_qbe_branch(Int(__lsl_qbe_raw_int(q_v60) == 1), 15, 13)
     call __lsl_qbe_label(15)
+    q_v62 = __lsl_qbe_load64((q_param0 + 16))
+    q_v64 = (__lsl_qbe_lshr(__lsl_qbe_load32(((q_param1 + 20) + 4)), 3) & 536870911)
+    q_v65 = (q_v62 + (q_v64 * 32))
+    q_v66 = __lsl_qbe_s32(__lsl_qbe_load32((q_v65 + 0)))
+    call __lsl_qbe_branch(Int(q_v66 == 2), 9, 13)
+    call __lsl_qbe_label(13)
+    q_v70 = __lsl_qbe_load32(((q_param1 + 20) + 4))
+    call __lsl_qbe_branch(__lsl_qbe_raw_int(q_f_isconbits(q_param0, q_v70, q_s2_v)), 9, 12)
+    call __lsl_qbe_label(12)
+    q_v79 = __lsl_qbe_load32(((q_param1 + 20) + 4))
+    call __lsl_qbe_branch(__lsl_qbe_raw_int(q_f_zeroval(q_param0, q_param1, q_v79, 0, q_s6_z)), 9, 10)
+    call __lsl_qbe_label(9)
+    q_v84 = __lsl_qbe_load64(q_s2_v)
+    call __lsl_qbe_branch(Int(q_v84 == 0), 16, 19)
+    call __lsl_qbe_label(19)
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_s6_z)), 16, 17)
     call __lsl_qbe_label(16)
+    q_v88 = __lsl_qbe_load64((q_param1 + 40))
+    call __lsl_qbe_store64((q_param1 + 32), q_v88)
+    call __lsl_qbe_jump(18)
+    call __lsl_qbe_label(17)
+    call __lsl_qbe_label(18)
     call __lsl_qbe_store64((q_param1 + 40), 0)
     call __lsl_qbe_store16(((q_param1 + 20) + 0), 11)
-    q_v85 = (0)
-    call __lsl_qbe_store32(((q_param1 + 20) + 4), q_v85)
+    q_v95 = (0)
+    call __lsl_qbe_store32(((q_param1 + 20) + 4), q_v95)
     call __lsl_qbe_jump(11)
     call __lsl_qbe_label(10)
     call __lsl_qbe_label(11)
@@ -22782,7 +22792,7 @@ function q_f_gvn_dedupjmp(q_a0, q_a1):
     return q_result
 end
 
-# QBE 1.3: gvn.c:429
+# QBE 1.3: gvn.c:431
 function q_f_gvn_rebuildcfg(q_a0):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -22830,7 +22840,7 @@ function q_f_gvn_rebuildcfg(q_a0):
     q_v33 = q_s4_s
     call __lsl_qbe_branch(Int(q_v32 != q_v33), 11, 10)
     call __lsl_qbe_label(10)
-    call q_assert(0, q_string_364, q_string_356, 451)
+    call q_assert(0, q_string_364, q_string_356, 453)
     call __lsl_qbe_label(11)
     q_v38 = q_s3_b
     q_v39 = __lsl_qbe_load64((q_v38 + 8))
@@ -22884,7 +22894,7 @@ function q_f_gvn_rebuildcfg(q_a0):
     return q_result
 end
 
-# QBE 1.3: gvn.c:465
+# QBE 1.3: gvn.c:467
 function q_f_gvn(q_a0):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -60251,7 +60261,7 @@ q_string_35 = mem.literal("noexecstack")
 q_string_36 = mem.literal("--build-id=none")
 q_string_37 = mem.literal("-s")
 q_string_38 = mem.literal("--version")
-q_string_39 = mem.literal("LuxIR 0.1.2 (IR 1; runtime ABI none, lsl-0)")
+q_string_39 = mem.literal("LuxIR 0.2.0 (IR 1; runtime ABI none, lsl-0)")
 q_string_40 = mem.literal("hpgxVd:o:t:L:")
 q_string_41 = mem.literal("-")
 q_string_42 = mem.literal("w")
