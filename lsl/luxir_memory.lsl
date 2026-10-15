@@ -1,7 +1,9 @@
 # lsl: internal-abi
-# C-owned storage for the Linux x86_64 host. Small allocations use reusable
+# C-owned storage for the Linux host (any architecture: syscall numbers come
+# from the target's _platform module). Small allocations use reusable
 # size-class slabs; large ones use mmap/munmap directly. Raw allocations stay
 # outside the managed object graph. No libc/FFI calls are involved.
+load _platform as platform
 _literals = {}
 _literal_texts = {}
 _free_heads = __lsl_int_zeros(12)
@@ -44,7 +46,7 @@ function function_alloc(raw_size):
         end
         if chunk == 0:
             mapped = max(1048576, (aligned + 16 + 4095) & -4096)
-            chunk = __lsl_syscall6(9, 0, mapped, 3, 34, -1, 0)
+            chunk = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
             if chunk < 0:
                 Error(MemoryError: "QBE function arena allocation failed")
             end
@@ -81,7 +83,7 @@ function function_reset():
             else:
                 __lsl_qbe_store64(previous, next_chunk)
             end
-            if __lsl_syscall6(11, chunk, mapped, 0, 0, 0, 0) != 0:
+            if __lsl_syscall6(platform.SYS_MUNMAP, chunk, mapped, 0, 0, 0, 0) != 0:
                 Error(OSError: "QBE function arena deallocation failed")
             end
         else:
@@ -127,7 +129,7 @@ function malloc(size):
             base = __lsl_qbe_load64(next_slot)
             if base == __lsl_qbe_load64(end_slot):
                 mapped = max(65536, slot * 16)
-                base = __lsl_syscall6(9, 0, mapped, 3, 34, -1, 0)
+                base = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
                 if base < 0:
                     Error(MemoryError: "QBE C slab allocation failed")
                 end
@@ -140,7 +142,7 @@ function malloc(size):
         return base + 16
     end
     mapped = ((count + 16 + 4095) // 4096) * 4096
-    base = __lsl_syscall6(9, 0, mapped, 3, 34, -1, 0)
+    base = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
     if base < 0:
         Error(MemoryError: "QBE C allocation failed")
     end
@@ -161,7 +163,7 @@ function free(raw_address):
             call __lsl_qbe_store64(head_slot, base)
             return
         end
-        if __lsl_syscall6(11, base, mapped, 0, 0, 0, 0) != 0:
+        if __lsl_syscall6(platform.SYS_MUNMAP, base, mapped, 0, 0, 0, 0) != 0:
             Error(OSError: "QBE C deallocation failed")
         end
     end
