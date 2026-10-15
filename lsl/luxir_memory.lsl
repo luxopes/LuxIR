@@ -1,9 +1,12 @@
 # lsl: internal-abi
-# C-owned storage for the Linux host (any architecture: syscall numbers come
-# from the target's _platform module). Small allocations use reusable
-# size-class slabs; large ones use mmap/munmap directly. Raw allocations stay
-# outside the managed object graph. No libc/FFI calls are involved.
+# C-owned storage for the host. Small allocations use reusable size-class
+# slabs; large ones are mapped individually. On Linux (any architecture:
+# syscall numbers come from the target's _platform module) the memory comes
+# from mmap/munmap; on Windows and macOS from zeroed ByteArrays pinned in
+# _pinned (the collector does not move objects, so addresses stay valid).
+# Raw allocations stay outside the managed object graph. No libc/FFI calls.
 load _platform as platform
+_pinned = {}
 _literals = {}
 _literal_texts = {}
 _free_heads = __lsl_int_zeros(12)
@@ -19,6 +22,30 @@ _slab_end_data = __lsl_qbe_load64(__lsl_qbe_raw_int(_slab_end) + 24)
 # bump cursor for that lifetime, separately from individually freed objects.
 _function_arena = __lsl_int_zeros(4)
 _function_arena_data = __lsl_qbe_load64(__lsl_qbe_raw_int(_function_arena) + 24)
+
+# Zero-filled raw memory of at least size bytes, aligned to 16 bytes; negative
+# on failure.
+function raw_map(size):
+    if platform.NAME.startswith("linux-"):
+        return __lsl_syscall6(platform.SYS_MMAP, 0, size, 3, 34, -1, 0)
+    end
+    bytes = __lsl_byte_zeros(size + 16)
+    base = (__lsl_qbe_raw_int(__lsl_data_address(bytes)) + 15) & -16
+    _pinned[base] = bytes
+    return base
+end
+
+# Releases raw_map memory; 0 on success.
+function raw_unmap(base, size):
+    if platform.NAME.startswith("linux-"):
+        return __lsl_syscall6(platform.SYS_MUNMAP, base, size, 0, 0, 0, 0)
+    end
+    if base not in _pinned:
+        return -1
+    end
+    call _pinned.pop(base)
+    return 0
+end
 
 function function_alloc(raw_size):
     size = __lsl_qbe_raw_int(raw_size)
@@ -46,7 +73,7 @@ function function_alloc(raw_size):
         end
         if chunk == 0:
             mapped = max(1048576, (aligned + 16 + 4095) & -4096)
-            chunk = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
+            chunk = raw_map(mapped)
             if chunk < 0:
                 Error(MemoryError: "QBE function arena allocation failed")
             end
@@ -83,7 +110,7 @@ function function_reset():
             else:
                 __lsl_qbe_store64(previous, next_chunk)
             end
-            if __lsl_syscall6(platform.SYS_MUNMAP, chunk, mapped, 0, 0, 0, 0) != 0:
+            if raw_unmap(chunk, mapped) != 0:
                 Error(OSError: "QBE function arena deallocation failed")
             end
         else:
@@ -129,7 +156,7 @@ function malloc(size):
             base = __lsl_qbe_load64(next_slot)
             if base == __lsl_qbe_load64(end_slot):
                 mapped = max(65536, slot * 16)
-                base = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
+                base = raw_map(mapped)
                 if base < 0:
                     Error(MemoryError: "QBE C slab allocation failed")
                 end
@@ -142,7 +169,7 @@ function malloc(size):
         return base + 16
     end
     mapped = ((count + 16 + 4095) // 4096) * 4096
-    base = __lsl_syscall6(platform.SYS_MMAP, 0, mapped, 3, 34, -1, 0)
+    base = raw_map(mapped)
     if base < 0:
         Error(MemoryError: "QBE C allocation failed")
     end
@@ -163,7 +190,7 @@ function free(raw_address):
             call __lsl_qbe_store64(head_slot, base)
             return
         end
-        if __lsl_syscall6(platform.SYS_MUNMAP, base, mapped, 0, 0, 0, 0) != 0:
+        if raw_unmap(base, mapped) != 0:
             Error(OSError: "QBE C deallocation failed")
         end
     end
