@@ -963,7 +963,7 @@ c_emitfin(FILE *f)
 		quotename(f, o->id);
 		fputs(")", f);
 		if (o->sec)
-			fprintf(f, " __attribute__((section(\"%s\")))", o->sec);
+			fprintf(f, " __attribute__((section(%s)))", o->sec);
 		fputs(";\n", f);
 	}
 	/* data */
