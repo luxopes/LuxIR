@@ -1,0 +1,472 @@
+# Pomocné funkce pro 32bitové cíle LuxIR s assemblerem (arm, i386).
+#
+# w32split() na ně převede 64bitové dělení a převody mezi Int64 a
+# desetinnými čísly, na arm i 32bitové dělení. Chování jako pomocné funkce
+# c32: dělení nulou dá samé jedničky (zbytek dělenec), MIN / -1 dá MIN
+# (zbytek 0), převody desetinných čísel mimo rozsah jsou nasycené a NaN
+# dá 0. Funkce používají jen operace, které se samy nepřevádějí na volání
+# (posuny o konstantu, sčítání, porovnání), kromě dělení Int32 v rychlé
+# cestě 64bitového dělení.
+
+# a / b a zbytek do rem, bez znaménka; b != 0. Dělení s návratem po bitech:
+# podíl se postupně zasouvá do q zprava, nejdřív se přeskočí úvodní nuly.
+function __luxir_udivmodl(Int64(a), Int64(b), Ptr(rem)) -> Int64:
+    Int64(both) = or(a, b)
+    Int64(bh) = shr(both, 32)
+    Int32(small) = eq(bh, 0)
+    if small goto fast else slow
+fast:
+    Int32(x) = Int32(a)
+    Int32(y) = Int32(b)
+    Int32(q32) = udiv(x, y)
+    Int32(r32) = urem(x, y)
+    Int64(r64) = zext32(r32)
+    store(r64, rem)
+    Int64(q64) = zext32(q32)
+    return q64
+slow:
+    Int64(q) = a
+    Int64(r) = 0
+    Int32(i) = 64
+skip:
+    Int64(top) = shr(q, 63)
+    Int32(t0) = eq(top, 0)
+    Int32(ipos) = gt(i, 0)
+    Int32(go) = and(t0, ipos)
+    if go goto shiftq else loop
+shiftq:
+    Int64(q) = shl(q, 1)
+    Int32(i) = sub(i, 1)
+    goto skip
+loop:
+    Int32(more) = gt(i, 0)
+    if more goto step else done
+step:
+    Int64(carry) = shr(r, 63)
+    Int64(hb) = shr(q, 63)
+    Int64(r2) = shl(r, 1)
+    Int64(r) = or(r2, hb)
+    Int64(q) = shl(q, 1)
+    Int32(i) = sub(i, 1)
+    Int32(ge) = uge(r, b)
+    Int32(c32) = Int32(carry)
+    Int32(take) = or(ge, c32)
+    if take goto subtract else loop
+subtract:
+    Int64(r) = sub(r, b)
+    Int64(q) = or(q, 1)
+    goto loop
+done:
+    store(r, rem)
+    return q
+end
+
+export function __luxir_udivl(Int64(a), Int64(b)) -> Int64:
+    Int32(z) = eq(b, 0)
+    if z goto zero else div
+zero:
+    return -1
+div:
+    Ptr(p) = alloc8(8)
+    Int64(q) = call __luxir_udivmodl(a, b, p)
+    return q
+end
+
+export function __luxir_ureml(Int64(a), Int64(b)) -> Int64:
+    Int32(z) = eq(b, 0)
+    if z goto zero else div
+zero:
+    return a
+div:
+    Ptr(p) = alloc8(8)
+    Int64(q) = call __luxir_udivmodl(a, b, p)
+    Int64(r) = load(p)
+    return r
+end
+
+export function __luxir_divl(Int64(a), Int64(b)) -> Int64:
+    Int32(z) = eq(b, 0)
+    if z goto zero else nonzero
+zero:
+    return -1
+nonzero:
+    Int32(amin) = eq(a, 0x8000000000000000)
+    Int32(bm1) = eq(b, -1)
+    Int32(over) = and(amin, bm1)
+    if over goto overflow else div
+overflow:
+    return a
+div:
+    Int32(an) = lt(a, 0)
+    Int32(bn) = lt(b, 0)
+    Int64(ua) = a
+    Int64(ub) = b
+    if an goto nega else posa
+nega:
+    Int64(ua) = neg(a)
+posa:
+    if bn goto negb else posb
+negb:
+    Int64(ub) = neg(b)
+posb:
+    Ptr(p) = alloc8(8)
+    Int64(q) = call __luxir_udivmodl(ua, ub, p)
+    Int32(diff) = ne(an, bn)
+    if diff goto negq else out
+negq:
+    Int64(q) = neg(q)
+out:
+    return q
+end
+
+export function __luxir_reml(Int64(a), Int64(b)) -> Int64:
+    Int32(z) = eq(b, 0)
+    if z goto zero else nonzero
+zero:
+    return a
+nonzero:
+    Int32(bm1) = eq(b, -1)
+    if bm1 goto minus1 else div
+minus1:
+    return 0
+div:
+    Int32(an) = lt(a, 0)
+    Int32(bn) = lt(b, 0)
+    Int64(ua) = a
+    Int64(ub) = b
+    if an goto nega else posa
+nega:
+    Int64(ua) = neg(a)
+posa:
+    if bn goto negb else posb
+negb:
+    Int64(ub) = neg(b)
+posb:
+    Ptr(p) = alloc8(8)
+    Int64(q) = call __luxir_udivmodl(ua, ub, p)
+    Int64(r) = load(p)
+    if an goto negr else out
+negr:
+    Int64(r) = neg(r)
+out:
+    return r
+end
+
+# 32bitové dělení pro arm (bez instrukce dělení): a / b a zbytek do rem,
+# b != 0.
+function __luxir_udivmodw(Int32(a), Int32(b), Ptr(rem)) -> Int32:
+    Int32(q) = a
+    Int32(r) = 0
+    Int32(i) = 32
+skip:
+    Int32(top) = shr(q, 31)
+    Int32(t0) = eq(top, 0)
+    Int32(ipos) = gt(i, 0)
+    Int32(go) = and(t0, ipos)
+    if go goto shiftq else loop
+shiftq:
+    Int32(q) = shl(q, 1)
+    Int32(i) = sub(i, 1)
+    goto skip
+loop:
+    Int32(more) = gt(i, 0)
+    if more goto step else done
+step:
+    Int32(carry) = shr(r, 31)
+    Int32(hb) = shr(q, 31)
+    Int32(r2) = shl(r, 1)
+    Int32(r) = or(r2, hb)
+    Int32(q) = shl(q, 1)
+    Int32(i) = sub(i, 1)
+    Int32(ge) = uge(r, b)
+    Int32(take) = or(ge, carry)
+    if take goto subtract else loop
+subtract:
+    Int32(r) = sub(r, b)
+    Int32(q) = or(q, 1)
+    goto loop
+done:
+    store(r, rem)
+    return q
+end
+
+export function __luxir_udivw(Int32(a), Int32(b)) -> Int32:
+    Int32(z) = eq(b, 0)
+    if z goto zero else div
+zero:
+    return -1
+div:
+    Ptr(p) = alloc4(4)
+    Int32(q) = call __luxir_udivmodw(a, b, p)
+    return q
+end
+
+export function __luxir_uremw(Int32(a), Int32(b)) -> Int32:
+    Int32(z) = eq(b, 0)
+    if z goto zero else div
+zero:
+    return a
+div:
+    Ptr(p) = alloc4(4)
+    Int32(q) = call __luxir_udivmodw(a, b, p)
+    Int32(r) = load(p)
+    return r
+end
+
+export function __luxir_divw(Int32(a), Int32(b)) -> Int32:
+    Int32(z) = eq(b, 0)
+    if z goto zero else nonzero
+zero:
+    return -1
+nonzero:
+    Int32(amin) = eq(a, -2147483648)
+    Int32(bm1) = eq(b, -1)
+    Int32(over) = and(amin, bm1)
+    if over goto overflow else div
+overflow:
+    return a
+div:
+    Int32(an) = lt(a, 0)
+    Int32(bn) = lt(b, 0)
+    Int32(ua) = a
+    Int32(ub) = b
+    if an goto nega else posa
+nega:
+    Int32(ua) = neg(a)
+posa:
+    if bn goto negb else posb
+negb:
+    Int32(ub) = neg(b)
+posb:
+    Ptr(p) = alloc4(4)
+    Int32(q) = call __luxir_udivmodw(ua, ub, p)
+    Int32(diff) = ne(an, bn)
+    if diff goto negq else out
+negq:
+    Int32(q) = neg(q)
+out:
+    return q
+end
+
+export function __luxir_remw(Int32(a), Int32(b)) -> Int32:
+    Int32(z) = eq(b, 0)
+    if z goto zero else nonzero
+zero:
+    return a
+nonzero:
+    Int32(bm1) = eq(b, -1)
+    if bm1 goto minus1 else div
+minus1:
+    return 0
+div:
+    Int32(an) = lt(a, 0)
+    Int32(bn) = lt(b, 0)
+    Int32(ua) = a
+    Int32(ub) = b
+    if an goto nega else posa
+nega:
+    Int32(ua) = neg(a)
+posa:
+    if bn goto negb else posb
+negb:
+    Int32(ub) = neg(b)
+posb:
+    Ptr(p) = alloc4(4)
+    Int32(q) = call __luxir_udivmodw(ua, ub, p)
+    Int32(r) = load(p)
+    if an goto negr else out
+negr:
+    Int32(r) = neg(r)
+out:
+    return r
+end
+
+# Int32 bez znaménka -> Float64: (x - 2^31) se znaménkem je přesné, stejně
+# přičtení 2^31.
+export function __luxir_uwtod(Int32(x)) -> Float64:
+    Int32(y) = xor(x, -2147483648)
+    Float64(f) = itof(y)
+    Float64(g) = add(f, 2147483648.0)
+    return g
+end
+
+# Int32 bez znaménka -> Float32: nad 2^31 se číslo zkrátí o bit se
+# zachovaným lepivým bitem, aby se zaokrouhlilo jen jednou.
+export function __luxir_uwtos(Int32(x)) -> Float32:
+    Int32(neg) = lt(x, 0)
+    if neg goto big else small
+small:
+    Float32(f) = itof(x)
+    return f
+big:
+    Int32(h) = shr(x, 1)
+    Int32(s) = and(x, 1)
+    Int32(k) = or(h, s)
+    Float32(g) = itof(k)
+    Float32(r) = add(g, g)
+    return r
+end
+
+# Int64 bez znaménka -> Float64: obě půlky přesně, sčítání zaokrouhlí jednou.
+export function __luxir_ultod(Int64(a)) -> Float64:
+    Int64(h) = shr(a, 32)
+    Float64(fh) = call __luxir_uwtod(Int32(h))
+    Float64(fl) = call __luxir_uwtod(Int32(a))
+    Float64(s) = mul(fh, 4294967296.0)
+    Float64(r) = add(s, fl)
+    return r
+end
+
+export function __luxir_sltod(Int64(a)) -> Float64:
+    Int32(n) = lt(a, 0)
+    if n goto negative else positive
+positive:
+    Float64(p) = call __luxir_ultod(a)
+    return p
+negative:
+    Int64(m) = neg(a)
+    Float64(q) = call __luxir_ultod(m)
+    Float64(r) = neg(q)
+    return r
+end
+
+# Int64 bez znaménka -> Float32: zkrácení na 32 platných bitů s lepivým
+# bitem a vynásobení 2^n (přesné).
+export function __luxir_ultos(Int64(a)) -> Float32:
+    Int64(k) = a
+    Int64(sticky) = 0
+    Int32(n) = 0
+narrow:
+    Int64(h) = shr(k, 32)
+    Int32(wide) = ne(h, 0)
+    if wide goto shift else ready
+shift:
+    Int64(b) = and(k, 1)
+    Int64(sticky) = or(sticky, b)
+    Int64(k) = shr(k, 1)
+    Int32(n) = add(n, 1)
+    goto narrow
+ready:
+    Int64(k) = or(k, sticky)
+    Float32(f) = call __luxir_uwtos(Int32(k))
+    Int32(e) = add(n, 127)
+    Int32(eb) = shl(e, 23)
+    Float32(sc) = bitcast(eb)
+    Float32(r) = mul(f, sc)
+    return r
+end
+
+export function __luxir_sltos(Int64(a)) -> Float32:
+    Int32(n) = lt(a, 0)
+    if n goto negative else positive
+positive:
+    Float32(p) = call __luxir_ultos(a)
+    return p
+negative:
+    Int64(m) = neg(a)
+    Float32(q) = call __luxir_ultos(m)
+    Float32(r) = neg(q)
+    return r
+end
+
+# Float64 -> Int32 bez znaménka, nasyceně.
+export function __luxir_dtouw(Float64(v)) -> Int32:
+    Int32(pos) = gt(v, 0.0)
+    if pos goto positive else zero
+zero:
+    return 0
+positive:
+    Int32(max) = ge(v, 4294967295.0)
+    if max goto saturate else range
+saturate:
+    return -1
+range:
+    Int32(low) = lt(v, 2147483648.0)
+    if low goto direct else high
+direct:
+    Int32(d) = ftoi(v)
+    return d
+high:
+    Float64(w) = sub(v, 2147483648.0)
+    Int32(h) = ftoi(w)
+    Int32(r) = xor(h, -2147483648)
+    return r
+end
+
+export function __luxir_stouw(Float32(v)) -> Int32:
+    Float64(d) = fext(v)
+    Int32(r) = call __luxir_dtouw(d)
+    return r
+end
+
+# Float64 -> Int64 bez znaménka, nasyceně: horní a dolní slovo zvlášť.
+export function __luxir_dtoul(Float64(v)) -> Int64:
+    Int32(pos) = gt(v, 0.0)
+    if pos goto positive else zero
+zero:
+    return 0
+positive:
+    Int32(max) = ge(v, 18446744073709551616.0)
+    if max goto saturate else range
+saturate:
+    return -1
+range:
+    Int32(low) = lt(v, 4294967296.0)
+    if low goto small else large
+small:
+    Int32(s) = call __luxir_dtouw(v)
+    Int64(s64) = zext32(s)
+    return s64
+large:
+    Float64(q) = div(v, 4294967296.0)
+    Int32(h) = call __luxir_dtouw(q)
+    Float64(hd) = call __luxir_uwtod(h)
+    Float64(hs) = mul(hd, 4294967296.0)
+    Float64(rest) = sub(v, hs)
+    Int32(l) = call __luxir_dtouw(rest)
+    Int64(h64) = zext32(h)
+    Int64(hi) = shl(h64, 32)
+    Int64(l64) = zext32(l)
+    Int64(r) = or(hi, l64)
+    return r
+end
+
+export function __luxir_dtosl(Float64(v)) -> Int64:
+    Int32(nan) = unord(v, v)
+    if nan goto zero else number
+zero:
+    return 0
+number:
+    Int32(lo) = le(v, -9223372036854775808.0)
+    if lo goto minimum else notlow
+minimum:
+    return 0x8000000000000000
+notlow:
+    Int32(hi) = ge(v, 9223372036854775808.0)
+    if hi goto maximum else range
+maximum:
+    return 0x7fffffffffffffff
+range:
+    Int32(n) = lt(v, 0.0)
+    if n goto negative else positive
+positive:
+    Int64(p) = call __luxir_dtoul(v)
+    return p
+negative:
+    Float64(m) = neg(v)
+    Int64(q) = call __luxir_dtoul(m)
+    Int64(r) = neg(q)
+    return r
+end
+
+export function __luxir_stoul(Float32(v)) -> Int64:
+    Float64(d) = fext(v)
+    Int64(r) = call __luxir_dtoul(d)
+    return r
+end
+
+export function __luxir_stosl(Float32(v)) -> Int64:
+    Float64(d) = fext(v)
+    Int64(r) = call __luxir_dtosl(d)
+    return r
+end

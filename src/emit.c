@@ -130,9 +130,14 @@ emitdat(Dat *d, FILE *f)
 		}
 		else if (d->isref) {
 			p = d->u.ref.name[0] == '"' ? "" : T.assym;
-			fprintf(f, "%s %s%s%+"PRId64"\n",
-				di[d->type].decl, p, d->u.ref.name,
-				d->u.ref.off);
+			if (T.w32 && d->type == DL)
+				/* 32bitový cíl: adresa a nulová horní polovina */
+				fprintf(f, "\t.int %s%s%+"PRId64"\n\t.int 0\n",
+					p, d->u.ref.name, d->u.ref.off);
+			else
+				fprintf(f, "%s %s%s%+"PRId64"\n",
+					di[d->type].decl, p, d->u.ref.name,
+					d->u.ref.off);
 		}
 		else {
 			fprintf(f, "%s %"PRId64"\n",
@@ -222,13 +227,13 @@ elf_emitfin(FILE *f)
 	static char *sec[3] = { ".rodata", ".rodata", ".rodata" };
 
 	emitfin(f ,sec);
-	fprintf(f, ".section .note.GNU-stack,\"\",@progbits\n");
+	fprintf(f, ".section .note.GNU-stack,\"\",%cprogbits\n", T.armasm ? '%' : '@');
 }
 
 void
 elf_emitfnfin(char *fn, FILE *f)
 {
-	fprintf(f, ".type %s, @function\n", fn);
+	fprintf(f, ".type %s, %cfunction\n", fn, T.armasm ? '%' : '@');
 	fprintf(f, ".size %s, .-%s\n", fn, fn);
 }
 

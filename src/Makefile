@@ -6,13 +6,16 @@ BINDIR = $(PREFIX)/bin
 
 COMMOBJ  = main.o util.o parse.o abi.o cfg.o mem.o ssa.o alias.o load.o \
            copy.o fold.o gvn.o gcm.o simpl.o ifopt.o live.o spill.o rega.o \
-           emit.o
+           emit.o w32.o
 AMD64OBJ = amd64/targ.o amd64/sysv.o amd64/isel.o amd64/emit.o amd64/winabi.o
 ARM64OBJ = arm64/targ.o arm64/abi.o arm64/isel.o arm64/emit.o
 RV64OBJ  = rv64/targ.o rv64/abi.o rv64/isel.o rv64/emit.o
 WASMOBJ  = wasm/targ.o wasm/emit.o
 COBJ     = c/targ.o c/emit.o
-OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ) $(COBJ)
+I386OBJ  = i386/targ.o i386/abi.o i386/isel.o i386/emit.o
+ARMOBJ   = arm/targ.o arm/abi.o arm/isel.o arm/emit.o
+OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ) $(COBJ) \
+           $(I386OBJ) $(ARMOBJ)
 # Spouštění nástrojů jen v C; do LSL se nepřekládá (viz tool.c).
 TOOLOBJ  = tool.o
 
@@ -31,6 +34,8 @@ $(OBJ) $(TOOLOBJ): all.h ops.h
 $(AMD64OBJ): amd64/all.h
 $(ARM64OBJ): arm64/all.h
 $(RV64OBJ): rv64/all.h
+$(I386OBJ): i386/all.h
+$(ARMOBJ): arm/all.h
 main.o: config.h
 main.o parse.o: version.h
 

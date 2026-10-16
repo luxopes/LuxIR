@@ -160,6 +160,21 @@ O(afcmp,   T(e,e,s,d, e,e,s,d), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(reqz,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 O(rnez,    T(w,l,e,e, x,x,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
 
+/* 32bitové cíle (w32.c): horní slovo součinu bez znaménka, horní slovo
+ * 64bitového výsledku (za call) nebo návratové hodnoty (před retl), dolní
+ * a horní slovo double a double ze dvou slov */
+O(mulhu,   T(w,e,e,e, w,e,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
+O(pairhi,  T(w,e,e,e, x,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(dlo,     T(d,e,e,e, x,e,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
+O(dhi,     T(d,e,e,e, x,e,e,e), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
+O(mkd,     T(e,e,e,w, e,e,e,w), F(0,0,0,0,0,0,0,0,0,0)) X(0,0,0) V(0)
+/* 32bitové cíle: dolní slovo součtu/rozdílu nastavující přenos a horní
+ * slovo s přenosem (vždy těsně za sebou, viz wfuse v w32.c) */
+O(addc,    T(w,e,e,e, w,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(adc,     T(w,e,e,e, w,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(subc,    T(w,e,e,e, w,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+O(sbc,     T(w,e,e,e, w,e,e,e), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
+
 /* Arguments, Parameters, and Calls */
 O(par,     T(x,x,x,x, x,x,x,x), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)
 O(parsb,   T(x,x,x,x, x,x,x,x), F(0,0,0,0,0,0,0,0,0,1)) X(0,0,0) V(0)

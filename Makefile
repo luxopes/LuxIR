@@ -107,8 +107,16 @@ check-cross: c native
 check-c32: c native
 	$(PYTHON) tests/run_c32.py --backend src/luxir --backend build/luxir
 
+# 32bitové cíle s assemblerem (arm, i386): GNU as, testovací runtime C
+# (clang jen pro testy), i386 nativně, arm v qemu-user; rozdílový fuzzer
+# proti amd64.
+check-w32: c native
+	$(PYTHON) tests/run_w32.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/w32_diff.py --backend src/luxir --cases 60
+	$(PYTHON) tests/w32_diff.py --backend build/luxir --cases 20 --seed 2
+
 clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 runtime-lsl check-link clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 check-w32 runtime-lsl check-link clean

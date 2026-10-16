@@ -41,6 +41,8 @@ extern Target T_arm64_win;
 extern Target T_rv64;
 extern Target T_wasm32;
 extern Target T_c32;
+extern Target T_i386;
+extern Target T_arm;
 
 static Target *tlist[] = {
 	&T_amd64_sysv,
@@ -52,6 +54,8 @@ static Target *tlist[] = {
 	&T_rv64,
 	&T_wasm32,
 	&T_c32,
+	&T_i386,
+	&T_arm,
 	0
 };
 static FILE *outf;

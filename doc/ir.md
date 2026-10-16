@@ -268,7 +268,8 @@ luxir [-t cíl] [-o výstup.s] [-d příznaky] soubor.lir …
 ```
 
 Cíle: `amd64_sysv` (výchozí na Linuxu x86_64), `amd64_apple`, `amd64_win`,
-`arm64`, `arm64_apple`, `rv64`. Bez `-o` jde výstup na standardní výstup.
+`arm64`, `arm64_apple`, `arm64_win`, `rv64`, `wasm32`, 32bitové `arm`
+a `i386` (assembler) a `c32` (C pro 32bitové cíle). Bez `-o` jde výstup na standardní výstup.
 Bez vstupu nebo se vstupem `-` se čte standardní vstup. `-d P` vypíše
 funkce po parsování ve tvaru LuxIR. Další ladicí příznaky odpovídají QBE.
 

@@ -100,6 +100,22 @@ Windows a macOS (navíc):
   kontrola mezí) s cílem chyby; backend kontroly slučuje a odstraňuje.
 - [ ] Dokumentovat celé rozhraní v `doc/runtime.md` vedle `doc/ir.md`.
 
+## 32bitové cíle s assemblerem (arm, i386) — 16. 10. 2026
+
+- [x] `w32.c`: rozklad Kl na dvojice slov před ABI, pomocné funkce
+  `runtime/w32/helpers.lir`, druhé kolo gvn/gcm nad slovy, identity,
+  větvení 64bitových porovnání, přenos `addc`/`adc`, `subc`/`sbc`.
+- [x] Backendy `arm` (AAPCS hard-float) a `i386` (cdecl, SSE2, x87 jen
+  u výsledku). Testy `tests/run_w32.py` a rozdílový fuzzer
+  `tests/w32_diff.py` proti amd64 (`make check-w32`).
+- [ ] Výkon: na i386 je kód LSL 1,2–2,2× pomalejší než C z `c32` přes
+  clang -O2 (málo registrů, dvojice). Dál: výběr adresních režimů na arm
+  ([reg, reg, lsl #n]), shlukování horních slov (ukazatele), lepší
+  přidělení dvojic, `umull`/`mul` pro 32×32→64.
+- [ ] Desetinná čísla Float32 jako argumenty na arm: každé zabírá celý
+  registr d (bez dosazování do děr v s0-s15 podle AAPCS); d7 je pomocný
+  registr, desetinné argumenty jdou jen v d0-d6.
+
 ## Výstup objektů a linkování (bez binutils)
 
 - [ ] Vlastní assembler do objektů: x86_64 ELF64, pak COFF (Windows),

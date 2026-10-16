@@ -48,6 +48,8 @@ end
 | `arm64_win` | Windows on ARM64 |
 | `rv64` | Linux RISC-V 64, bare metal RISC-V (`-p`: adresy relativní k PC) |
 | `wasm32` | WebAssembly (text pro `wat2wasm`; `-g`: vlákna wasi-threads) |
+| `arm` | Linux ARMv7 32bit (hard-float, VFPv3-D16; Raspberry Pi OS 32bit, Android armv7) |
+| `i386` | Linux x86 32bit (i686 se SSE2) |
 
 Výstup `wasm32` je obsah modulu `(module ...)` bez obalu; importy, paměť a
 vstupní bod dodá okolní text (u LSL vrstva architektury runtime). Hodnoty
@@ -56,7 +58,16 @@ rámcem kontroluje mez stínového zásobníku. S `-g` je modul pro více instan
 nad sdílenou pamětí: pasivní data a bezpečné body pro GC na vstupu funkcí a
 zpětných skocích. Podrobnosti v komentáři `src/wasm/emit.c`.
 
-Typ `Ptr` je v IR připravený pro pozdější 32bitové a 8bitové cíle.
+Cíle `arm` a `i386` vypisují assembler pro GNU as. Hodnoty zůstávají
+64bitové: průchod `src/w32.c` před snížením ABI rozloží každou hodnotu `Kl`
+na dvojici 32bitových slov (přenos přes `adds`/`adc`, `add`/`adc`,
+porovnání před skokem jako větvení podle horních slov), 64bitové dělení
+a převody s desetinnými čísly volají pomocné funkce
+`runtime/w32/helpers.lir` (také v LuxIR). Adresy jsou 64bitová slova
+s nulovou horní polovinou (jako u `c32` a `wasm32`). Volací konvence je
+AAPCS s hard-float a System V i386 (cdecl), takže kód volá i funkce v C.
+
+Typ `Ptr` je v IR připravený pro pozdější 8bitové cíle.
 
 ## Struktura
 

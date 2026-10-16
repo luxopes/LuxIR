@@ -46,6 +46,9 @@ struct Target {
 	char windows;
 	char wasm;
 	char cgen;  /* C pro 32bitové cíle (c/emit.c) */
+	char w32;   /* 32bitový cíl s assemblerem: Kl jako dvojice Kw (w32.c) */
+	char w32ops; /* W32* níže: operace Kw, které w32.c nahradí voláním */
+	char armasm; /* GNU as pro ARM: typy v direktivách s % (@ je komentář) */
 	int gpr0;   /* first general purpose reg */
 	int ngpr;
 	int fpr0;   /* first floating point reg */
@@ -547,6 +550,13 @@ void err(char *, ...) __attribute__((noreturn));
 
 /* abi.c */
 void elimsb(Fn *);
+
+/* w32.c */
+enum {
+	W32Div = 1,   /* dělení a zbytek Kw */
+	W32Ucvt = 2,  /* převody Kw bez znaménka z/na desetinná čísla */
+};
+void w32split(Fn *);
 
 /* cfg.c */
 Blk *newblk(void);
