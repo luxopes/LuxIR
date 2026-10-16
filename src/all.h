@@ -1,3 +1,5 @@
+#ifndef LUXIR_ALL_H
+#define LUXIR_ALL_H
 #include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -671,3 +673,5 @@ int luxir_run(char **);
 int luxir_exists(char *);
 char *luxir_exedir(void);
 int luxir_unlink(char *);
+
+#endif

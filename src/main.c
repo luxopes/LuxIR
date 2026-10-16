@@ -1,6 +1,7 @@
 #include "all.h"
 #include "config.h"
 #include "version.h"
+#include "as/as.h"
 #include <ctype.h>
 #include <getopt.h>
 
@@ -291,9 +292,10 @@ main(int ac, char *av[])
 	FILE *inf, *hf;
 	char *f, *sep, *out, *rtdir;
 	char asmpath[4096];
-	int c, exe;
+	int c, exe, asmode;
 
 	T = Deftgt;
+	asmode = 0;
 	outf = stdout;
 	out = 0;
 	rtdir = 0;
@@ -304,7 +306,7 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpgxVd:o:t:L:")) != -1)
+	while ((c = getopt(ac, av, "hpgxaVd:o:t:L:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
@@ -337,6 +339,9 @@ main(int ac, char *av[])
 		case 'x':
 			exe = 1;
 			break;
+		case 'a':
+			asmode = 1;
+			break;
 		case 'L':
 			rtdir = optarg;
 			break;
@@ -364,6 +369,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
+			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t)\n", "-a");
 			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s wasm32: threads (shared memory, GC safepoints)\n", "-g");
@@ -378,6 +384,25 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s dump debug information\n", "-d <flags>");
 			exit(c != 'h');
 		}
+
+	if (asmode) {
+		/* vestavěný assembler: vstup je .s pro architekturu cíle */
+		AArch *arch;
+		if (!out || exe || dbg || !av[optind] || optind + 1 != ac) {
+			fprintf(stderr, "luxir: -a needs -o file and one input file\n");
+			exit(1);
+		}
+		fclose(outf);
+		if (strncmp(T.name, "amd64", 5) == 0)
+			arch = &AX86_64;
+		else if (strcmp(T.name, "i386") == 0)
+			arch = &AI386;
+		else {
+			fprintf(stderr, "luxir: no built-in assembler for %s\n", T.name);
+			exit(1);
+		}
+		exit(assemble(av[optind], out, arch));
+	}
 
 	if (exe) {
 		/* Assembler jde do OUT.s; OUT zůstává až pro linker. */

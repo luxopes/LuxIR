@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""Vestavěný assembler proti GNU as: každý vstup .s se sestaví oběma a
+porovná se obsah každé sekce (bajtově), relokace (posun, typ, symbol,
+addend) a symboly (jméno, hodnota, velikost, vazba, typ, sekce).
+
+Použití: as_diff.py --backend LUXIR --arch x86_64|i386 soubor.s …
+         as_diff.py --backend LUXIR --arch x86_64 --lir [-t cíl] soubor.lir …
+S --lir se vstupy nejdřív přeloží backendem na assembler.
+"""
+import argparse, re, subprocess, sys, tempfile
+from pathlib import Path
+
+ARCH = {
+    'x86_64': (['as', '--64'], 'amd64_sysv', ['--target=x86_64-linux-gnu']),
+    'i386': (['as', '--32'], 'i386', ['--target=i686-linux-gnu']),
+}
+
+
+def run(cmd, **kw):
+    return subprocess.run([str(c) for c in cmd], capture_output=True, text=True, **kw)
+
+
+def sections(obj):
+    """{jméno: (typ, příznaky)} pro alokované sekce bez relokačních."""
+    out = run(['readelf', '-S', '-W', obj]).stdout
+    secs = {}
+    for m in re.finditer(r'\[\s*\d+\]\s+(\S+)\s+(\S+)\s+[0-9a-f]+\s+[0-9a-f]+\s+([0-9a-f]+)\s+[0-9a-f]+\s+(\S*)\s', out):
+        name, typ, size, flags = m.groups()
+        if name in ('.symtab', '.strtab', '.shstrtab') or typ in ('RELA', 'REL', 'NULL'):
+            continue
+        secs[name] = (typ, flags, int(size, 16))
+    return secs
+
+
+def content(obj, sec, tmp):
+    out = tmp / 'sec.bin'
+    r = run(['objcopy', '-O', 'binary', '--only-section=' + sec, obj, out])
+    if r.returncode:
+        return None
+    return out.read_bytes() if out.exists() else b''
+
+
+def relocs(obj):
+    out = run(['readelf', '-r', '-W', obj]).stdout
+    res = {}
+    cur = None
+    for line in out.splitlines():
+        m = re.match(r"Relocation section '(\S+)'", line)
+        if m:
+            cur = m.group(1)
+            res.setdefault(cur, set())
+            continue
+        m = re.match(r'\s*([0-9a-f]+)\s+[0-9a-f]+\s+(\S+)\s+[0-9a-f]+\s+(\S+)(?:\s*([-+])\s*([0-9a-f]+))?', line)
+        if m and cur:
+            off, typ, sym, sign, add = m.groups()
+            a = int(add, 16) if add else 0
+            if sign == '-':
+                a = -a
+            res[cur].add((int(off, 16), typ, sym, a))
+    return res
+
+
+def symbols(obj):
+    out = run(['readelf', '-s', '-W', obj]).stdout
+    res = set()
+    secnames = {}
+    for m in re.finditer(r'\[\s*(\d+)\]\s+(\S+)\s', run(['readelf', '-S', '-W', obj]).stdout):
+        secnames[m.group(1)] = m.group(2)
+    for line in out.splitlines():
+        m = re.match(r'\s*\d+:\s+([0-9a-f]+)\s+(\d+)\s+(\S+)\s+(\S+)\s+\S+\s+(\S+)\s+(\S*)', line)
+        if not m:
+            continue
+        val, size, typ, bind, ndx, name = m.groups()
+        if typ in ('SECTION', 'FILE') or not name:
+            continue
+        res.add((name, int(val, 16), int(size), typ, bind, secnames.get(ndx, ndx)))
+    return res
+
+
+def compare(name, ref, new, tmp):
+    bad = []
+    rs, ns = sections(ref), sections(new)
+    for s in sorted(set(rs) | set(ns)):
+        if s not in rs or s not in ns:
+            bad.append(f'section {s} only in {"gas" if s in rs else "luxir"}')
+            continue
+        if rs[s][:2] != ns[s][:2]:
+            bad.append(f'section {s} type/flags {rs[s][:2]} != {ns[s][:2]}')
+        if rs[s][0] == 'NOBITS':
+            if rs[s][2] != ns[s][2]:
+                bad.append(f'section {s} size {rs[s][2]} != {ns[s][2]}')
+            continue
+        a, b = content(ref, s, tmp), content(new, s, tmp)
+        if a != b:
+            n = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
+            bad.append(f'section {s} differs at offset {n:#x} (gas {a[n:n+12].hex()} luxir {b[n:n+12].hex()}; sizes {len(a)} {len(b)})')
+    rr, nr = relocs(ref), relocs(new)
+    for s in sorted(set(rr) | set(nr)):
+        a, b = rr.get(s, set()), nr.get(s, set())
+        if a != b:
+            only = sorted(a - b)[:3], sorted(b - a)[:3]
+            bad.append(f'relocs {s}: gas-only {only[0]} luxir-only {only[1]}')
+    a, b = symbols(ref), symbols(new)
+    if a != b:
+        bad.append(f'symbols: gas-only {sorted(a - b)[:3]} luxir-only {sorted(b - a)[:3]}')
+    return bad
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--backend', required=True)
+    ap.add_argument('--arch', default='x86_64', choices=sorted(ARCH))
+    ap.add_argument('--lir', action='store_true')
+    ap.add_argument('-t', dest='target')
+    ap.add_argument('inputs', nargs='+')
+    a = ap.parse_args()
+    gas, target, _ = ARCH[a.arch]
+    target = a.target or target
+    backend = str(Path(a.backend).resolve())
+    failed = 0
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        for inp in a.inputs:
+            src = Path(inp)
+            if a.lir:
+                s = tmp / (src.stem + '.s')
+                r = run([backend, '-t', target, '-o', s, src])
+                if r.returncode:
+                    print(f'FAIL {src.name}: backend: {r.stderr[:300]}')
+                    failed += 1
+                    continue
+                src = s
+            ref = tmp / 'ref.o'
+            new = tmp / 'new.o'
+            r = run(gas + ['-o', ref, src])
+            if r.returncode:
+                print(f'skip {inp}: gas: {r.stderr.strip()[:200]}')
+                continue
+            r = run([backend, '-a', '-t', target, '-o', new, src])
+            if r.returncode:
+                print(f'FAIL {inp}: luxir -a: {r.stderr.strip()[:300]}')
+                failed += 1
+                continue
+            bad = compare(inp, ref, new, tmp)
+            if bad:
+                failed += 1
+                print(f'FAIL {inp}')
+                for b in bad[:6]:
+                    print('   ', b)
+            else:
+                print(f'ok   {inp}')
+    print(f'as_diff: {failed} failed')
+    return 1 if failed else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
