@@ -673,5 +673,6 @@ int luxir_run(char **);
 int luxir_exists(char *);
 char *luxir_exedir(void);
 int luxir_unlink(char *);
+int luxir_chmod_exe(char *);
 
 #endif

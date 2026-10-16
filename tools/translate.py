@@ -182,7 +182,7 @@ class Program:
             **{n:'mem.'+n for n in ('malloc','calloc','realloc','free','memcpy','memmove','memset','memcmp','strlen','strcmp','strncmp','strcpy','strncpy','strchr')},
             **{n:'stdio.'+n for n in ('fprintf','vfprintf','printf','snprintf','vsnprintf','sprintf','fputs','puts','fputc','putchar','getc','fgetc','ungetc','feof','fopen','fclose','fflush','fscanf','fread')},
             **{n:'libc.c_'+n for n in ('isalpha','isdigit','isspace','isblank','isalnum','isprint','toupper','tolower','strtol','strtoul','strtoll','strtoull','strtod','strtof','atoi','abort','exit')},
-            **{n:'libc.c_'+n for n in ('luxir_run','luxir_exists','luxir_exedir','luxir_unlink')},
+            **{n:'libc.c_'+n for n in ('luxir_run','luxir_exists','luxir_exedir','luxir_unlink','luxir_chmod_exe')},
             'abs':'abs','qsort':'q_sort','getopt':'q_getopt','__qbe_assert':'q_assert',
         }
 

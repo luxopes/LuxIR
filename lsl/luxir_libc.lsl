@@ -352,3 +352,11 @@ end
 function c_luxir_unlink(raw_path):
     return unlink(mem.text(__lsl_qbe_raw_int(raw_path)))
 end
+
+# Spustitelný soubor: runtime LSL dává obrazům ELF právo spouštění při
+# zápisu, proto se soubor přepíše přes writebytes.
+function c_luxir_chmod_exe(raw_path):
+    path = mem.text(__lsl_qbe_raw_int(raw_path))
+    call writebytes(path, readbytes(path))
+    return 0
+end

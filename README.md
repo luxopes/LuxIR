@@ -79,7 +79,24 @@ relokace ELF (x86-64 RELA, i386 REL). Výstup je bajtově shodný s GNU as na
 všem, co LuxIR a runtime LSL vypisují (`make check-as`, tests/as_diff.py
 porovnává sekce, relokace a symboly). Režim `-x` ho používá místo `as`.
 Nepodporuje TLS (`@tpoff`), GOT a režim Intel; další architektury
-(arm, arm64, rv64) a formáty (COFF, Mach-O) přibudou.
+(arm, arm64, rv64) a formáty (COFF, Mach-O) přibudou. `-a` bere i více
+souborů `.s` do jednoho objektu (místní symboly `.L…` platí v každém
+zvlášť).
+
+## Vestavěný linker
+
+`luxir -l [-p] [-e vstup] -t amd64_sysv|i386 -o program a.o b.o …` slinkuje
+objekty ELF do statického spustitelného souboru pro Linux bez GNU ld:
+sekce se slévají do `.text`, `.rodata`, `.data` a `.bss`, nepoužité sekce
+(bez cesty relokací od vstupního bodu `_start`) se vypustí, relokace se
+vyřeší staticky, tabulka symbolů se nezapisuje. S `-p` vznikne PIE
+(ET_DYN bez dynamické sekce a zavaděče; jádro zvolí náhodnou bázi), a
+proto nesmí obsahovat absolutní relokace (`-z text`); bez `-p` ET_EXEC na
+pevné bázi (i386 0x08048000, x86-64 0x400000). Segmenty: hlavičky (R),
+`.text` (RX), `.rodata` (R), `.data`+`.bss` (RW), `PT_GNU_STACK` bez práva
+spouštění, žádné RWX. `make check-ld`. LSL tak na Linuxu x86-64 a x86
+překládá bez binutils. Nepodporuje archivy, sdílené knihovny, TLS a
+common symboly mimo `.bss`.
 
 ## Struktura
 

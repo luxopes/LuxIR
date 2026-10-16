@@ -28,6 +28,11 @@ sys3(long n, long a, long b, long c)
 	long r;
 	__asm__ volatile("int $0x80" : "=a"(r) : "a"(n), "b"(a), "c"(b), "d"(c) : "memory");
 	return r;
+#elif defined(__x86_64__)
+	long r;
+	register long r10 __asm__("r10") = 0;
+	__asm__ volatile("syscall" : "=a"(r) : "a"(n), "D"(a), "S"(b), "d"(c), "r"(r10) : "rcx", "r11", "memory");
+	return r;
 #else
 #error unsupported architecture
 #endif
@@ -37,6 +42,8 @@ sys3(long n, long a, long b, long c)
 enum { SYS_write = 64, SYS_exit = 94 };
 #elif defined(__arm__)
 enum { SYS_write = 4, SYS_exit = 248 };
+#elif defined(__x86_64__)
+enum { SYS_write = 1, SYS_exit = 231 };
 #else
 enum { SYS_write = 4, SYS_exit = 252 };
 #endif
@@ -202,6 +209,8 @@ lux_start(long *sp)
 __asm__(".text\n.globl _start\n_start:\n mv a0, sp\n andi sp, sp, -16\n call lux_start\n");
 #elif defined(__arm__)
 __asm__(".text\n.globl _start\n_start:\n mov r0, sp\n bic sp, sp, #15\n bl lux_start\n");
+#elif defined(__x86_64__)
+__asm__(".text\n.globl _start\n_start:\n xor %ebp, %ebp\n mov %rsp, %rdi\n and $-16, %rsp\n call lux_start\n");
 #else
 __asm__(".text\n.globl _start\n_start:\n xor %ebp, %ebp\n mov %esp, %eax\n and $-16, %esp\n sub $12, %esp\n push %eax\n call lux_start\n");
 #endif

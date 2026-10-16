@@ -4,6 +4,7 @@
  * c_luxir_exedir, c_luxir_unlink) se stejným chováním. */
 #define _POSIX_C_SOURCE 200809L
 #include "all.h"
+#include <sys/stat.h>
 #include <errno.h>
 #include <spawn.h>
 #include <sys/stat.h>
@@ -67,4 +68,15 @@ int
 luxir_unlink(char *path)
 {
 	return unlink(path);
+}
+
+/* Spustitelný soubor: práva zápisu zůstávají podle umask, přidá se x. */
+int
+luxir_chmod_exe(char *path)
+{
+	struct stat st;
+
+	if (stat(path, &st) != 0)
+		return -1;
+	return chmod(path, (st.st_mode & 07777) | 0111);
 }

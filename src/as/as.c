@@ -123,12 +123,29 @@ usesec(int idx)
 	cur = 0;
 }
 
+static int afile;  /* pořadí vstupního souboru (místní symboly zvlášť) */
+
 int
 asymidx(char *name)
 {
 	uint n;
 	ASymbol *s;
+	static char *buf;
+	static size_t cap;
+	size_t need;
 
+	/* místní symboly .L… platí v jednom souboru jako v GNU as */
+	if (afile > 0 && name[0] == '.' && name[1] == 'L') {
+		need = strlen(name) + 16;
+		if (need > cap) {
+			cap = 2 * need;
+			buf = realloc(buf, cap);
+			if (!buf)
+				die("out of memory");
+		}
+		sprintf(buf, ".L#f%d#%s", afile, name + 2);
+		name = buf;
+	}
 	for (n=0; n<nasyms; n++)
 		if (strcmp(asyms[n].name, name) == 0)
 			return n;
@@ -1587,13 +1604,12 @@ writeobj(char *out)
 }
 
 int
-assemble(char *path, char *out, AArch *arch)
+assemble(char **paths, int npaths, char *out, AArch *arch)
 {
 	uint n;
-	int rounds;
+	int rounds, k;
 
 	A = arch;
-	apath = path;
 	nasecs = 0;
 	nasyms = 0;
 	acursec = -1;
@@ -1604,8 +1620,16 @@ assemble(char *path, char *out, AArch *arch)
 	newsec(".data", SAlloc | SWrite, 1);
 	newsec(".bss", SAlloc | SWrite | SNobits, 8);
 	usesec(0);
-	readfile(path);
-	aparse();
+	/* více vstupů: jeden objekt, jako by šly za sebou (sekce, symboly
+	 * a číselná návěští se sdílejí) */
+	for (k=0; k<npaths; k++) {
+		apath = paths[k];
+		afile = k;
+		readfile(apath);
+		aparse();
+		usesec(0);
+	}
+	afile = 0;
 	aline = 0;
 	for (n=0; n<nasyms; n++)
 		if (!asyms[n].defined && asyms[n].local)

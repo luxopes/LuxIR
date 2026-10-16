@@ -2,6 +2,7 @@
 #include "config.h"
 #include "version.h"
 #include "as/as.h"
+#include "ld/ld.h"
 #include <ctype.h>
 #include <getopt.h>
 
@@ -233,7 +234,7 @@ static int
 linkexe(char *out, char *asmpath, char *rtdir)
 {
 	char obj[4096], rt[4096];
-	char *as, *ld, *argv[24];
+	char *ld, *argv[24];
 	int status;
 
 	status = 1;
@@ -246,10 +247,9 @@ linkexe(char *out, char *asmpath, char *rtdir)
 		fprintf(stderr, "luxir: runtime " LUXIR_RUNTIME_ABI_LSL " object is missing (luxir-runtime/lsl-0/amd64_sysv.o)\n");
 	else {
 		/* vestavěný assembler; linker je zatím GNU ld */
-		as = "luxir";
 		ld = systool("/usr/bin/ld", "/bin/ld", "linker");
 		if (ld)
-			status = assemble(asmpath, obj, &AX86_64);
+			status = assemble(&asmpath, 1, obj, &AX86_64);
 		if (ld && status == 0) {
 			/* Statický PIE bez dynamického loaderu. -z text zakáže
 			 * absolutní relokace ve spustitelných stránkách. */
@@ -286,10 +286,13 @@ main(int ac, char *av[])
 	FILE *inf, *hf;
 	char *f, *sep, *out, *rtdir;
 	char asmpath[4096];
-	int c, exe, asmode;
+	int c, exe, asmode, ldmode;
+	char *entry;
 
 	T = Deftgt;
 	asmode = 0;
+	ldmode = 0;
+	entry = 0;
 	outf = stdout;
 	out = 0;
 	rtdir = 0;
@@ -300,7 +303,7 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpgxaVd:o:t:L:")) != -1)
+	while ((c = getopt(ac, av, "hpgxalVd:o:t:L:e:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
@@ -336,6 +339,12 @@ main(int ac, char *av[])
 		case 'a':
 			asmode = 1;
 			break;
+		case 'l':
+			ldmode = 1;
+			break;
+		case 'e':
+			entry = optarg;
+			break;
 		case 'L':
 			rtdir = optarg;
 			break;
@@ -364,6 +373,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
 			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t)\n", "-a");
+			fprintf(hf, "\t%-11s link ELF objects into a static executable (-p: PIE, -e: entry)\n", "-l");
 			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s wasm32: threads (shared memory, GC safepoints)\n", "-g");
@@ -379,11 +389,32 @@ main(int ac, char *av[])
 			exit(c != 'h');
 		}
 
+	if (ldmode) {
+		/* vestavěný linker: objekty ELF architektury cíle */
+		int is64, mach;
+		if (!out || exe || asmode || dbg || !av[optind]) {
+			fprintf(stderr, "luxir: -l needs -o file and input objects\n");
+			exit(1);
+		}
+		fclose(outf);
+		if (strncmp(T.name, "amd64", 5) == 0) {
+			is64 = 1;
+			mach = 62;
+		} else if (strcmp(T.name, "i386") == 0) {
+			is64 = 0;
+			mach = 3;
+		} else {
+			fprintf(stderr, "luxir: no built-in linker for %s\n", T.name);
+			exit(1);
+		}
+		exit(link(av + optind, ac - optind, out, is64, mach, pic, entry));
+	}
+
 	if (asmode) {
 		/* vestavěný assembler: vstup je .s pro architekturu cíle */
 		AArch *arch;
-		if (!out || exe || dbg || !av[optind] || optind + 1 != ac) {
-			fprintf(stderr, "luxir: -a needs -o file and one input file\n");
+		if (!out || exe || dbg || !av[optind]) {
+			fprintf(stderr, "luxir: -a needs -o file and input files\n");
 			exit(1);
 		}
 		fclose(outf);
@@ -395,7 +426,7 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in assembler for %s\n", T.name);
 			exit(1);
 		}
-		exit(assemble(av[optind], out, arch));
+		exit(assemble(av + optind, ac - optind, out, arch));
 	}
 
 	if (exe) {

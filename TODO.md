@@ -123,18 +123,21 @@ Windows a macOS (navíc):
   architektury LSL (16. 10. 2026).
 - [ ] Assembler pro arm, arm64 a rv64 (ELF), pak COFF (Windows) a Mach-O
   (x86_64 a arm64) jako výstupní formáty.
-- [ ] Vlastní linker:
-  - statický PIE ELF se stejnými zárukami jako dnešní `ld` v LSL
-    (`-static -pie`, `-z text`, `-z noexecstack`, bez build-id, strip);
-  - PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
-  - Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
+- [x] Vlastní linker ELF (`luxir -l`, src/ld/): statický PIE x86-64 a
+  statický i386 se zárukami dnešního `ld` v LSL (`-z text`, `-z
+  noexecstack`, gc-sections, bez build-id, strip); LSL na Linuxu x86 už
+  binutils nepotřebuje (16. 10. 2026).
+- [ ] Linker pro arm, arm64 a rv64 ELF (relokace těchto architektur),
+  PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
+  Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se
   `runtime.o` linkuje celý; tabulka mocnin pro Float zvětšila v LSL 0.9.2
   každou binárku o ~12 KB).
-- [ ] Akceptace: linuxové binárky LSL bez `as` a `ld` projdou branou
-  hardeningu obrazu v release preflightu LSL a celou sadou testů.
+- [x] Akceptace: linuxové binárky LSL bez `as` a `ld` projdou branou
+  hardeningu obrazu (tools/qbe/verify_image.py elf_contract) a celou sadou
+  testů (x86-64 pevný bod a plná sada, linux-x86 106/106).
 
 ## Implementované základy runtime — 12. 10. 2026
 

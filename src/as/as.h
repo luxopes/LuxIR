@@ -143,7 +143,7 @@ int asymidx(char *name);
 uchar *aemit(uint n);
 void afix(uint off, int size, int kind, int64_t pcoff, AExpr *e);
 void ajump(int jop, AExpr *e);
-int assemble(char *path, char *out, AArch *arch);
+int assemble(char **paths, int npaths, char *out, AArch *arch);
 
 /* x86.c */
 extern AArch AX86_64;
