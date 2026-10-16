@@ -85,7 +85,7 @@ class Gen:
 
     def step(self):
         g = self.rng
-        kind = g.choice(['bin', 'bin', 'bin', 'shift', 'cmp', 'cmpjmp', 'div', 'un', 'conv', 'mem', 'w32', 'phi', 'float'])
+        kind = g.choice(['bin', 'bin', 'bin', 'shift', 'cmp', 'cmpjmp', 'div', 'un', 'conv', 'mem', 'w32', 'phi', 'float', 'pressure'])
         a = self.operand()
         b = self.operand()
         v = self.fresh()
@@ -168,10 +168,16 @@ class Gen:
                 L.append(f'    Int64({v}) = {g.choice(["ftoi", "ftou"])}({f})')
         elif kind == 'mem':
             p = self.fresh('p')
-            L.append(f'    Ptr({p}) = add(scratch, {g.randrange(0, 4) * 8})')
+            inbig = g.random() < 0.5
+            if inbig:
+                # velký rámec: posuny mimo rozsah instrukcí (arm 4095/255/1020);
+                # čte se jen zapsané slovo (zbytek pole je neinicializovaný)
+                L.append(f'    Ptr({p}) = add(big, {g.randrange(0, 1500) * 8})')
+            else:
+                L.append(f'    Ptr({p}) = add(scratch, {g.randrange(0, 4) * 8})')
             L.append(f'    store(Int64({a}), {p})')
             op = g.choice(['load', 'load_i32', 'load_u32', 'load_i16', 'load_u8'])
-            off = g.choice([0, 0, 4, 2, 1])
+            off = 0 if inbig else g.choice([0, 0, 4, 2, 1])
             q = self.fresh('p')
             L.append(f'    Ptr({q}) = add({p}, {off})')
             L.append(f'    Int64({v}) = {op}({q})')
@@ -194,6 +200,37 @@ class Gen:
             L.append(f'    Int32({w}) = {op}({x}, {y})')
             self.out(w, 'Int32')
             return
+        elif kind == 'pressure':
+            # hodně živých hodnot přes smyčku: odkládání do (velkého) rámce,
+            # phi s konstantami do odložených slotů
+            n = g.randrange(8, 16)
+            ins = [self.load(rnd(g)) for _ in range(n)]
+            start, head, body, done = self.fresh('L'), self.fresh('L'), self.fresh('L'), self.fresh('L')
+            accs = [self.fresh() for _ in range(n)]
+            nxt = [self.fresh() for _ in range(n)]
+            i, i1, c = self.fresh(), self.fresh(), self.fresh('c')
+            L.append(f'    goto {start}')
+            L.append(f'{start}:')
+            L.append(f'    goto {head}')
+            L.append(f'{head}:')
+            for k in range(n):
+                L.append(f'    Int64({accs[k]}) = phi({start}: {s64(rnd(g))}, {body}: {nxt[k]})')
+            L.append(f'    Int64({i}) = phi({start}: 0, {body}: {i1})')
+            L.append(f'    Int32({c}) = lt({i}, {g.randrange(1, 5)})')
+            L.append(f'    if {c} goto {body} else {done}')
+            L.append(f'{body}:')
+            for k in range(n):
+                op = g.choice(['add', 'xor', 'sub', 'mul'])
+                L.append(f'    Int64({nxt[k]}) = {op}({accs[k]}, {ins[(k * 7 + 3) % n]})')
+            L.append(f'    Int64({i1}) = add({i}, 1)')
+            L.append(f'    goto {head}')
+            L.append(f'{done}:')
+            acc = accs[0]
+            for k in range(1, n):
+                t = self.fresh()
+                L.append(f'    Int64({t}) = xor({acc}, {accs[k]})')
+                acc = t
+            L.append(f'    Int64({v}) = {acc}')
         elif kind == 'phi':
             n = self.fresh()
             head, body, done = self.fresh('L'), self.fresh('L'), self.fresh('L')
@@ -233,7 +270,38 @@ class Gen:
             '    return',
             'end',
             'export function main() -> Int32:',
+            '    Ptr(big) = alloc16(12000)',
         ] + self.lines + ['    return 0', 'end', ''])
+
+
+def farspill(rng, n=1100, m=12):
+    """Program s n současně živými hodnotami Int64 přes smyčku: odložené
+    hodnoty dostanou sloty daleko od ukazatele rámce (posuny mimo rozsah
+    instrukcí arm) a m phi s konstantami se do odložených slotů kopírují
+    přímo."""
+    data = [s64(rnd(rng)) for _ in range(n)]
+    L = ['data fmt = ["%lld\\n", Int8(0)]',
+         'export data vals = [Int64(' + ', '.join(str(d) for d in data) + ')]',
+         'export function main() -> Int32:', 'start:']
+    for k in range(n):
+        L.append(f'    Ptr(p{k}) = add(vals, {k * 8})')
+        L.append(f'    Int64(x{k}) = load(p{k})')
+    L += ['    goto head', 'head:']
+    for k in range(m):
+        L.append(f'    Int64(a{k}) = phi(start: {s64(rnd(rng))}, body: b{k})')
+    L += ['    Int64(i) = phi(start: 0, body: i1)', '    Int32(c) = lt(i, 3)', '    if c goto body else done', 'body:']
+    for k in range(m):
+        L.append(f'    Int64(b{k}) = {rng.choice(["add", "xor", "sub"])}(a{k}, x{(k * 7 + 3) % n})')
+    L += ['    Int64(i1) = add(i, 1)', '    goto head', 'done:']
+    acc = 'a0'
+    for k in range(1, m):
+        L.append(f'    Int64(t{k}) = add({acc}, a{k})')
+        acc = f't{k}'
+    for k in range(n):
+        L.append(f'    Int64(s{k}) = xor({acc}, x{k})')
+        acc = f's{k}'
+    L += [f'    call printf(Ptr(fmt), ..., Int64({acc}))', '    return 0', 'end', '']
+    return '\n'.join(L)
 
 
 def run(cmd, **kw):
@@ -272,8 +340,8 @@ def main():
                 return 1
             objs.append(ho)
             prep[arch] = objs
-        for case in range(a.cases):
-            text = Gen(rng).program(a.steps)
+        for case in range(-1, a.cases):
+            text = farspill(rng) if case < 0 else Gen(rng).program(a.steps)
             lir = tmp / f'c{case}.lir'
             lir.write_text(text)
             r = run([backend, '-t', 'amd64_sysv', '-o', tmp / 'ref.s', lir], text=True)

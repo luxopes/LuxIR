@@ -388,14 +388,28 @@ emitcopy(Ins *i, E *e)
 	if (req(i->to, i->arg[0]) || req(i->to, R))
 		return;
 	if (rtype(i->to) == RSlot) {
-		/* do paměti; z paměti nebo konstanty přes ip/d7 */
+		/* do paměti; z paměti nebo konstanty přes d7 (slovo v s14):
+		 * ip potřebuje uložení pro adresu mimo rozsah posunu */
 		t = *i;
+		if (KBASE(k) == 0)
+			t.cls = Ks;
 		if (!isreg(i->arg[0])) {
-			t.to = TMP(KBASE(k) == 0 ? IP : D7);
-			emitcopy(&t, e);
-			t.arg[0] = t.to;
-		}
-		t.op = KBASE(k) == 0 ? Ostorew : (k == Kd ? Ostored : Ostores);
+			if (rtype(i->arg[0]) == RCon) {
+				t.cls = Kw;
+				t.to = TMP(IP);
+				emitcopy(&t, e);
+				fputs("\tvmov\ts14, ip\n", e->f);
+				t.cls = Ks;
+			} else {
+				t.to = TMP(D7);
+				t.cls = k == Kd ? Kd : Ks;
+				t.op = Oload;
+				emitload(&t, e);
+			}
+			t.arg[0] = TMP(D7);
+			t.op = t.cls == Kd ? Ostored : Ostores;
+		} else
+			t.op = KBASE(k) == 0 ? Ostorew : (k == Kd ? Ostored : Ostores);
 		t.arg[1] = i->to;
 		emitstore(&t, e);
 		return;
