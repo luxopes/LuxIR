@@ -182,8 +182,8 @@ dbgfile(char *fn)
 }
 
 /* Režim -x: z assembleru udělá spustitelný soubor s runtime podle
- * hlavičky runtime_abi. Assembler a linker jsou zatím GNU as/ld z pevných
- * systémových cest (nehledají se v PATH). */
+ * hlavičky runtime_abi. Assembler je vestavěný (as/), linker zatím GNU ld
+ * z pevné systémové cesty (nehledá se v PATH). */
 static char *
 systool(char *primary, char *fallback, char *label)
 {
@@ -245,18 +245,12 @@ linkexe(char *out, char *asmpath, char *rtdir)
 	else if (!findruntime(rt, sizeof rt, rtdir))
 		fprintf(stderr, "luxir: runtime " LUXIR_RUNTIME_ABI_LSL " object is missing (luxir-runtime/lsl-0/amd64_sysv.o)\n");
 	else {
-		as = systool("/usr/bin/as", "/bin/as", "assembler");
+		/* vestavěný assembler; linker je zatím GNU ld */
+		as = "luxir";
 		ld = systool("/usr/bin/ld", "/bin/ld", "linker");
-		if (as && ld) {
-			argv[0] = as;
-			argv[1] = "--64";
-			argv[2] = "-o";
-			argv[3] = obj;
-			argv[4] = asmpath;
-			argv[5] = 0;
-			status = tool(argv, "assembler");
-		}
-		if (as && ld && status == 0) {
+		if (ld)
+			status = assemble(asmpath, obj, &AX86_64);
+		if (ld && status == 0) {
 			/* Statický PIE bez dynamického loaderu. -z text zakáže
 			 * absolutní relokace ve spustitelných stránkách. */
 			argv[0] = ld;

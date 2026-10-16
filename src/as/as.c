@@ -62,6 +62,31 @@ dupstr(char *s)
 	return d;
 }
 
+/* pomůcky místo isxdigit/strstr (nejsou v knihovně generované LSL verze) */
+static int
+hexval(int c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+	return -1;
+}
+
+static char *
+findstr(char *s, char *needle)
+{
+	size_t n;
+
+	n = strlen(needle);
+	for (; *s; s++)
+		if (strncmp(s, needle, n) == 0)
+			return s;
+	return 0;
+}
+
 /* ---- sekce a symboly ---- */
 
 static int
@@ -218,7 +243,7 @@ dot(void)
 	char name[64];
 	int idx;
 
-	sprintf(name, ".L\003%d.%u", acursec, asecs[acursec].nitem);
+	sprintf(name, ".L#dot%d.%u", acursec, asecs[acursec].nitem);
 	idx = asymidx(name);
 	if (asyms[idx].defined)
 		return idx;
@@ -316,7 +341,7 @@ numlabel(int num, int forward)
 	inst = num < nlocnum ? locnum[num] : 0;
 	if (forward)
 		inst++;
-	sprintf(buf, ".L\002%d\002%d", num, inst);
+	sprintf(buf, ".L#%d#%d", num, inst);
 	return buf;
 }
 
@@ -463,8 +488,8 @@ dascii(char *p, int zero)
 					break;
 				case 'x':
 					c = 0;
-					while (isxdigit((uchar)*p)) {
-						c = c * 16 + (isdigit((uchar)*p) ? *p - '0' : tolower((uchar)*p) - 'a' + 10);
+					while (hexval((uchar)*p) >= 0) {
+						c = c * 16 + hexval((uchar)*p);
 						p++;
 					}
 					break;
@@ -511,11 +536,27 @@ dsection(char *p)
 {
 	char name[256], *w;
 	int flags, type, idx;
+	size_t n;
 
-	w = aword(&p);
+	aspace(&p);
+	if (*p == '"')
+		w = aword(&p);
+	else {
+		/* jméno po čárku nebo mezeru (může obsahovat '-') */
+		w = p;
+		while (*p && *p != ',' && *p != ' ' && *p != '\t')
+			p++;
+		n = p - w;
+		if (n >= sizeof name)
+			aerr("section name too long");
+		memcpy(name, w, n);
+		name[n] = 0;
+		w = name;
+	}
 	if (strlen(w) >= sizeof name)
 		aerr("section name too long");
-	strcpy(name, w);
+	if (w != name)
+		strcpy(name, w);
 	flags = -1;
 	type = 1; /* SHT_PROGBITS */
 	aspace(&p);
@@ -631,7 +672,8 @@ dsize(char *p)
 {
 	char *w;
 	ASymbol *s;
-	int sym;
+	AExpr e;
+	int sym, sub, here;
 
 	w = aword(&p);
 	sym = asymidx(w);
@@ -640,23 +682,28 @@ dsize(char *p)
 		aerr("',' expected");
 	p++;
 	aspace(&p);
-	s = &asyms[sym];
-	s->hassize = 1;
 	if (*p == '.' && !identchar((uchar)p[1])) {
 		p++;
 		aspace(&p);
 		if (*p == '-') {
 			p++;
 			w = aword(&p);
-			s->size.sym = dot();
+			sub = asymidx(w);
+			here = dot();
+			s = &asyms[sym];
+			s->hassize = 1;
+			s->size.sym = here;
 			s->size.add = 0;
-			s->sizesub = asymidx(w);
+			s->sizesub = sub;
 			return;
 		}
 		aerr(".size: unsupported expression");
 	}
-	if (!aexpr(&p, &s->size))
+	if (!aexpr(&p, &e))
 		aerr("expression expected");
+	s = &asyms[sym];
+	s->hassize = 1;
+	s->size = e;
 }
 
 static void
@@ -688,8 +735,7 @@ dfill(char *p)
 		emitnum(value, size);
 }
 
-/* .comm jako globální objekt v .bss (statické programy nemají sdílené
- * common symboly) */
+/* .comm symbol, velikost[, zarovnání]: common symbol (linker ho umístí) */
 static void
 dcomm(char *p)
 {
@@ -714,16 +760,15 @@ dcomm(char *p)
 		aspace(&p);
 		anumber(&p, &al);
 	}
-	usesec(findsec(".bss"));
-	align(al, 0, 0);
-	herelabel(asyms[sym].name);
 	s = &asyms[sym];
+	if (s->defined)
+		aerr("symbol %s is already defined", w);
 	s->global = 1;
 	s->type = TObject;
 	s->hassize = 1;
 	s->size.sym = -1;
 	s->size.add = size;
-	aemit(size);
+	s->common = al > 0 ? al : 1;
 }
 
 static void
@@ -834,7 +879,7 @@ stripcomment(char *line)
 			*p = 0;
 			break;
 		} else if (*p == '/' && p[1] == '*') {
-			q = strstr(p + 2, "*/");
+			q = findstr(p + 2, "*/");
 			if (!q)
 				aerr("unterminated comment");
 			memmove(p, q + 2, strlen(q + 2) + 1);
@@ -939,21 +984,66 @@ readfile(char *path)
 static void
 aparse(void)
 {
-	char *p, *e, *s, *t;
-	int instr;
+	static char *line;
+	static size_t cap;
+	char *p, *e, *s, *t, *reptstart;
+	size_t n;
+	int instr, reptn, reptline, skip;
 
 	p = src;
 	aline = 0;
+	reptstart = 0;
+	reptn = 0;
+	reptline = 0;
+	skip = 0;
 	while (*p) {
 		aline++;
 		e = strchr(p, '\n');
-		if (e)
-			*e = 0;
-		stripcomment(p);
+		n = e ? (size_t)(e - p) : strlen(p);
+		/* řádek do pracovní kopie: zdroj zůstává pro .rept */
+		if (n + 1 > cap) {
+			cap = 2 * (n + 1);
+			line = realloc(line, cap);
+			if (!line)
+				die("out of memory");
+		}
+		memcpy(line, p, n);
+		line[n] = 0;
+		p = e ? e + 1 : p + n;
+		stripcomment(line);
+		s = line;
+		aspace(&s);
+		/* .rept N … .endr: blok se zpracuje N-krát (jen pro testy) */
+		if (strncmp(s, ".rept", 5) == 0 && !identchar((uchar)s[5])) {
+			int64_t v;
+			s += 5;
+			aspace(&s);
+			if (!anumber(&s, &v) || v < 0)
+				aerr("count expected");
+			reptn = v;
+			reptstart = p;
+			reptline = aline;
+			skip = reptn == 0;
+			continue;
+		}
+		if (strncmp(s, ".endr", 5) == 0 && !identchar((uchar)s[5])) {
+			if (!reptstart)
+				aerr(".endr without .rept");
+			if (--reptn > 0) {
+				p = reptstart;
+				aline = reptline;
+			} else {
+				reptstart = 0;
+				skip = 0;
+			}
+			continue;
+		}
+		if (skip)
+			continue;
 		/* více příkazů na řádku odděluje ';' mimo řetězce */
-		s = p;
+		s = line;
 		instr = 0;
-		for (t=p; *t; t++) {
+		for (t=line; *t; t++) {
 			if (*t == '"')
 				instr = !instr;
 			else if (*t == ';' && !instr) {
@@ -963,9 +1053,6 @@ aparse(void)
 			}
 		}
 		statement(s);
-		if (!e)
-			break;
-		p = e + 1;
 	}
 }
 
@@ -991,6 +1078,25 @@ exprin(AExpr *e, int sec, int64_t *v)
 /* Adresa symbolu během průchodu relaxací: položky před aktuální (m) už
  * mají nové posuny, položky za ní staré plus dosavadní nárůst stretch
  * (jako relax_segment v GNU as). */
+/* Kolik bajtů kladného nárůstu průchodu mohou pohltit zarovnání mezi
+ * položkami a a b (každé nejvýše align-1; GNU as nepřičítá nárůst
+ * k dopřednému cíli za zarovnáním, aby skok nepřecenil svůj dosah). */
+static int64_t
+absorb(ASec *s, uint a, uint b)
+{
+	uint m;
+	int64_t n;
+
+	n = 0;
+	for (m=a+1; m<b && m<s->nitem; m++)
+		if (s->item[m].kind == IAlign)
+			n += s->item[m].align - 1;
+	return n;
+}
+
+/* Adresa symbolu během průchodu relaxací: položky před aktuální (m) už
+ * mají nové posuny, položky za ní staré plus odhad nárůstu stretch (jako
+ * relax_frag v GNU as). */
 static int64_t
 symaddr(ASymbol *y, int sec, uint m, int64_t stretch)
 {
@@ -1002,8 +1108,14 @@ symaddr(ASymbol *y, int sec, uint m, int64_t stretch)
 		v = s->item[y->item].off;
 	else
 		v = s->size;
-	if (y->item > m)
+	if (y->item > m) {
+		if (stretch > 0) {
+			stretch -= absorb(s, m, y->item);
+			if (stretch < 0)
+				stretch = 0;
+		}
 		v += stretch;
+	}
 	return v;
 }
 
@@ -1046,8 +1158,6 @@ layout(int initial)
 						t = symaddr(y, n, m, stretch) + i->target.add;
 						disp = t - (int64_t)(i->off + size);
 						if (!A->jfits(i, disp)) {
-							if (getenv("LUXIR_ASDEBUG"))
-								fprintf(stderr, "long jump: %s off %llu target %s t %lld disp %lld stretch %lld line %d\n", s->name, (unsigned long long)i->off, y->name, (long long)t, (long long)disp, (long long)stretch, i->line);
 							i->jlong = 1;
 						}
 					}
@@ -1309,8 +1419,11 @@ writeobj(char *out)
 			elfsym[n] = nsyms++;
 			info = (y->weak ? 2 : y->global || !y->defined ? 1 : 0) << 4;
 			info |= y->type == TFunc ? 2 : y->type == TObject ? 1 : 0;
-			osym(&symtab, strtab.n, info, y->defined ? asecs[y->sec].elfidx : 0,
-				y->defined ? y->val : 0, symsize(y));
+			if (y->common)
+				osym(&symtab, strtab.n, info, 0xfff2, y->common, symsize(y));
+			else
+				osym(&symtab, strtab.n, info, y->defined ? asecs[y->sec].elfidx : 0,
+					y->defined ? y->val : 0, symsize(y));
 			oput(&strtab, y->name, strlen(y->name) + 1);
 		}
 	}

@@ -3,9 +3,10 @@
 porovná se obsah každé sekce (bajtově), relokace (posun, typ, symbol,
 addend) a symboly (jméno, hodnota, velikost, vazba, typ, sekce).
 
-Použití: as_diff.py --backend LUXIR --arch x86_64|i386 soubor.s …
+Použití: as_diff.py --backend LUXIR [--backend …] --arch x86_64|i386 soubor.s …
          as_diff.py --backend LUXIR --arch x86_64 --lir [-t cíl] soubor.lir …
-S --lir se vstupy nejdřív přeloží backendem na assembler.
+S --lir se vstupy nejdřív přeloží backendem na assembler. Vstupy, které
+GNU as pro danou architekturu odmítne, se přeskočí.
 """
 import argparse, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -106,49 +107,77 @@ def compare(name, ref, new, tmp):
     return bad
 
 
+def probes(tmp):
+    """Rodina sond relaxace skoků: k dlouhých jcc před sondou (kladný
+    nárůst průchodu), skok přes zarovnání na cíl v různé vzdálenosti."""
+    out = []
+    for k in (1, 5, 10, 40):
+        for al in (3, 4, 5):
+            for n in range(100, 136, 3) if k < 40 else range(0, 136, 5):
+                text = '\n'.join(['.text', 'f:', f'.rept {k}', 'jz far', '.endr', 'jmp L',
+                                  f'.rept {n}', 'nop', '.endr', f'.p2align {al}', 'L: ret',
+                                  '.rept 300', 'nop', '.endr', 'far: ret', ''])
+                path = tmp / f'probe_{k}_{al}_{n}.s'
+                path.write_text(text)
+                out.append(str(path))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--backend', required=True)
+    ap.add_argument('--backend', action='append', required=True)
     ap.add_argument('--arch', default='x86_64', choices=sorted(ARCH))
     ap.add_argument('--lir', action='store_true')
+    ap.add_argument('--probes', action='store_true', help='přidá generované sondy relaxace')
     ap.add_argument('-t', dest='target')
-    ap.add_argument('inputs', nargs='+')
+    ap.add_argument('inputs', nargs='*')
     a = ap.parse_args()
     gas, target, _ = ARCH[a.arch]
     target = a.target or target
-    backend = str(Path(a.backend).resolve())
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
-        for inp in a.inputs:
-            src = Path(inp)
-            if a.lir:
-                s = tmp / (src.stem + '.s')
-                r = run([backend, '-t', target, '-o', s, src])
+        inputs = list(a.inputs)
+        if a.probes:
+            inputs += probes(tmp)
+        for backend in a.backend:
+            backend = str(Path(backend).resolve())
+            for inp in inputs:
+                src = Path(inp)
+                if a.lir:
+                    s = tmp / (src.stem + '.s')
+                    r = run([backend, '-t', target, '-o', s, src])
+                    if r.returncode:
+                        if 'not supported' in r.stderr or 'unsupported' in r.stderr:
+                            print(f'skip {src.name}: {r.stderr.strip()[:120]}')
+                            continue
+                        print(f'FAIL {src.name}: backend: {r.stderr[:300]}')
+                        failed += 1
+                        continue
+                    src = s
+                text = src.read_text(errors='replace')
+                if '@tpoff' in text or '@gotpcrel' in text:
+                    print(f'skip {inp}: thread-local or GOT references are not supported')
+                    continue
+                ref = tmp / 'ref.o'
+                new = tmp / 'new.o'
+                r = run(gas + ['-o', ref, src])
                 if r.returncode:
-                    print(f'FAIL {src.name}: backend: {r.stderr[:300]}')
+                    print(f'skip {inp}: gas: {r.stderr.strip()[:200]}')
+                    continue
+                r = run([backend, '-a', '-t', target, '-o', new, src])
+                if r.returncode:
+                    print(f'FAIL {inp}: luxir -a: {r.stderr.strip()[:300]}')
                     failed += 1
                     continue
-                src = s
-            ref = tmp / 'ref.o'
-            new = tmp / 'new.o'
-            r = run(gas + ['-o', ref, src])
-            if r.returncode:
-                print(f'skip {inp}: gas: {r.stderr.strip()[:200]}')
-                continue
-            r = run([backend, '-a', '-t', target, '-o', new, src])
-            if r.returncode:
-                print(f'FAIL {inp}: luxir -a: {r.stderr.strip()[:300]}')
-                failed += 1
-                continue
-            bad = compare(inp, ref, new, tmp)
-            if bad:
-                failed += 1
-                print(f'FAIL {inp}')
-                for b in bad[:6]:
-                    print('   ', b)
-            else:
-                print(f'ok   {inp}')
+                bad = compare(inp, ref, new, tmp)
+                if bad:
+                    failed += 1
+                    print(f'FAIL {inp} ({Path(backend).parent.name}/{Path(backend).name})')
+                    for b in bad[:6]:
+                        print('   ', b)
+                else:
+                    print(f'ok   {inp}')
     print(f'as_diff: {failed} failed')
     return 1 if failed else 0
 

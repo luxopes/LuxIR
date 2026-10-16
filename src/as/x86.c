@@ -356,6 +356,15 @@ flush(void)
 static int rex_needed;
 
 static void
+segprefix(Opnd *m)
+{
+	static uchar pfx[] = {0x26, 0x2e, 0x36, 0x3e, 0x64, 0x65};
+
+	if (m->seg >= 0)
+		put(pfx[m->seg]);
+}
+
+static void
 regcheck8(Opnd *o)
 {
 	if (o->kind == OReg && o->cls == RGpr8) {
@@ -391,8 +400,8 @@ modrm(int w, int reg, Opnd *rm, int opsize16, int *legacy, int nlegacy, int opc0
 		rex |= 0x40;
 	if (rex && !mode64)
 		xerr("instruction needs 64-bit mode");
-	if (rm->kind == OMem && rm->seg >= 0)
-		put(rm->seg == 4 ? 0x64 : rm->seg == 5 ? 0x65 : rm->seg == 0 ? 0x26 : rm->seg == 1 ? 0x2e : rm->seg == 2 ? 0x36 : 0x3e);
+	if (rm->kind == OMem)
+		segprefix(rm);
 	if (opsize16)
 		put(0x66);
 	for (n=0; n<nlegacy; n++)
@@ -688,14 +697,16 @@ mov(Opnd *o, int no, char *suf)
 		return;
 	}
 	/* akumulátor a absolutní adresa ve 32bitovém režimu: moffs */
-	if (!mode64 && o[0].kind == OMem && o[0].base < 0 && o[0].index < 0 && isacc(&o[1]) && o[0].seg < 0) {
+	if (!mode64 && o[0].kind == OMem && o[0].base < 0 && o[0].index < 0 && isacc(&o[1])) {
+		segprefix(&o[0]);
 		if (s16)
 			put(0x66);
 		put(size == 1 ? 0xa0 : 0xa1);
 		putimm(&o[0].e, 4, 0);
 		return;
 	}
-	if (!mode64 && o[1].kind == OMem && o[1].base < 0 && o[1].index < 0 && isacc(&o[0]) && o[1].seg < 0) {
+	if (!mode64 && o[1].kind == OMem && o[1].base < 0 && o[1].index < 0 && isacc(&o[0])) {
+		segprefix(&o[1]);
 		if (s16)
 			put(0x66);
 		put(size == 1 ? 0xa2 : 0xa3);
@@ -1060,6 +1071,10 @@ split(char *mnem, char *base, char **suf, int allowsuffix)
 	if (!allowsuffix || n < 2)
 		return 1;
 	c = base[n-1];
+	/* mnemoniky, jejichž poslední písmeno není přípona */
+	if (strcmp(base, "sub") == 0 || strcmp(base, "shl") == 0 || strcmp(base, "sal") == 0
+	|| strcmp(base, "mul") == 0 || strcmp(base, "rol") == 0 || strcmp(base, "imul") == 0)
+		return 1;
 	if (c == 'b' || c == 'w' || c == 'l' || c == 'q') {
 		static char sb[2];
 		sb[0] = c;

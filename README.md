@@ -69,6 +69,18 @@ AAPCS s hard-float a System V i386 (cdecl), takže kód volá i funkce v C.
 
 Typ `Ptr` je v IR připravený pro pozdější 8bitové cíle.
 
+## Vestavěný assembler
+
+`luxir -a -t amd64_sysv -o out.o in.s` (také `amd64_apple`, `amd64_win`
+pro kódování x86-64 a `i386`) přeloží assembler v dialektu GNU as do
+relokovatelného objektu ELF bez externích nástrojů: direktivy sekcí,
+symbolů a dat, číselná návěští, relaxace skoků a výplně `nop` jako GNU as,
+relokace ELF (x86-64 RELA, i386 REL). Výstup je bajtově shodný s GNU as na
+všem, co LuxIR a runtime LSL vypisují (`make check-as`, tests/as_diff.py
+porovnává sekce, relokace a symboly). Režim `-x` ho používá místo `as`.
+Nepodporuje TLS (`@tpoff`), GOT a režim Intel; další architektury
+(arm, arm64, rv64) a formáty (COFF, Mach-O) přibudou.
+
 ## Struktura
 
 | Cesta | Obsah |

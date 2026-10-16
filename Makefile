@@ -115,8 +115,16 @@ check-w32: c native
 	$(PYTHON) tests/w32_diff.py --backend src/luxir --cases 60
 	$(PYTHON) tests/w32_diff.py --backend build/luxir --cases 20 --seed 2
 
+# Vestavěný assembler (luxir -a): objekty bajtově shodné s GNU as na
+# programech LuxIR a sondách relaxace skoků a výplní (tests/as/*.s).
+check-as: c native
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --lir tests/run/*.lir
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch i386 --lir -t i386 tests/run/*.lir
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --probes tests/as/*64.s
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch i386 tests/as/*32.s
+
 clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 check-w32 runtime-lsl check-link clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 check-w32 check-as runtime-lsl check-link clean

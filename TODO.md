@@ -118,8 +118,11 @@ Windows a macOS (navíc):
 
 ## Výstup objektů a linkování (bez binutils)
 
-- [ ] Vlastní assembler do objektů: x86_64 ELF64, pak COFF (Windows),
-  Mach-O (x86_64 a arm64), arm64 a rv64 ELF.
+- [x] Vlastní assembler do objektů x86-64 a i386 ELF (`luxir -a`,
+  src/as/): bajtově shodný s GNU as na výstupu LuxIR i vrstvách
+  architektury LSL (16. 10. 2026).
+- [ ] Assembler pro arm, arm64 a rv64 (ELF), pak COFF (Windows) a Mach-O
+  (x86_64 a arm64) jako výstupní formáty.
 - [ ] Vlastní linker:
   - statický PIE ELF se stejnými zárukami jako dnešní `ld` v LSL
     (`-static -pie`, `-z text`, `-z noexecstack`, bez build-id, strip);

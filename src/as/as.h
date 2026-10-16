@@ -106,6 +106,7 @@ struct ASymbol {
 	char hassize;
 	AExpr size;     /* velikost: size - hodnota sizesub (je-li >= 0) */
 	int sizesub;
+	int64_t common; /* .comm: zarovnání (symbol SHN_COMMON), jinak 0 */
 };
 
 /* kodér architektury */
