@@ -1487,6 +1487,10 @@ AArch AX86_64 = {
 	.jemit = x86jemit,
 	.nops = x86nops,
 	.reloc = x86reloc,
+	.resolveglobal = 1,
+	.minalign = 1,
+	.comment = '#',
+	.wordsize = 2,
 };
 
 AArch AI386 = {
@@ -1499,4 +1503,8 @@ AArch AI386 = {
 	.jemit = x86jemit,
 	.nops = x86nops,
 	.reloc = x86reloc,
+	.resolveglobal = 1,
+	.minalign = 1,
+	.comment = '#',
+	.wordsize = 2,
 };

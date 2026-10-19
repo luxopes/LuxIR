@@ -72,27 +72,28 @@ Typ `Ptr` je v IR připravený pro pozdější 8bitové cíle.
 ## Vestavěný assembler
 
 `luxir -a -t amd64_sysv -o out.o in.s` (také `amd64_apple`, `amd64_win`
-pro kódování x86-64 a `i386`) přeloží assembler v dialektu GNU as do
-relokovatelného objektu ELF bez externích nástrojů: direktivy sekcí,
+pro kódování x86-64, `i386` a `arm64`) přeloží assembler v dialektu GNU
+as do relokovatelného objektu ELF bez externích nástrojů: direktivy sekcí,
 symbolů a dat, číselná návěští, relaxace skoků a výplně `nop` jako GNU as,
-relokace ELF (x86-64 RELA, i386 REL). Výstup je bajtově shodný s GNU as na
-všem, co LuxIR a runtime LSL vypisují (`make check-as`, tests/as_diff.py
-porovnává sekce, relokace a symboly). Režim `-x` ho používá místo `as`.
-Nepodporuje TLS (`@tpoff`), GOT a režim Intel; další architektury
-(arm, arm64, rv64) a formáty (COFF, Mach-O) přibudou. `-a` bere i více
+relokace ELF (x86-64 RELA, i386 REL, AArch64 RELA s adrp/:lo12: a
+skoky). Výstup je bajtově shodný s GNU as na všem, co LuxIR a runtime LSL
+vypisují (`make check-as`, tests/as_diff.py porovnává sekce, relokace a
+symboly; mapovací symboly `$x`/`$d` arm64 se nezapisují). Režim `-x` ho
+používá místo `as`. Nepodporuje TLS, GOT a režim Intel; arm a rv64 a
+formáty COFF a Mach-O přibudou. `-a` bere i více
 souborů `.s` do jednoho objektu (místní symboly `.L…` platí v každém
 zvlášť).
 
 ## Vestavěný linker
 
-`luxir -l [-p] [-e vstup] -t amd64_sysv|i386 -o program a.o b.o …` slinkuje
+`luxir -l [-p] [-e vstup] -t amd64_sysv|i386|arm64 -o program a.o b.o …` slinkuje
 objekty ELF do statického spustitelného souboru pro Linux bez GNU ld:
 sekce se slévají do `.text`, `.rodata`, `.data` a `.bss`, nepoužité sekce
 (bez cesty relokací od vstupního bodu `_start`) se vypustí, relokace se
 vyřeší staticky, tabulka symbolů se nezapisuje. S `-p` vznikne PIE
 (ET_DYN bez dynamické sekce a zavaděče; jádro zvolí náhodnou bázi), a
 proto nesmí obsahovat absolutní relokace (`-z text`); bez `-p` ET_EXEC na
-pevné bázi (i386 0x08048000, x86-64 0x400000). Segmenty: hlavičky (R),
+pevné bázi (i386 0x08048000, jinak 0x400000). Segmenty: hlavičky (R),
 `.text` (RX), `.rodata` (R), `.data`+`.bss` (RW), `PT_GNU_STACK` bez práva
 spouštění, žádné RWX. `make check-ld`. LSL tak na Linuxu x86-64 a x86
 překládá bez binutils. Nepodporuje archivy, sdílené knihovny, TLS a

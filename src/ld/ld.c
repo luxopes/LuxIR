@@ -656,6 +656,63 @@ relocate(uchar *out)
 				a = r->add;
 				if (!s->rela)
 					a = (int64_t)(int32_t)rd(field, 4);
+				if (machine == 183) {
+					uint32_t ins = rd(field, 4);
+					int64_t sa = (int64_t)(v + a);
+					switch (r->type) {
+					case 257: /* ABS64 */
+					case 258: /* ABS32 */
+						if (pie)
+							lerr("%s: absolute relocation against %s in a position-independent executable", o->path, relname(o, y));
+						wr(field, sa, r->type == 257 ? 8 : 4);
+						continue;
+					case 260: /* PREL64 */
+						wr(field, sa - (int64_t)p, 8);
+						continue;
+					case 261: /* PREL32 */
+						wr(field, sa - (int64_t)p, 4);
+						continue;
+					case 275: /* ADR_PREL_PG_HI21 */
+						val = ((sa >> 12) - ((int64_t)p >> 12));
+						if (val < -(1 << 20) || val >= (1 << 20))
+							lerr("%s: adrp out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0x9f00001f) | ((uint32_t)(val & 3) << 29) | ((uint32_t)((val >> 2) & 0x7ffff) << 5);
+						break;
+					case 277: /* ADD_ABS_LO12_NC */
+						ins = (ins & 0xffc003ff) | ((uint32_t)(sa & 0xfff) << 10);
+						break;
+					case 278: case 284: case 285: case 286: case 299: {
+						int sh = r->type == 278 ? 0 : r->type == 284 ? 1 : r->type == 285 ? 2 : r->type == 286 ? 3 : 4;
+						if (sa & ((1 << sh) - 1))
+							lerr("%s: misaligned load/store offset for %s", o->path, relname(o, y));
+						ins = (ins & 0xffc003ff) | ((uint32_t)(((sa & 0xfff) >> sh) & 0xfff) << 10);
+						break;
+					}
+					case 279: /* TSTBR14 */
+						val = (sa - (int64_t)p) >> 2;
+						if (val < -(1 << 13) || val >= (1 << 13))
+							lerr("%s: branch out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0xfff8001f) | ((uint32_t)(val & 0x3fff) << 5);
+						break;
+					case 280: /* CONDBR19 */
+						val = (sa - (int64_t)p) >> 2;
+						if (val < -(1 << 18) || val >= (1 << 18))
+							lerr("%s: branch out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0xff00001f) | ((uint32_t)(val & 0x7ffff) << 5);
+						break;
+					case 282: /* JUMP26 */
+					case 283: /* CALL26 */
+						val = (sa - (int64_t)p) >> 2;
+						if (val < -(1 << 25) || val >= (1 << 25))
+							lerr("%s: branch out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0xfc000000) | (uint32_t)(val & 0x3ffffff);
+						break;
+					default:
+						lerr("%s: unsupported relocation type %u", o->path, r->type);
+					}
+					wr(field, ins, 4);
+					continue;
+				}
 				if (elf64)
 					switch (r->type) {
 					case 2:  /* PC32 */

@@ -8,12 +8,13 @@ Použití: as_diff.py --backend LUXIR [--backend …] --arch x86_64|i386 soubor.
 S --lir se vstupy nejdřív přeloží backendem na assembler. Vstupy, které
 GNU as pro danou architekturu odmítne, se přeskočí.
 """
-import argparse, re, subprocess, sys, tempfile
+import argparse, re, struct, subprocess, sys, tempfile
 from pathlib import Path
 
 ARCH = {
     'x86_64': (['as', '--64'], 'amd64_sysv', ['--target=x86_64-linux-gnu']),
     'i386': (['as', '--32'], 'i386', ['--target=i686-linux-gnu']),
+    'arm64': (['aarch64-linux-gnu-as'], 'arm64', ['--target=aarch64-linux-gnu']),
 }
 
 
@@ -21,24 +22,35 @@ def run(cmd, **kw):
     return subprocess.run([str(c) for c in cmd], capture_output=True, text=True, **kw)
 
 
-def sections(obj):
-    """{jméno: (typ, příznaky)} pro alokované sekce bez relokačních."""
-    out = run(['readelf', '-S', '-W', obj]).stdout
+def elfsections(obj):
+    """Sekce objektu ELF z vlastního čtení hlaviček (nezávisle na objcopy a
+    architektuře): {jméno: (typ, příznaky, velikost, zarovnání, obsah)}."""
+    d = obj.read_bytes()
+    assert d[:4] == b'\x7fELF'
+    elf64 = d[4] == 2
+    if elf64:
+        shoff, = struct.unpack_from('<Q', d, 40)
+        shentsize, shnum, shstrndx = struct.unpack_from('<HHH', d, 58)
+    else:
+        shoff, = struct.unpack_from('<I', d, 32)
+        shentsize, shnum, shstrndx = struct.unpack_from('<HHH', d, 46)
+    heads = []
+    for i in range(shnum):
+        o = shoff + i * shentsize
+        if elf64:
+            name, typ, flags, addr, off, size, link, info, align, ent = struct.unpack_from('<IIQQQQIIQQ', d, o)
+        else:
+            name, typ, flags, addr, off, size, link, info, align, ent = struct.unpack_from('<IIIIIIIIII', d, o)
+        heads.append((name, typ, flags, off, size, align))
+    strtab = heads[shstrndx][3]
     secs = {}
-    for m in re.finditer(r'\[\s*\d+\]\s+(\S+)\s+(\S+)\s+[0-9a-f]+\s+[0-9a-f]+\s+([0-9a-f]+)\s+[0-9a-f]+\s+(\S*)\s', out):
-        name, typ, size, flags = m.groups()
-        if name in ('.symtab', '.strtab', '.shstrtab') or typ in ('RELA', 'REL', 'NULL'):
+    for name, typ, flags, off, size, align in heads:
+        n = d[strtab + name:d.index(b'\0', strtab + name)].decode()
+        if typ in (0, 2, 3, 4, 9):
             continue
-        secs[name] = (typ, flags, int(size, 16))
+        data = b'' if typ == 8 else d[off:off + size]
+        secs[n] = (typ, flags, size, align, data)
     return secs
-
-
-def content(obj, sec, tmp):
-    out = tmp / 'sec.bin'
-    r = run(['objcopy', '-O', 'binary', '--only-section=' + sec, obj, out])
-    if r.returncode:
-        return None
-    return out.read_bytes() if out.exists() else b''
 
 
 def relocs(obj):
@@ -72,29 +84,30 @@ def symbols(obj):
         if not m:
             continue
         val, size, typ, bind, ndx, name = m.groups()
-        if typ in ('SECTION', 'FILE') or not name:
-            continue
+        if typ in ('SECTION', 'FILE') or not name or name in ('$x', '$d'):
+            continue  # mapovací symboly arm64 se nezapisují
         res.add((name, int(val, 16), int(size), typ, bind, secnames.get(ndx, ndx)))
     return res
 
 
 def compare(name, ref, new, tmp):
     bad = []
-    rs, ns = sections(ref), sections(new)
+    rs, ns = elfsections(ref), elfsections(new)
     for s in sorted(set(rs) | set(ns)):
         if s not in rs or s not in ns:
             bad.append(f'section {s} only in {"gas" if s in rs else "luxir"}')
             continue
         if rs[s][:2] != ns[s][:2]:
             bad.append(f'section {s} type/flags {rs[s][:2]} != {ns[s][:2]}')
-        if rs[s][0] == 'NOBITS':
-            if rs[s][2] != ns[s][2]:
-                bad.append(f'section {s} size {rs[s][2]} != {ns[s][2]}')
+        if rs[s][3] != ns[s][3]:
+            bad.append(f'section {s} alignment {rs[s][3]} != {ns[s][3]}')
+        if rs[s][2] != ns[s][2]:
+            bad.append(f'section {s} size {rs[s][2]} != {ns[s][2]}')
             continue
-        a, b = content(ref, s, tmp), content(new, s, tmp)
+        a, b = rs[s][4], ns[s][4]
         if a != b:
             n = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
-            bad.append(f'section {s} differs at offset {n:#x} (gas {a[n:n+12].hex()} luxir {b[n:n+12].hex()}; sizes {len(a)} {len(b)})')
+            bad.append(f'section {s} differs at offset {n:#x} (gas {a[n:n+12].hex()} luxir {b[n:n+12].hex()})')
     rr, nr = relocs(ref), relocs(new)
     for s in sorted(set(rr) | set(nr)):
         a, b = rr.get(s, set()), nr.get(s, set())
@@ -105,6 +118,33 @@ def compare(name, ref, new, tmp):
     if a != b:
         bad.append(f'symbols: gas-only {sorted(a - b)[:3]} luxir-only {sorted(b - a)[:3]}')
     return bad
+
+
+def ror(v, r, size):
+    mask = (1 << size) - 1
+    v &= mask
+    return ((v >> r) | (v << (size - r))) & mask
+
+
+def probes_arm64(tmp):
+    """Všechny logické immediate (velikost prvku, počet jedniček, rotace)
+    v mov/and/orr: kódování N:immr:imms musí sedět s GNU as."""
+    lines = ['.text']
+    for size in (2, 4, 8, 16, 32, 64):
+        for ones in range(1, size):
+            for rot in range(size):
+                e = ror((1 << ones) - 1, rot, size)
+                v = 0
+                for k in range(0, 64, size):
+                    v |= e << k
+                lines.append(f'\tmov x0, #{v:#x}')
+                lines.append(f'\tand x1, x2, #{v:#x}')
+                if size <= 32:
+                    lines.append(f'\tmov w0, #{v & 0xffffffff:#x}')
+                    lines.append(f'\torr w1, w2, #{v & 0xffffffff:#x}')
+    path = tmp / 'probe_bitmask.s'
+    path.write_text('\n'.join(lines) + '\n')
+    return [str(path)]
 
 
 def probes(tmp):
@@ -139,7 +179,7 @@ def main():
         tmp = Path(tmp)
         inputs = list(a.inputs)
         if a.probes:
-            inputs += probes(tmp)
+            inputs += probes_arm64(tmp) if a.arch == 'arm64' else probes(tmp)
         for backend in a.backend:
             backend = str(Path(backend).resolve())
             for inp in inputs:
@@ -156,7 +196,7 @@ def main():
                         continue
                     src = s
                 text = src.read_text(errors='replace')
-                if '@tpoff' in text or '@gotpcrel' in text:
+                if '@tpoff' in text or '@gotpcrel' in text or ':tprel_' in text or ':got' in text:
                     print(f'skip {inp}: thread-local or GOT references are not supported')
                     continue
                 ref = tmp / 'ref.o'

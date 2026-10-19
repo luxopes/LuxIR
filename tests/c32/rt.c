@@ -28,6 +28,13 @@ sys3(long n, long a, long b, long c)
 	long r;
 	__asm__ volatile("int $0x80" : "=a"(r) : "a"(n), "b"(a), "c"(b), "d"(c) : "memory");
 	return r;
+#elif defined(__aarch64__)
+	register long x8 __asm__("x8") = n;
+	register long x0 __asm__("x0") = a;
+	register long x1 __asm__("x1") = b;
+	register long x2 __asm__("x2") = c;
+	__asm__ volatile("svc #0" : "+r"(x0) : "r"(x8), "r"(x1), "r"(x2) : "memory");
+	return x0;
 #elif defined(__x86_64__)
 	long r;
 	register long r10 __asm__("r10") = 0;
@@ -42,6 +49,8 @@ sys3(long n, long a, long b, long c)
 enum { SYS_write = 64, SYS_exit = 94 };
 #elif defined(__arm__)
 enum { SYS_write = 4, SYS_exit = 248 };
+#elif defined(__aarch64__)
+enum { SYS_write = 64, SYS_exit = 94 };
 #elif defined(__x86_64__)
 enum { SYS_write = 1, SYS_exit = 231 };
 #else
@@ -209,6 +218,8 @@ lux_start(long *sp)
 __asm__(".text\n.globl _start\n_start:\n mv a0, sp\n andi sp, sp, -16\n call lux_start\n");
 #elif defined(__arm__)
 __asm__(".text\n.globl _start\n_start:\n mov r0, sp\n bic sp, sp, #15\n bl lux_start\n");
+#elif defined(__aarch64__)
+__asm__(".text\n.globl _start\n_start:\n mov x0, sp\n and sp, x0, #-16\n bl lux_start\n");
 #elif defined(__x86_64__)
 __asm__(".text\n.globl _start\n_start:\n xor %ebp, %ebp\n mov %rsp, %rdi\n and $-16, %rsp\n call lux_start\n");
 #else

@@ -207,7 +207,7 @@ aemit(uint n)
 }
 
 void
-afix(uint off, int size, int kind, int64_t pcoff, AExpr *e)
+afixenc(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e)
 {
 	AItem *i;
 	AFix *f;
@@ -219,7 +219,14 @@ afix(uint off, int size, int kind, int64_t pcoff, AExpr *e)
 	f->size = size;
 	f->kind = kind;
 	f->pcoff = pcoff;
+	f->enc = enc;
 	f->e = *e;
+}
+
+void
+afix(uint off, int size, int kind, int64_t pcoff, AExpr *e)
+{
+	afixenc(off, size, kind, pcoff, 0, e);
 }
 
 void
@@ -384,6 +391,11 @@ aexpr(char **ps, AExpr *e)
 				sign = -1;
 			p++;
 			aspace(&p);
+			/* sym+-5: druhé znaménko (vypisuje emitor arm64) */
+			if (*p == '-' && sign == 1 && isdigit((uchar)p[1])) {
+				sign = -1;
+				p++;
+			}
 		}
 		if (*p == '(') {
 			p++;
@@ -840,11 +852,13 @@ directive(char *d, char *p)
 		dsize(p);
 	else if (strcmp(d, ".byte") == 0)
 		dataexpr(p, 1);
-	else if (strcmp(d, ".short") == 0 || strcmp(d, ".word") == 0 || strcmp(d, ".2byte") == 0 || strcmp(d, ".hword") == 0)
+	else if (strcmp(d, ".short") == 0 || strcmp(d, ".2byte") == 0 || strcmp(d, ".hword") == 0)
 		dataexpr(p, 2);
+	else if (strcmp(d, ".word") == 0)
+		dataexpr(p, A->wordsize ? A->wordsize : 2);
 	else if (strcmp(d, ".int") == 0 || strcmp(d, ".long") == 0 || strcmp(d, ".4byte") == 0)
 		dataexpr(p, 4);
-	else if (strcmp(d, ".quad") == 0 || strcmp(d, ".8byte") == 0)
+	else if (strcmp(d, ".quad") == 0 || strcmp(d, ".8byte") == 0 || strcmp(d, ".xword") == 0)
 		dataexpr(p, 8);
 	else if (strcmp(d, ".ascii") == 0)
 		dascii(p, 0);
@@ -892,7 +906,7 @@ stripcomment(char *line)
 		}
 		if (*p == '"')
 			instr = 1;
-		else if (*p == '#' || (*p == '/' && p[1] == '/')) {
+		else if ((A->comment && *p == A->comment) || (*p == '/' && p[1] == '/')) {
 			*p = 0;
 			break;
 		} else if (*p == '/' && p[1] == '*') {
@@ -966,6 +980,8 @@ statement(char *p)
 	if (*q)
 		*q++ = 0;
 	aspace(&q);
+	if (A->minalign > asecs[acursec].align)
+		asecs[acursec].align = A->minalign;
 	if (!A->insn(p, q))
 		aerr("unknown instruction %s", p);
 }
@@ -1286,9 +1302,13 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 		return;
 	}
 	if (f->kind != FAbs && y->defined && y->sec == secidx
-	&& (jump || (!y->global && !y->weak))) {
+	&& ((jump && A->resolveglobal) || (!y->global && !y->weak))) {
 		/* S + A - P, A = add + pcoff, P = pozice pole */
 		v = (int64_t)y->val + f->e.add + f->pcoff - (int64_t)pos;
+		if (f->enc) {
+			A->fixenc(buf + pos, f, v);
+			return;
+		}
 		if (f->size == 1 && (v < -128 || v > 127))
 			aerr("jump out of range");
 		putval(buf + pos, v, f->size);
@@ -1300,7 +1320,8 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 	a = f->e.add;
 	if (f->kind != FAbs)
 		a += f->pcoff;
-	if (y->defined && !y->global && !y->weak) {
+	/* arm64 GNU as nechává relokace na místní funkce na symbolu */
+	if (y->defined && !y->global && !y->weak && (y->local || !A->keeplocalsym || y->type != TFunc)) {
 		es = asecs[y->sec].symidx;
 		a += y->val;
 	} else

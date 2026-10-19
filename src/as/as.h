@@ -48,6 +48,7 @@ struct AFix {
 	int size;      /* 1, 2, 4, 8 bajtů */
 	int kind;
 	int64_t pcoff; /* k A u FPcrel: záporný počet bajtů za polem do konce instrukce, -velikost pole */
+	int enc;       /* 0 prosté pole; jinak kódování v instrukci (architektura) */
 	AExpr e;
 };
 
@@ -124,6 +125,20 @@ struct AArch {
 	void (*nops)(uchar *, uint n);
 	/* typ relokace ELF pro opravu (0 = nelze) */
 	int (*reloc)(AFix *);
+	/* zápis vyřešené hodnoty do instrukce pro enc != 0 (0 = jen prostá pole) */
+	void (*fixenc)(uchar *, AFix *, int64_t);
+	/* skoky na globální symbol téže sekce se vyřeší (x86 jako GNU as),
+	 * jinak zůstane relokace (arm64) */
+	int resolveglobal;
+	/* nejmenší zarovnání sekce s instrukcemi */
+	int minalign;
+	/* znak komentáře do konce řádku vedle //: '#' na x86, žádný na arm64 */
+	int comment;
+	/* velikost .word: 2 na x86, 4 na arm64 (.xword 8) */
+	int wordsize;
+	/* relokace na místní funkce (.type function) míří na symbol, ne na
+	 * sekci (GNU as pro arm64); .L a datové symboly vždy přes sekci */
+	int keeplocalsym;
 };
 
 /* as.c */
@@ -142,9 +157,13 @@ int anumber(char **ps, int64_t *v);
 int asymidx(char *name);
 uchar *aemit(uint n);
 void afix(uint off, int size, int kind, int64_t pcoff, AExpr *e);
+void afixenc(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e);
 void ajump(int jop, AExpr *e);
 int assemble(char **paths, int npaths, char *out, AArch *arch);
 
 /* x86.c */
 extern AArch AX86_64;
 extern AArch AI386;
+
+/* arm64.c */
+extern AArch AARM64;

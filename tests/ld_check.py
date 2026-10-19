@@ -17,7 +17,9 @@ ARCH = {
     # PIE: testovací runtime jako -fPIE (odkazy relativně k PC), bez PIE -fno-pic
     'x86_64': ('amd64_sysv', ['--target=x86_64-linux-gnu', '-mno-red-zone'], [], [['-fno-pic'], ['-fPIE', '-p']]),
     'i386': ('i386', ['--target=i686-linux-gnu', '-msse2', '-mfpmath=sse'], [BUILTINS], [['-fno-pic']]),
+    'arm64': ('arm64', ['--target=aarch64-linux-gnu'], [], [['-fPIE', '-p']]),
 }
+RUNNER = {'arm64': ['qemu-aarch64']}
 UNSUPPORTED = {'memory', 'calls', 'tls'}   # i386: agregáty a variadické; tls: TLS nepodporuje linker
 
 
@@ -118,7 +120,7 @@ def main():
                             print(f'FAIL    {name}: image contract: {e}')
                             failed += 1
                             continue
-                        r = run([exe], timeout=60)
+                        r = run(RUNNER.get(arch, []) + [exe], timeout=60)
                         expected = lir.with_suffix('.out').read_bytes()
                         if r.returncode or r.stdout != expected:
                             print(f'FAIL    {name}: status {r.returncode}')

@@ -122,11 +122,13 @@ check-as: c native
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch i386 --lir -t i386 tests/run/*.lir
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --probes tests/as/*64.s
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch i386 tests/as/*32.s
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64 --lir -t arm64 tests/run/*.lir
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64 --probes tests/as/*_a64.s
 
 # Vestavěný linker (luxir -l): programy LuxIR slinkované s testovacím
 # runtime (x86-64 bez PIE i PIE, i386), spuštěné a smlouva obrazu.
 check-ld: c native
-	$(PYTHON) tests/ld_check.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/ld_check.py --backend src/luxir --backend build/luxir --arch x86_64 --arch i386 --arch arm64
 
 clean:
 	$(MAKE) -C src clean

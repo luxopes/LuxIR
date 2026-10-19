@@ -127,9 +127,12 @@ Windows a macOS (navíc):
   statický i386 se zárukami dnešního `ld` v LSL (`-z text`, `-z
   noexecstack`, gc-sections, bez build-id, strip); LSL na Linuxu x86 už
   binutils nepotřebuje (16. 10. 2026).
-- [ ] Linker pro arm, arm64 a rv64 ELF (relokace těchto architektur),
-  PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
-  Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
+- [x] Assembler a linker AArch64 ELF (`-t arm64`): bajtově shodné objekty
+  s GNU as na překladači LSL i runtime, relokace adrp/:lo12:/skoků;
+  LSL linux-arm64 bez binutils (19. 10. 2026).
+- [ ] Assembler a linker arm (32bit) a rv64 ELF; PE32+ s ASLR, DEP a
+  high-entropy VA, importy `kernel32` a `ws2_32`; Mach-O s `LC_MAIN`,
+  `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se
