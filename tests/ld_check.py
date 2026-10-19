@@ -19,9 +19,11 @@ ARCH = {
     'i386': ('i386', ['--target=i686-linux-gnu', '-msse2', '-mfpmath=sse'], [BUILTINS], [['-fno-pic']]),
     'arm64': ('arm64', ['--target=aarch64-linux-gnu'], [], [['-fPIE', '-p']]),
     'rv64': ('rv64', ['--target=riscv64-linux-gnu', '-march=rv64g', '-mabi=lp64d', '-mno-relax'], [], [['-fno-pic'], ['-fPIE', '-p']]),
+    'arm': ('arm', ['--target=armv7a-unknown-linux-gnueabihf', '-mfloat-abi=hard', '-mfpu=vfpv3-d16', '-marm'], [BUILTINS], [['-fno-pic']]),
 }
-RUNNER = {'arm64': ['qemu-aarch64'], 'rv64': ['qemu-riscv64']}
-UNSUPPORTED = {'memory', 'calls', 'tls'}   # i386: agregáty a variadické; tls: TLS nepodporuje linker
+RUNNER = {'arm64': ['qemu-aarch64'], 'rv64': ['qemu-riscv64'], 'arm': ['qemu-arm']}
+UNSUPPORTED = {'memory', 'calls', 'tls'}   # i386 a arm: agregáty a variadické; tls: TLS nepodporuje linker
+W32 = {'i386', 'arm'}
 
 
 def run(cmd, **kw):
@@ -75,7 +77,7 @@ def main():
             for backend in a.backend:
                 backend = str(Path(backend).resolve())
                 helpers = []
-                if arch == 'i386':
+                if arch in W32:
                     # pomocné funkce 64bitového dělení a převodů (w32)
                     hs, ho = tmp / 'helpers.s', tmp / 'helpers.o'
                     r = run([backend, '-t', target, '-o', hs, ROOT.parent / 'runtime' / 'w32' / 'helpers.lir'], text=True)
@@ -87,7 +89,7 @@ def main():
                         continue
                     helpers = [ho]
                 for lir in sorted((ROOT / 'run').glob('*.lir')):
-                    if lir.stem == 'tls' or (lir.stem in UNSUPPORTED and arch == 'i386'):
+                    if lir.stem == 'tls' or (lir.stem in UNSUPPORTED and arch in W32):
                         continue
                     for mode in modes:
                         pie = '-p' in mode

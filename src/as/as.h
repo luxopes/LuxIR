@@ -132,6 +132,12 @@ struct AArch {
 	/* předběžná hodnota do pole skoku, které dostane relokaci: S + A - P
 	 * s hodnotou nedefinovaného symbolu 0 (GNU as pro RISC-V) */
 	void (*tentative)(uchar *, AFix *, int64_t);
+	/* REL: addend zapsaný do pole instrukce podle kódování (ARM imm24,
+	 * imm16); 0 = prosté pole o velikosti opravy */
+	void (*relenc)(uchar *, AFix *, int64_t);
+	/* 1: relokace této opravy míří vždy na symbol, i místní (ARM
+	 * MOVW/MOVT); 0 = obecné pravidlo keeplocalsym */
+	int (*symreloc)(AFix *);
 	/* výplň zarovnání v kódu */
 	void (*nops)(uchar *, uint n);
 	/* typ relokace ELF pro opravu (0 = nelze) */
@@ -160,8 +166,8 @@ struct AArch {
 	int localonly;
 	/* e_flags hlavičky ELF */
 	uint32_t eflags;
-	/* konec kódové sekce se doplní instrukcemi nop na její zarovnání
-	 * (GNU as pro RISC-V) */
+	/* konec kódové sekce: 1 doplnit nop na zarovnání sekce (GNU as pro
+	 * RISC-V), 2 doplnit nulami na 4 bajty (GNU as pro ARM) */
 	int padcode;
 	/* výchozí zarovnání prázdné sekce .text */
 	int textalign;
@@ -200,3 +206,6 @@ extern AArch AARM64;
 
 /* rv64.c */
 extern AArch ARV64;
+
+/* arm.c */
+extern AArch AARM;

@@ -13,6 +13,19 @@ int aline;
 
 static char *apath;
 static char *src;
+
+/* .macro jméno [parametry] … .endm: tělo se při volání rozvine
+ * s dosazením \parametr (GNU as) */
+typedef struct AMacro AMacro;
+struct AMacro {
+	char *name;
+	char *body;      /* řádky těla oddělené \n */
+	char *param[8];
+	int nparam;
+};
+static AMacro *macros;
+static uint nmacros;
+static int macrodepth;
 static AItem *cur;      /* otevřená datová položka aktuální sekce */
 static int *locnum;     /* číselná návěští: počet definic každého čísla */
 static int nlocnum;
@@ -1061,6 +1074,8 @@ stripcomment(char *line)
 		*--q = 0;
 }
 
+static int expandmacro(char *name, char *args);
+
 static void
 statement(char *p)
 {
@@ -1119,6 +1134,8 @@ statement(char *p)
 	if (*q)
 		*q++ = 0;
 	aspace(&q);
+	if (nmacros && expandmacro(p, q))
+		return;
 	if (A->minalign > asecs[acursec].align)
 		asecs[acursec].align = A->minalign;
 	if (!A->insn(p, q))
@@ -1153,6 +1170,116 @@ readfile(char *path)
 	src[n] = 0;
 }
 
+/* Řádek bez komentáře: příkazy oddělené ';' mimo řetězce. */
+static void
+procline(char *line)
+{
+	char *s, *t;
+	int instr;
+
+	s = line;
+	instr = 0;
+	for (t=line; *t; t++) {
+		if (instr && *t == '\\' && t[1])
+			t++;
+		else if (*t == '"')
+			instr = !instr;
+		else if (*t == ';' && !instr) {
+			*t = 0;
+			statement(s);
+			s = t + 1;
+		}
+	}
+	statement(s);
+}
+
+/* Volání makra: argumenty oddělené čárkami, v těle se nahradí
+ * \parametr; každý řádek těla se zpracuje jako běžný řádek. */
+static int
+expandmacro(char *name, char *args)
+{
+	AMacro *m;
+	char *arg[8], *p, *q, *b, *e, *out, *o;
+	uint k;
+	int narg, n, len, found, save;
+	size_t cap;
+
+	for (k=0; k<nmacros; k++)
+		if (strcmp(macros[k].name, name) == 0)
+			break;
+	if (k == nmacros)
+		return 0;
+	m = &macros[k];
+	if (++macrodepth > 20)
+		aerr("macro expansion too deep");
+	narg = 0;
+	p = args;
+	for (;;) {
+		aspace(&p);
+		if (!*p)
+			break;
+		q = p;
+		while (*q && *q != ',')
+			q++;
+		if (narg >= 8)
+			aerr("too many macro arguments");
+		arg[narg++] = p;
+		if (*q == ',') {
+			*q = 0;
+			p = q + 1;
+		} else
+			p = q;
+	}
+	save = aline;
+	b = m->body;
+	while (*b) {
+		e = strchr(b, '\n');
+		len = e ? (int)(e - b) : (int)strlen(b);
+		cap = 2 * len + 64;
+		out = emalloc(cap);
+		o = out;
+		for (n=0; n<len; ) {
+			if (b[n] == '\\') {
+				if (b[n+1] == '(' && b[n+2] == ')') {
+					n += 3;
+					continue;
+				}
+				found = 0;
+				for (k=0; k<(uint)m->nparam; k++) {
+					int pl = strlen(m->param[k]);
+					if (strncmp(b + n + 1, m->param[k], pl) == 0 && !identchar((uchar)b[n+1+pl])) {
+						char *a = (int)k < narg ? arg[k] : "";
+						if ((size_t)(o - out) + strlen(a) + len + 8 > cap) {
+							size_t off = o - out;
+							cap = 2 * (cap + strlen(a));
+							out = realloc(out, cap);
+							if (!out)
+								die("out of memory");
+							o = out + off;
+						}
+						strcpy(o, a);
+						o += strlen(a);
+						n += 1 + pl;
+						found = 1;
+						break;
+					}
+				}
+				if (found)
+					continue;
+			}
+			*o++ = b[n++];
+		}
+		*o = 0;
+		stripcomment(out);
+		procline(out);
+		free(out);
+		aline = save;
+		b = e ? e + 1 : b + len;
+	}
+	macrodepth--;
+	return 1;
+}
+
 static void
 aparse(void)
 {
@@ -1160,7 +1287,7 @@ aparse(void)
 	static size_t cap;
 	char *p, *e, *s, *t, *reptstart;
 	size_t n;
-	int instr, reptn, reptline, skip;
+	int reptn, reptline, skip;
 
 	p = src;
 	aline = 0;
@@ -1212,21 +1339,52 @@ aparse(void)
 		}
 		if (skip)
 			continue;
-		/* více příkazů na řádku odděluje ';' mimo řetězce */
-		s = line;
-		instr = 0;
-		for (t=line; *t; t++) {
-			if (instr && *t == '\\' && t[1])
-				t++;
-			else if (*t == '"')
-				instr = !instr;
-			else if (*t == ';' && !instr) {
-				*t = 0;
-				statement(s);
-				s = t + 1;
+		/* .macro: tělo až po .endm se uloží bez zpracování */
+		if (strncmp(s, ".macro", 6) == 0 && !identchar((uchar)s[6])) {
+			char *body, *bstart;
+			size_t blen;
+			AMacro *m;
+			s += 6;
+			GROW(macros, nmacros + 1);
+			m = &macros[nmacros++];
+			memset(m, 0, sizeof *m);
+			aspace(&s);
+			m->name = dupstr(aword(&s));
+			for (;;) {
+				aspace(&s);
+				if (*s == ',')
+					s++;
+				aspace(&s);
+				if (!identchar((uchar)*s))
+					break;
+				if (m->nparam >= 8)
+					aerr("too many macro parameters");
+				m->param[m->nparam++] = dupstr(aword(&s));
 			}
+			bstart = p;
+			for (;;) {
+				if (!*p)
+					aerr(".macro without .endm");
+				aline++;
+				e = strchr(p, '\n');
+				n = e ? (size_t)(e - p) : strlen(p);
+				t = p;
+				while (*t == ' ' || *t == '\t')
+					t++;
+				if (strncmp(t, ".endm", 5) == 0 && !identchar((uchar)t[5])) {
+					blen = p - bstart;
+					p = e ? e + 1 : p + n;
+					break;
+				}
+				p = e ? e + 1 : p + n;
+			}
+			body = emalloc(blen + 1);
+			memcpy(body, bstart, blen);
+			body[blen] = 0;
+			m->body = body;
+			continue;
 		}
-		statement(s);
+		procline(line);
 	}
 }
 
@@ -1516,7 +1674,7 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 		y = &asyms[f->relsym];
 		es = f->relsym;
 		a = 0;
-	} else if (A->keeplocalsym == 2
+	} else if (A->keeplocalsym == 2 || (A->symreloc && A->symreloc(f))
 	|| !(y->defined && !y->global && !y->weak && (y->local || !A->keeplocalsym || y->type != TFunc)))
 		es = f->e.sym;
 	/* jinak symbol sekce; arm64 GNU as nechává relokace na místní funkce
@@ -1537,8 +1695,11 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 	if (A->elf64)
 		rels[nrels].add = a;
 	else {
-		/* REL: addend v poli */
-		putval(buf + pos, a, f->size);
+		/* REL: addend v poli (ARM podle kódování instrukce) */
+		if (A->relenc && f->enc)
+			A->relenc(buf + pos, f, a);
+		else
+			putval(buf + pos, a, f->size);
 		rels[nrels].add = 0;
 	}
 	nrels++;
@@ -1928,6 +2089,8 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	cur = 0;
 	nlocnum = 0;
 	filename = 0;
+	nmacros = 0;
+	macrodepth = 0;
 	newsec(".text", SAlloc | SExec, 1);
 	if (A->textalign > 1)
 		asecs[0].align = A->textalign;
@@ -1952,7 +2115,10 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 		for (n=0; n<nasecs; n++)
 			if ((asecs[n].flags & (SExec | SNobits)) == SExec && asecs[n].nitem) {
 				usesec(n);
-				align(asecs[n].align, 0, 0);
+				if (A->padcode == 1)
+					align(asecs[n].align, 0, 0);
+				else
+					align(4, 1, 0);
 			}
 	rounds = 0;
 	layout(1);

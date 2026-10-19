@@ -570,16 +570,30 @@ layout(void)
 
 	phnum = 5; /* 4 LOAD + GNU_STACK */
 	hdr = elf64 ? 64 + 56 * phnum : 52 + 32 * phnum;
-	/* .text ve druhé stránce (oddělený kód jako ld), .rodata na další
-	 * stránce, .data/.bss na stránce s posunem shodným se souborem */
-	off = page;
-	va = base + page;
-	osecs[OText].off = off;
-	osecs[OText].addr = va;
-	va = layoutsec(OText, va);
-	off += osecs[OText].size;
-	off = alignup(off, page);
-	va = alignup(va, page);
+	if (page <= 4096) {
+		/* .text ve druhé stránce (oddělený kód jako ld), .rodata na další
+		 * stránce, .data/.bss na stránce s posunem shodným se souborem */
+		off = page;
+		va = base + page;
+		osecs[OText].off = off;
+		osecs[OText].addr = va;
+		va = layoutsec(OText, va);
+		off += osecs[OText].size;
+		off = alignup(off, page);
+		va = alignup(va, page);
+	} else {
+		/* velká stránka (arm64: jádra se 16 nebo 64 KiB): bez výplně
+		 * v souboru, každý segment na další stránce s adresou shodnou
+		 * s posunem v souboru modulo stránka, jako GNU ld */
+		off = alignup(hdr, 16);
+		va = alignup(base + hdr, page) + off % page;
+		osecs[OText].off = off;
+		osecs[OText].addr = va;
+		va = layoutsec(OText, va);
+		off += osecs[OText].size;
+		off = alignup(off, 16);
+		va = alignup(va, page) + off % page;
+	}
 	osecs[ORodata].off = off;
 	osecs[ORodata].addr = va;
 	va = layoutsec(ORodata, va);
@@ -724,6 +738,54 @@ relocate(uchar *out)
 				a = r->add;
 				if (!s->rela)
 					a = (int64_t)(int32_t)rd(field, 4);
+				if (machine == 40) {
+					/* ARM: objekty REL, addend v poli podle typu */
+					uint32_t ins = rd(field, 4);
+					int64_t sa, d;
+					switch (r->type) {
+					case 28: case 29:
+						a = (int64_t)(((int32_t)(ins << 8)) >> 8) << 2;
+						break;
+					case 43: case 44:
+						a = (int64_t)(int16_t)((((ins >> 16) & 0xf) << 12) | (ins & 0xfff));
+						break;
+					case 42:
+						a = (int64_t)(((int32_t)(ins << 1)) >> 1);
+						break;
+					default:
+						a = (int64_t)(int32_t)ins;
+					}
+					sa = (int64_t)(v + a);
+					switch (r->type) {
+					case 2: /* ABS32 */
+						if (pie)
+							lerr("%s: absolute relocation against %s in a position-independent executable", o->path, relname(o, y));
+						wr(field, sa, 4);
+						continue;
+					case 3: /* REL32 */
+						wr(field, sa - (int64_t)p, 4);
+						continue;
+					case 42: /* PREL31 */
+						wr(field, ((sa - (int64_t)p) & 0x7fffffff) | (ins & 0x80000000), 4);
+						continue;
+					case 28: /* CALL */
+					case 29: /* JUMP24 */
+						d = sa - (int64_t)p;
+						if ((d & 3) || d < -(1 << 25) || d >= (1 << 25))
+							lerr("%s: branch out of range for %s", o->path, relname(o, y));
+						wr(field, (ins & 0xff000000) | ((uint32_t)(d >> 2) & 0xffffff), 4);
+						continue;
+					case 43: /* MOVW_ABS_NC */
+					case 44: /* MOVT_ABS */
+						if (pie)
+							lerr("%s: absolute relocation against %s in a position-independent executable", o->path, relname(o, y));
+						d = r->type == 43 ? (sa & 0xffff) : ((sa >> 16) & 0xffff);
+						wr(field, (ins & 0xfff0f000) | ((uint32_t)(d >> 12) << 16) | ((uint32_t)d & 0xfff), 4);
+						continue;
+					default:
+						lerr("%s: unsupported relocation type %u", o->path, r->type);
+					}
+				}
 				if (machine == 243) {
 					uint32_t ins = rd(field, 4);
 					int64_t sa = (int64_t)(v + a), d, hi, lo;
@@ -998,8 +1060,8 @@ writeexe(char *out)
 	wr(buf + 16, pie ? 3 : 2, 2);
 	wr(buf + 18, machine, 2);
 	wr(buf + 20, 1, 4);
-	/* e_flags: RISC-V ABI lp64d */
-	wr(buf + (elf64 ? 48 : 36), machine == 243 ? 4 : 0, 4);
+	/* e_flags: RISC-V ABI lp64d; ARM EABI 5 s VFP argumenty */
+	wr(buf + (elf64 ? 48 : 36), machine == 243 ? 4 : machine == 40 ? 0x5000400 : 0, 4);
 	if (elf64) {
 		wr(buf + 24, entry, 8);
 		wr(buf + 32, 64, 8);
@@ -1058,10 +1120,14 @@ link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, char 
 	int n;
 
 	elf64 = is64;
+	/* arm64: GNU ld zarovnává segmenty na 64 KiB kvůli jádrům s větší
+	 * stránkou; ostatní cíle mají stránku 4 KiB */
+	page = mach == 183 ? 65536 : 4096;
 	machine = mach;
 	pie = ispie;
 	entryname = entry ? entry : "_start";
-	base = pie ? 0 : (elf64 ? 0x400000 : 0x08048000);
+	/* pevná báze jako GNU ld: i386 0x08048000, arm 0x10000, jinak 0x400000 */
+	base = pie ? 0 : (elf64 ? 0x400000 : machine == 40 ? 0x10000 : 0x08048000);
 	for (n=0; n<ninputs; n++)
 		readobj(inputs[n]);
 	resolve();

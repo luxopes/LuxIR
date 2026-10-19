@@ -72,35 +72,41 @@ Typ `Ptr` je v IR připravený pro pozdější 8bitové cíle.
 ## Vestavěný assembler
 
 `luxir -a -t amd64_sysv -o out.o in.s` (také `amd64_apple`, `amd64_win`
-pro kódování x86-64, `i386`, `arm64` a `rv64`) přeloží assembler v dialektu
-GNU as do relokovatelného objektu ELF bez externích nástrojů: direktivy
-sekcí, symbolů a dat, `.equ`, výrazy s operátory GNU as, číselná návěští,
-relaxace skoků a výplně `nop` jako GNU as, relokace ELF (x86-64 RELA, i386
-REL, AArch64 RELA s adrp/:lo12: a skoky, RISC-V RELA s větvemi, `call`,
-`%pcrel_hi`/`.L0 ` a `%hi`/`%lo`). Výstup je bajtově shodný s GNU as na
-všem, co LuxIR a runtime LSL vypisují (`make check-as`, tests/as_diff.py
-porovnává sekce, relokace a symboly; mapovací symboly `$x`/`$d` se
-nezapisují, u RISC-V ani `.riscv.attributes`). RISC-V odpovídá `-march=rv64g
--mno-relax`: bez komprimovaných instrukcí a bez relokací RELAX, jak LSL
-linkuje (`--no-relax`). Režim `-x` ho používá místo `as`. Nepodporuje TLS,
-GOT a režim Intel; arm (32bit) a formáty COFF a Mach-O přibudou. `-a` bere
-i více souborů `.s` do jednoho objektu (místní symboly `.L…` platí v každém
-zvlášť).
+pro kódování x86-64, `i386`, `arm64`, `rv64` a `arm`) přeloží assembler
+v dialektu GNU as do relokovatelného objektu ELF bez externích nástrojů:
+direktivy sekcí, symbolů a dat, `.equ`, `.macro`, výrazy s operátory GNU
+as, číselná návěští, relaxace skoků a výplně `nop` jako GNU as, relokace
+ELF (x86-64 RELA, i386 REL, AArch64 RELA s adrp/:lo12: a skoky, RISC-V
+RELA s větvemi, `call`, `%pcrel_hi`/`.L0 ` a `%hi`/`%lo`, ARM REL s `bl`,
+skoky a `movw`/`movt` `#:lower16:`/`#:upper16:`). Výstup je bajtově shodný
+s GNU as na všem, co LuxIR a runtime LSL vypisují (`make check-as`,
+tests/as_diff.py porovnává sekce, relokace a symboly; mapovací symboly
+`$x`/`$d`/`$a` se nezapisují, ani `.riscv.attributes` a `.ARM.attributes`).
+RISC-V odpovídá `-march=rv64g -mno-relax`: bez komprimovaných instrukcí a
+bez relokací RELAX, jak LSL linkuje (`--no-relax`); ARM odpovídá
+`-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=hard` v unified syntaxi (jen
+režim A32, bez Thumb a literal poolů `ldr =`). Režim `-x` ho používá místo
+`as`. Nepodporuje TLS, GOT a režim Intel; formáty COFF a Mach-O přibudou.
+`-a` bere i více souborů `.s` do jednoho objektu (místní symboly `.L…`
+platí v každém zvlášť).
 
 ## Vestavěný linker
 
-`luxir -l [-p] [-e vstup] -t amd64_sysv|i386|arm64|rv64 -o program a.o b.o …` slinkuje
+`luxir -l [-p] [-e vstup] -t amd64_sysv|i386|arm64|rv64|arm -o program a.o b.o …` slinkuje
 objekty ELF do statického spustitelného souboru pro Linux bez GNU ld:
 sekce se slévají do `.text`, `.rodata`, `.data` a `.bss`, nepoužité sekce
 (bez cesty relokací od vstupního bodu `_start`) se vypustí, relokace se
 vyřeší staticky, tabulka symbolů se nezapisuje. S `-p` vznikne PIE
 (ET_DYN bez dynamické sekce a zavaděče; jádro zvolí náhodnou bázi), a
 proto nesmí obsahovat absolutní relokace (`-z text`); bez `-p` ET_EXEC na
-pevné bázi (i386 0x08048000, jinak 0x400000). Segmenty: hlavičky (R),
+pevné bázi (i386 0x08048000, arm 0x10000, jinak 0x400000). Na arm64 mají
+segmenty zarovnání 64 KiB (jádra se stránkou 16 nebo 64 KiB), bez výplně
+v souboru: adresa a posun v souboru se shodují modulo stránka jako u GNU ld. Segmenty: hlavičky (R),
 `.text` (RX), `.rodata` (R), `.data`+`.bss` (RW), `PT_GNU_STACK` bez práva
-spouštění, žádné RWX. `make check-ld` (arm64 a rv64 v qemu-user). LSL tak
-na Linuxu x86-64, x86, arm64 a riscv64 překládá bez binutils. Nepodporuje
-archivy, sdílené knihovny, TLS, linker skripty a common symboly mimo `.bss`.
+spouštění, žádné RWX. `make check-ld` (arm64, rv64 a arm v qemu-user). LSL
+tak na Linuxu x86-64, x86, arm, arm64 a riscv64 překládá bez binutils.
+Nepodporuje archivy, sdílené knihovny, TLS, linker skripty a common symboly
+mimo `.bss`.
 
 ## Struktura
 

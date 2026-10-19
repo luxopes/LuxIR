@@ -134,9 +134,12 @@ Windows a macOS (navíc):
   bajtově shodné objekty s GNU as na překladači LSL i runtime včetně
   relaxace větví a rozkladu `li`; LSL linux-riscv64 bez binutils
   (19. 10. 2026). Baremetal-riscv64 zůstává na GNU ld (linker skript).
-- [ ] Assembler a linker arm (32bit) ELF; PE32+ s ASLR, DEP a
-  high-entropy VA, importy `kernel32` a `ws2_32`; Mach-O s `LC_MAIN`,
-  `libSystem` a ad-hoc podpisem (na arm64 povinný).
+- [x] Assembler a linker ARM (32bit, `-t arm`, A32 ARMv7-A s VFPv3-D16,
+  objekty REL): bajtově shodné objekty s GNU as na překladači LSL,
+  runtime i pomocných funkcích w32; LSL linux-arm bez binutils
+  (19. 10. 2026).
+- [ ] PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
+  Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se

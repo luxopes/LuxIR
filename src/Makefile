@@ -14,7 +14,7 @@ WASMOBJ  = wasm/targ.o wasm/emit.o
 COBJ     = c/targ.o c/emit.o
 I386OBJ  = i386/targ.o i386/abi.o i386/isel.o i386/emit.o
 ARMOBJ   = arm/targ.o arm/abi.o arm/isel.o arm/emit.o
-ASOBJ    = as/as.o as/x86.o as/arm64.o as/rv64.o
+ASOBJ    = as/as.o as/x86.o as/arm64.o as/rv64.o as/arm.o
 LDOBJ    = ld/ld.o
 OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ) $(COBJ) \
            $(I386OBJ) $(ARMOBJ) $(ASOBJ) $(LDOBJ)

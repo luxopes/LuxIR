@@ -17,8 +17,9 @@ ARCH = {
     'arm64': (['aarch64-linux-gnu-as'], 'arm64', ['--target=aarch64-linux-gnu']),
     # bez komprese a relaxace: tak kóduje vestavěný assembler
     'rv64': (['riscv64-linux-gnu-as', '-march=rv64g', '-mno-relax'], 'rv64', ['--target=riscv64-linux-gnu']),
+    'arm': (['arm-linux-gnueabihf-as', '-march=armv7-a', '-mfpu=vfpv3-d16', '-mfloat-abi=hard'], 'arm', ['--target=armv7a-linux-gnueabihf']),
 }
-IGNORED_SECTIONS = {'.riscv.attributes'}   # vestavěný assembler atributy nezapisuje
+IGNORED_SECTIONS = {'.riscv.attributes', '.ARM.attributes'}   # vestavěný assembler atributy nezapisuje
 
 
 def run(cmd, **kw):
@@ -87,8 +88,8 @@ def symbols(obj):
         if not m:
             continue
         val, size, typ, bind, ndx, name = m.groups()
-        if typ in ('SECTION', 'FILE') or not name or name.startswith(('$x', '$d')):
-            continue  # mapovací symboly arm64 a RISC-V se nezapisují
+        if typ in ('SECTION', 'FILE') or not name or name.startswith('$'):
+            continue  # mapovací symboly ($x, $d, $a …) se nezapisují
         res.add((name, int(val, 16), int(size), typ, bind, secnames.get(ndx, ndx)))
     return res
 
@@ -196,6 +197,60 @@ def probes_rv64(tmp):
     return out
 
 
+def probes_arm(tmp):
+    """ARM: konstanty datových instrukcí (rotované immediate, náhrady
+    mov/mvn, and/bic, add/sub, adc/sbc, cmp/cmn, mov jako movw) a všech
+    256 konstant VFP pro vmov."""
+    import random
+    rnd = random.Random(11)
+    vals = set()
+    for rot in range(0, 32, 2):
+        for imm in (1, 0x7f, 0x80, 0xff, 0x55, 0xa5):
+            v = ((imm >> rot) | (imm << (32 - rot))) & 0xffffffff
+            vals |= {v, (~v) & 0xffffffff, (-v) & 0xffffffff}
+    for _ in range(1500):
+        vals.add(rnd.getrandbits(rnd.choice([8, 12, 16, 20, 32])))
+    def enc(v):
+        v &= 0xffffffff
+        return any(((v << i) | (v >> (32 - i))) & 0xffffffff <= 0xff for i in range(0, 32, 2))
+    inv = lambda v: enc(~v)
+    neg = lambda v: enc(-v)
+    # které konstanty GNU as přijme: přímo, nebo přes náhradu instrukce
+    ok = {'mov': lambda v: enc(v) or inv(v) or 0 <= v <= 0xffff, 'mvn': lambda v: enc(v) or inv(v),
+          'and': lambda v: enc(v) or inv(v), 'bic': lambda v: enc(v) or inv(v),
+          'adc': lambda v: enc(v) or inv(v), 'sbc': lambda v: enc(v) or inv(v),
+          'add': lambda v: enc(v) or neg(v), 'sub': lambda v: enc(v) or neg(v),
+          'cmp': lambda v: enc(v) or neg(v), 'cmn': lambda v: enc(v) or neg(v),
+          'orr': enc, 'eor': enc, 'rsb': enc, 'tst': enc, 'teq': enc}
+    lines = ['.syntax unified', '.arm', '.text']
+    for v in sorted(vals):
+        for op in ('mov', 'mvn', 'and', 'bic', 'add', 'sub', 'adc', 'sbc', 'orr', 'eor', 'rsb'):
+            if ok[op](v):
+                lines.append(f'\t{op} r0, r1, #{v}' if op not in ('mov', 'mvn') else f'\t{op} r0, #{v}')
+        for op in ('cmp', 'cmn', 'tst', 'teq'):
+            if ok[op](v):
+                lines.append(f'\t{op} r0, #{v}')
+        if ok['add'](v):
+            lines.append(f'\tadds r0, r1, #{v}')
+        if enc(v) or inv(v):
+            lines.append(f'\tmovs r0, #{v}')
+        if ok['mov'](v):
+            lines.append(f'\tmoveq r0, #{v}')
+    for imm8 in range(256):
+        sign = -1.0 if imm8 & 0x80 else 1.0
+        b = (imm8 >> 6) & 1
+        cd = (imm8 >> 4) & 3
+        efgh = imm8 & 0xf
+        # exponent: NOT(b):b…b:cd, tedy 2^(cd+1) pro b = 0 a 2^(cd-3) pro b = 1
+        exp = cd + 1 if b == 0 else cd - 3
+        v = sign * (1.0 + efgh / 16.0) * 2.0 ** exp
+        lines.append(f'\tvmov.f64 d0, #{v!r}')
+        lines.append(f'\tvmov.f32 s0, #{v!r}')
+    path = tmp / 'probe_arm.s'
+    path.write_text('\n'.join(lines) + '\n')
+    return [str(path)]
+
+
 def probes(tmp):
     """Rodina sond relaxace skoků: k dlouhých jcc před sondou (kladný
     nárůst průchodu), skok přes zarovnání na cíl v různé vzdálenosti."""
@@ -229,7 +284,7 @@ def main():
         tmp = Path(tmp)
         inputs = list(a.inputs)
         if a.probes:
-            inputs += probes_arm64(tmp) if a.arch == 'arm64' else probes_rv64(tmp) if a.arch == 'rv64' else probes(tmp)
+            inputs += {'arm64': probes_arm64, 'rv64': probes_rv64, 'arm': probes_arm}.get(a.arch, probes)(tmp)
         for backend in a.backend:
             backend = str(Path(backend).resolve())
             for inp in inputs:
