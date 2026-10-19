@@ -49,6 +49,8 @@ struct AFix {
 	int kind;
 	int64_t pcoff; /* k A u FPcrel: záporný počet bajtů za polem do konce instrukce, -velikost pole */
 	int enc;       /* 0 prosté pole; jinak kódování v instrukci (architektura) */
+	int relsym;    /* symbol relokace místo e.sym s addendem 0 (-1 žádný):
+	                * %pcrel_lo na návěští .L0 u auipc (RISC-V) */
 	AExpr e;
 };
 
@@ -104,6 +106,9 @@ struct ASymbol {
 	char defined;
 	char type;
 	char local;     /* .L…: nejde do tabulky symbolů */
+	char keep;      /* místní .L symbol přesto zapsat: odkazuje na něj relokace */
+	char isabs;     /* .equ/.set: konstanta absval, ve výrazech se dosadí */
+	int64_t absval;
 	char hassize;
 	AExpr size;     /* velikost: size - hodnota sizesub (je-li >= 0) */
 	int sizesub;
@@ -117,10 +122,16 @@ struct AArch {
 	int elf64;
 	/* rozbor a zápis instrukce (mnemonika, zbytek řádku); 0 = neznámá */
 	int (*insn)(char *mnem, char *ops);
-	/* IJump: velikost formy, dosah krátké formy a zápis */
+	/* IJump: velikost formy, dosah krátké formy a zápis; disp je u
+	 * relaxmode 0 od konce skoku, u relaxmode 1 od jeho začátku */
 	uint (*jsize)(AItem *);
 	int (*jfits)(AItem *, int64_t disp);
 	void (*jemit)(AItem *, uchar *, int64_t disp, int resolved);
+	/* IJump: kódování pole relokace (poslední 4 bajty formy); 0 = prosté */
+	int (*jenc)(AItem *);
+	/* předběžná hodnota do pole skoku, které dostane relokaci: S + A - P
+	 * s hodnotou nedefinovaného symbolu 0 (GNU as pro RISC-V) */
+	void (*tentative)(uchar *, AFix *, int64_t);
 	/* výplň zarovnání v kódu */
 	void (*nops)(uchar *, uint n);
 	/* typ relokace ELF pro opravu (0 = nelze) */
@@ -137,8 +148,23 @@ struct AArch {
 	/* velikost .word: 2 na x86, 4 na arm64 (.xword 8) */
 	int wordsize;
 	/* relokace na místní funkce (.type function) míří na symbol, ne na
-	 * sekci (GNU as pro arm64); .L a datové symboly vždy přes sekci */
+	 * sekci (GNU as pro arm64); .L a datové symboly vždy přes sekci;
+	 * 2: každá relokace míří na svůj symbol, i .L (RISC-V) */
 	int keeplocalsym;
+	/* 0: relaxace skoků jako GNU as na x86 (dlouhá forma už zůstává,
+	 * dopředné cíle s protažením průchodu); 1: jako na RISC-V (forma se
+	 * v každém průchodu určí znovu z adres předchozího průchodu) */
+	int relaxmode;
+	/* relativní odkazy se vyřeší jen na místní návěští .L téže sekce,
+	 * ostatní symboly dostanou relokaci (RISC-V) */
+	int localonly;
+	/* e_flags hlavičky ELF */
+	uint32_t eflags;
+	/* konec kódové sekce se doplní instrukcemi nop na její zarovnání
+	 * (GNU as pro RISC-V) */
+	int padcode;
+	/* výchozí zarovnání prázdné sekce .text */
+	int textalign;
 };
 
 /* as.c */
@@ -149,9 +175,10 @@ extern ASymbol *asyms;
 extern uint nasyms;
 extern int acursec;
 extern int aline;
-void aerr(char *, ...);
+void aerr(char *, ...) __attribute__((noreturn));
 void awarn(char *, ...);
 char *aword(char **ps);
+int identchar(int c);
 void aspace(char **ps);
 int aexpr(char **ps, AExpr *e);
 int anumber(char **ps, int64_t *v);
@@ -159,6 +186,8 @@ int asymidx(char *name);
 uchar *aemit(uint n);
 void afix(uint off, int size, int kind, int64_t pcoff, AExpr *e);
 void afixenc(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e);
+void afixrel(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e, int relsym);
+int apcrellabel(void);
 void ajump(int jop, AExpr *e);
 int assemble(char **paths, int npaths, char *out, AArch *arch);
 
@@ -168,3 +197,6 @@ extern AArch AI386;
 
 /* arm64.c */
 extern AArch AARM64;
+
+/* rv64.c */
+extern AArch ARV64;

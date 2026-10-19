@@ -15,7 +15,10 @@ ARCH = {
     'x86_64': (['as', '--64'], 'amd64_sysv', ['--target=x86_64-linux-gnu']),
     'i386': (['as', '--32'], 'i386', ['--target=i686-linux-gnu']),
     'arm64': (['aarch64-linux-gnu-as'], 'arm64', ['--target=aarch64-linux-gnu']),
+    # bez komprese a relaxace: tak kóduje vestavěný assembler
+    'rv64': (['riscv64-linux-gnu-as', '-march=rv64g', '-mno-relax'], 'rv64', ['--target=riscv64-linux-gnu']),
 }
+IGNORED_SECTIONS = {'.riscv.attributes'}   # vestavěný assembler atributy nezapisuje
 
 
 def run(cmd, **kw):
@@ -46,7 +49,7 @@ def elfsections(obj):
     secs = {}
     for name, typ, flags, off, size, align in heads:
         n = d[strtab + name:d.index(b'\0', strtab + name)].decode()
-        if typ in (0, 2, 3, 4, 9):
+        if typ in (0, 2, 3, 4, 9) or n in IGNORED_SECTIONS:
             continue
         data = b'' if typ == 8 else d[off:off + size]
         secs[n] = (typ, flags, size, align, data)
@@ -84,8 +87,8 @@ def symbols(obj):
         if not m:
             continue
         val, size, typ, bind, ndx, name = m.groups()
-        if typ in ('SECTION', 'FILE') or not name or name in ('$x', '$d'):
-            continue  # mapovací symboly arm64 se nezapisují
+        if typ in ('SECTION', 'FILE') or not name or name.startswith(('$x', '$d')):
+            continue  # mapovací symboly arm64 a RISC-V se nezapisují
         res.add((name, int(val, 16), int(size), typ, bind, secnames.get(ndx, ndx)))
     return res
 
@@ -147,6 +150,52 @@ def probes_arm64(tmp):
     return [str(path)]
 
 
+def probes_rv64(tmp):
+    """RISC-V: konstanty li všech tvarů (rozklad load_const) a relaxace
+    podmíněných větví kolem dosahu ±4 KiB, včetně zarovnání mezi větví
+    a cílem, cílů za jinou větví a globálních cílů."""
+    import random
+    rnd = random.Random(7)
+    vals = set()
+    for k in range(64):
+        for v in (1 << k, (1 << k) - 1, -(1 << k), ~(1 << k), (1 << k) + 1, (1 << k) - 0x800, (1 << k) + 0x800, (1 << k) + 0x7ff, (1 << k) - 0x7ff):
+            vals.add(v)
+    for _ in range(2000):
+        w = rnd.choice([12, 13, 20, 31, 32, 33, 40, 48, 52, 63, 64])
+        v = rnd.getrandbits(w)
+        if rnd.random() < 0.5:
+            v = -v
+        vals.add(v)
+        vals.add(v << rnd.randrange(0, 20))
+    lines = ['.text']
+    for v in sorted(vals):
+        v = ((v + (1 << 63)) % (1 << 64)) - (1 << 63)
+        lines.append(f'\tli a0, {v}')
+    li = tmp / 'probe_li.s'
+    li.write_text('\n'.join(lines) + '\n')
+    out = [str(li)]
+    lines = []
+    k = 0
+    for n in list(range(1018, 1027)) + [1, 500, 2000, 1021, 1022]:
+        nops = '\n'.join(['\tnop'] * n)
+        for al in (0, 3, 4):
+            align = f'\t.p2align {al}\n' if al else ''
+            k += 1
+            lines.append(f'.section .text.p{k},"ax",@progbits\n\tbeq a0, a1, 1f\n{nops}\n{align}1:\n\tret')
+            k += 1
+            lines.append(f'.section .text.p{k},"ax",@progbits\n1:\n{nops}\n{align}\tbne a0, a1, 1b\n\tret')
+            k += 1
+            lines.append(f'.section .text.p{k},"ax",@progbits\n\tbeq a0, a1, 2f\n{nops}\n{align}\tblt a0, a1, 3f\n\tnop\n2:\n\tnop\n\tnop\n3:\n\tret')
+            k += 1
+            lines.append(f'.section .text.p{k},"ax",@progbits\n\tbltu a0, a1, g{k}\n{nops}\n{align}\t.globl g{k}\ng{k}:\n\tret')
+            k += 1
+            lines.append(f'.section .text.p{k},"ax",@progbits\n\tbgt a0, a1, 1f\n\tbge a0, a1, 1f\n{nops}\n{align}1:\n\tj 1b\n\tbeqz a0, 1b\n\tbnez a0, ext\n\tblez a0, 1f\n1:\n\tret')
+    br = tmp / 'probe_branch.s'
+    br.write_text('\n'.join(lines) + '\n')
+    out.append(str(br))
+    return out
+
+
 def probes(tmp):
     """Rodina sond relaxace skoků: k dlouhých jcc před sondou (kladný
     nárůst průchodu), skok přes zarovnání na cíl v různé vzdálenosti."""
@@ -170,6 +219,7 @@ def main():
     ap.add_argument('--lir', action='store_true')
     ap.add_argument('--probes', action='store_true', help='přidá generované sondy relaxace')
     ap.add_argument('-t', dest='target')
+    ap.add_argument('-p', action='store_true', help='backend s -p (adresy relativně k PC)')
     ap.add_argument('inputs', nargs='*')
     a = ap.parse_args()
     gas, target, _ = ARCH[a.arch]
@@ -179,14 +229,14 @@ def main():
         tmp = Path(tmp)
         inputs = list(a.inputs)
         if a.probes:
-            inputs += probes_arm64(tmp) if a.arch == 'arm64' else probes(tmp)
+            inputs += probes_arm64(tmp) if a.arch == 'arm64' else probes_rv64(tmp) if a.arch == 'rv64' else probes(tmp)
         for backend in a.backend:
             backend = str(Path(backend).resolve())
             for inp in inputs:
                 src = Path(inp)
                 if a.lir:
                     s = tmp / (src.stem + '.s')
-                    r = run([backend, '-t', target, '-o', s, src])
+                    r = run([backend, '-t', target] + (['-p'] if a.p else []) + ['-o', s, src])
                     if r.returncode:
                         if 'not supported' in r.stderr or 'unsupported' in r.stderr:
                             print(f'skip {src.name}: {r.stderr.strip()[:120]}')
@@ -196,7 +246,7 @@ def main():
                         continue
                     src = s
                 text = src.read_text(errors='replace')
-                if '@tpoff' in text or '@gotpcrel' in text or ':tprel_' in text or ':got' in text:
+                if '@tpoff' in text or '@gotpcrel' in text or ':tprel_' in text or ':got' in text or '%tprel' in text:
                     print(f'skip {inp}: thread-local or GOT references are not supported')
                     continue
                 ref = tmp / 'ref.o'

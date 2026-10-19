@@ -233,6 +233,7 @@ afixenc(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e)
 	f->kind = kind;
 	f->pcoff = pcoff;
 	f->enc = enc;
+	f->relsym = -1;
 	f->e = *e;
 }
 
@@ -240,6 +241,18 @@ void
 afix(uint off, int size, int kind, int64_t pcoff, AExpr *e)
 {
 	afixenc(off, size, kind, pcoff, 0, e);
+}
+
+/* Oprava, jejíž relokace míří na jiný symbol s addendem 0 (RISC-V
+ * %pcrel_lo na návěští u auipc); vyřešení používá e jako obvykle. */
+void
+afixrel(uint off, int size, int kind, int64_t pcoff, int enc, AExpr *e, int relsym)
+{
+	AItem *i;
+
+	afixenc(off, size, kind, pcoff, enc, e);
+	i = dataitem();
+	i->fix[i->nfix - 1].relsym = relsym;
 }
 
 void
@@ -274,6 +287,18 @@ herelabel(char *name)
 	return s - asyms;
 }
 
+/* Anonymní místní návěští na aktuální pozici, v ELF pojmenované „.L0 “
+ * jako v GNU as pro RISC-V (symbol relokace %pcrel_lo). */
+int
+apcrellabel(void)
+{
+	static int npc;
+	char name[32];
+
+	sprintf(name, ".L#pc%d", npc++);
+	return herelabel(name);
+}
+
 static int
 dot(void)
 {
@@ -300,7 +325,7 @@ aspace(char **ps)
 	*ps = p;
 }
 
-static int
+int
 identchar(int c)
 {
 	return isalnum(c) || c == '_' || c == '.' || c == '$' || c == '@';
@@ -382,77 +407,173 @@ numlabel(int num, int forward)
 	return buf;
 }
 
-/* Výraz: [-]člen {+|- člen}; člen je číslo, (číslo), symbol, číselné
- * návěští 1f/1b nebo '.'; nejvýše jeden symbol s kladným znaménkem
- * (přípona @plt, @gotpcrel … se zahodí; GOT se tu nepoužívá). */
-int
-aexpr(char **ps, AExpr *e)
-{
-	char *p, *q, *w, *at;
-	int64_t v;
-	int sign, any;
+static int exprlevel(char **ps, AExpr *e, int level);
 
+/* Člen výrazu: číslo, (výraz), symbol (přípona @plt, @gotpcrel … se
+ * zahodí; GOT se tu nepoužívá), číselné návěští 1f/1b, '.', unární - ~ +.
+ * Symbol smí být ve výrazu nejvýše jeden a jen s kladným znaménkem. */
+static int
+exprprim(char **ps, AExpr *e)
+{
+	char *p, *q, *w, *at, op;
+	int64_t v;
+
+	p = *ps;
+	aspace(&p);
 	e->sym = -1;
 	e->add = 0;
-	any = 0;
+	if (*p == '-' || *p == '~' || *p == '+') {
+		op = *p++;
+		if (!exprprim(&p, e))
+			return 0;
+		if (op != '+') {
+			if (e->sym >= 0)
+				aerr("invalid expression");
+			e->add = op == '-' ? -e->add : ~e->add;
+		}
+		*ps = p;
+		return 1;
+	}
+	if (*p == '(') {
+		p++;
+		if (!exprlevel(&p, e, 0))
+			aerr("expression expected");
+		aspace(&p);
+		if (*p != ')')
+			aerr("')' expected");
+		p++;
+	} else if (isdigit((uchar)*p)) {
+		q = p;
+		anumber(&q, &v);
+		if ((*q == 'f' || *q == 'b') && !identchar((uchar)q[1])) {
+			e->sym = asymidx(numlabel((int)v, *q == 'f'));
+			q++;
+		} else
+			e->add = v;
+		p = q;
+	} else if (*p == '.' && !identchar((uchar)p[1])) {
+		e->sym = dot();
+		p++;
+	} else if (identchar((uchar)*p) || *p == '"') {
+		w = aword(&p);
+		at = strchr(w, '@');
+		if (at)
+			*at = 0;
+		e->sym = asymidx(w);
+		if (asyms[e->sym].isabs) {
+			/* konstanta z .equ */
+			e->add = asyms[e->sym].absval;
+			e->sym = -1;
+		}
+	} else
+		return 0;
+	*ps = p;
+	return 1;
+}
+
+/* .equ/.set jméno, konstantní výraz */
+static void
+dequ(char *p)
+{
+	char *w;
+	AExpr e;
+	ASymbol *y;
+	int idx;
+
+	aspace(&p);
+	w = dupstr(aword(&p));   /* aword má statický buffer, výraz ho přepíše */
+	aspace(&p);
+	if (*p != ',')
+		aerr("',' expected");
+	p++;
+	if (!aexpr(&p, &e))
+		aerr("expression expected");
+	if (e.sym >= 0)
+		aerr("only constant equates are supported");
+	idx = asymidx(w);   /* dřív než ukazatel: asymidx může realokovat */
+	y = &asyms[idx];
+	if (y->defined)
+		aerr("symbol %s is already defined", w);
+	free(w);
+	y->isabs = 1;
+	y->absval = e.add;
+}
+
+/* Binární operátory s prioritou GNU as: 2 (* / % << >>), 1 (| & ^),
+ * 0 (+ -); symbol smí vystupovat jen u + a -. */
+static int
+exprlevel(char **ps, AExpr *e, int level)
+{
+	char *p, op;
+	AExpr r;
+	int shift, lv;
+
+	if (level > 2)
+		return exprprim(ps, e);
+	if (!exprlevel(ps, e, level + 1))
+		return 0;
 	p = *ps;
 	for (;;) {
 		aspace(&p);
-		sign = 1;
-		if (*p == '+' || *p == '-') {
-			if (*p == '-')
-				sign = -1;
-			p++;
-			aspace(&p);
-			/* sym+-5: druhé znaménko (vypisuje emitor arm64) */
-			if (*p == '-' && sign == 1 && isdigit((uchar)p[1])) {
-				sign = -1;
-				p++;
+		op = *p;
+		shift = (op == '<' && p[1] == '<') || (op == '>' && p[1] == '>');
+		if (op == '+' || op == '-')
+			lv = 0;
+		else if (op == '|' || op == '&' || op == '^')
+			lv = 1;
+		else if (op == '*' || op == '/' || op == '%' || shift)
+			lv = 2;
+		else
+			break;
+		if (lv != level)
+			break;
+		p += shift ? 2 : 1;
+		if (!exprlevel(&p, &r, level + 1))
+			aerr("expression expected");
+		if (op == '+') {
+			if (e->sym >= 0 && r.sym >= 0)
+				aerr("invalid expression");
+			if (r.sym >= 0)
+				e->sym = r.sym;
+			e->add += r.add;
+		} else if (op == '-') {
+			if (r.sym >= 0)
+				aerr("invalid expression");
+			e->add -= r.add;
+		} else {
+			if (e->sym >= 0 || r.sym >= 0)
+				aerr("invalid expression");
+			switch (op) {
+			case '|': e->add |= r.add; break;
+			case '&': e->add &= r.add; break;
+			case '^': e->add ^= r.add; break;
+			case '*': e->add *= r.add; break;
+			case '/':
+				if (r.add == 0)
+					aerr("division by zero");
+				e->add /= r.add;
+				break;
+			case '%':
+				if (r.add == 0)
+					aerr("division by zero");
+				e->add %= r.add;
+				break;
+			case '<': e->add = (int64_t)((uint64_t)e->add << (r.add & 63)); break;
+			case '>': e->add = (int64_t)((uint64_t)e->add >> (r.add & 63)); break;
 			}
 		}
-		if (*p == '(') {
-			p++;
-			aspace(&p);
-			if (!anumber(&p, &v))
-				aerr("number expected");
-			aspace(&p);
-			if (*p != ')')
-				aerr("')' expected");
-			p++;
-			e->add += sign * v;
-		} else if (isdigit((uchar)*p)) {
-			q = p;
-			anumber(&q, &v);
-			if ((*q == 'f' || *q == 'b') && !identchar((uchar)q[1])) {
-				if (e->sym >= 0 || sign < 0)
-					aerr("invalid expression");
-				e->sym = asymidx(numlabel((int)v, *q == 'f'));
-				q++;
-			} else
-				e->add += sign * v;
-			p = q;
-		} else if (*p == '.' && !identchar((uchar)p[1])) {
-			if (e->sym >= 0 || sign < 0)
-				aerr("invalid expression");
-			e->sym = dot();
-			p++;
-		} else if (identchar((uchar)*p) || *p == '"') {
-			if (e->sym >= 0 || sign < 0)
-				aerr("invalid expression");
-			w = aword(&p);
-			at = strchr(w, '@');
-			if (at)
-				*at = 0;
-			e->sym = asymidx(w);
-		} else
-			break;
-		any = 1;
-		aspace(&p);
-		if (*p != '+' && *p != '-')
-			break;
+		*ps = p;
 	}
-	*ps = p;
-	return any;
+	return 1;
+}
+
+/* Výraz: sym + konstanta; vrací 0, nezačíná-li tu žádný výraz. */
+int
+aexpr(char **ps, AExpr *e)
+{
+	e->sym = -1;
+	e->add = 0;
+	return exprlevel(ps, e, 0);
 }
 
 /* ---- direktivy ---- */
@@ -865,26 +986,30 @@ directive(char *d, char *p)
 		dsize(p);
 	else if (strcmp(d, ".byte") == 0)
 		dataexpr(p, 1);
-	else if (strcmp(d, ".short") == 0 || strcmp(d, ".2byte") == 0 || strcmp(d, ".hword") == 0)
+	else if (strcmp(d, ".short") == 0 || strcmp(d, ".2byte") == 0 || strcmp(d, ".hword") == 0 || strcmp(d, ".half") == 0)
 		dataexpr(p, 2);
 	else if (strcmp(d, ".word") == 0)
 		dataexpr(p, A->wordsize ? A->wordsize : 2);
 	else if (strcmp(d, ".int") == 0 || strcmp(d, ".long") == 0 || strcmp(d, ".4byte") == 0)
 		dataexpr(p, 4);
-	else if (strcmp(d, ".quad") == 0 || strcmp(d, ".8byte") == 0 || strcmp(d, ".xword") == 0)
+	else if (strcmp(d, ".quad") == 0 || strcmp(d, ".8byte") == 0 || strcmp(d, ".xword") == 0 || strcmp(d, ".dword") == 0)
 		dataexpr(p, 8);
 	else if (strcmp(d, ".ascii") == 0)
 		dascii(p, 0);
 	else if (strcmp(d, ".asciz") == 0 || strcmp(d, ".string") == 0)
 		dascii(p, 1);
 	else if (strcmp(d, ".zero") == 0 || strcmp(d, ".skip") == 0 || strcmp(d, ".space") == 0) {
-		if (!anumber(&p, &v))
+		AExpr ce;
+		if (!aexpr(&p, &ce) || ce.sym >= 0 || ce.add < 0)
 			aerr("count expected");
+		v = ce.add;
 		aemit(v);
 	} else if (strcmp(d, ".fill") == 0)
 		dfill(p);
 	else if (strcmp(d, ".balign") == 0 || strcmp(d, ".p2align") == 0 || strcmp(d, ".align") == 0)
 		dalign(d, p);
+	else if (strcmp(d, ".equ") == 0 || strcmp(d, ".set") == 0)
+		dequ(p);
 	else if (strcmp(d, ".file") == 0) {
 		if (!filename)
 			filename = dupstr(aword(&p));
@@ -892,8 +1017,9 @@ directive(char *d, char *p)
 		dcomm(p);
 	else if (strcmp(d, ".syntax") == 0 || strcmp(d, ".arm") == 0 || strcmp(d, ".fpu") == 0
 	|| strcmp(d, ".arch") == 0 || strcmp(d, ".cpu") == 0 || strcmp(d, ".ident") == 0
-	|| strcmp(d, ".subsections_via_symbols") == 0)
-		;
+	|| strcmp(d, ".subsections_via_symbols") == 0
+	|| strcmp(d, ".option") == 0 || strcmp(d, ".attribute") == 0)
+		; /* .option: bez relaxace a komprese (jako -mno-relax, rv64g) */
 	else
 		aerr("unknown directive %s", d);
 }
@@ -1106,6 +1232,25 @@ aparse(void)
 
 /* ---- rozvržení ---- */
 
+/* Posun položky yi od začátku jejího fragmentu GNU as: fragment začíná
+ * za každým relaxovatelným skokem a zarovnáním (první průchod relaxace
+ * RISC-V, kdy GNU as adresy dopředných cílů ještě nezná). */
+static int64_t
+fragoff(ASec *s, uint m, uint yi)
+{
+	uint k, b;
+	int64_t v;
+
+	b = m;
+	for (k=m+1; k<yi && k<s->nitem; k++)
+		if (s->item[k].kind != IData)
+			b = k;
+	v = 0;
+	for (k=b+1; k<yi && k<s->nitem; k++)
+		v += s->item[k].size;
+	return v;
+}
+
 /* Hodnota výrazu, je-li symbol definovaný v sekci sec. */
 static int
 exprin(AExpr *e, int sec, int64_t *v)
@@ -1197,10 +1342,29 @@ layout(int initial)
 				size = (int64_t)(((i->off + i->align - 1) & -(uint64_t)i->align) - i->off);
 				break;
 			case IJump:
+				y = &asyms[i->target.sym];
+				if (A->relaxmode == 1) {
+					/* forma znovu v každém průchodu: cíl před skokem má
+					 * adresu tohoto průchodu, cíl za ním adresu minulého,
+					 * v prvním průchodu jen posun ve svém fragmentu */
+					if (!y->defined || y->sec != (int)n || y->weak)
+						i->jlong = 1;
+					else {
+						if (y->item <= m)
+							t = symaddr(y, n, m, 0);
+						else if (initial)
+							t = fragoff(s, m, y->item);
+						else
+							t = y->item < s->nitem ? (int64_t)s->item[y->item].off : (int64_t)s->size;
+						t += i->target.add;
+						i->jlong = !A->jfits(i, t - (int64_t)i->off);
+					}
+					size = A->jsize(i);
+					break;
+				}
 				if (!i->jlong && !initial) {
 					size = A->jsize(i);
-					y = &asyms[i->target.sym];
-					if (!y->defined || y->sec != (int)n)
+					if (!y->defined || y->sec != (int)n || y->weak)
 						i->jlong = 1;
 					else {
 						t = symaddr(y, n, m, stretch) + i->target.add;
@@ -1291,7 +1455,8 @@ opad(Out *o, uint64_t al)
 typedef struct Rel Rel;
 struct Rel {
 	uint64_t off;
-	int sym;      /* index v tabulce symbolů ELF */
+	int sym;      /* index symbolu (asyms), je-li sec < 0 */
+	int sec;      /* symbol sekce sec (>= 0) */
 	int type;
 	int64_t add;
 };
@@ -1317,6 +1482,7 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 		return;
 	}
 	if (f->kind != FAbs && y->defined && y->sec == secidx
+	&& (!A->localonly || y->local)
 	&& ((jump && A->resolveglobal) || (!y->global && !y->weak))) {
 		/* S + A - P, A = add + pcoff, P = pozice pole */
 		v = (int64_t)y->val + f->e.add + f->pcoff - (int64_t)pos;
@@ -1335,15 +1501,38 @@ resolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, int jump)
 	a = f->e.add;
 	if (f->kind != FAbs)
 		a += f->pcoff;
-	/* arm64 GNU as nechává relokace na místní funkce na symbolu */
-	if (y->defined && !y->global && !y->weak && (y->local || !A->keeplocalsym || y->type != TFunc)) {
-		es = asecs[y->sec].symidx;
-		a += y->val;
-	} else
-		es = elfsym[f->e.sym];
+	/* předběžná hodnota do pole s relokací (RISC-V): S + A - P u skoků
+	 * (S = posun symbolu v jeho sekci, 0 u nedefinovaného), jen A
+	 * u absolutních %hi/%lo */
+	if (A->tentative && f->enc) {
+		v = f->e.add;
+		if (f->kind != FAbs)
+			v += (y->defined ? (int64_t)y->val : 0) + f->pcoff - (int64_t)pos;
+		A->tentative(buf + pos, f, v);
+	}
+	es = -1;
+	if (f->relsym >= 0) {
+		/* %pcrel_lo: symbol .L0 u auipc, addend 0 */
+		y = &asyms[f->relsym];
+		es = f->relsym;
+		a = 0;
+	} else if (A->keeplocalsym == 2
+	|| !(y->defined && !y->global && !y->weak && (y->local || !A->keeplocalsym || y->type != TFunc)))
+		es = f->e.sym;
+	/* jinak symbol sekce; arm64 GNU as nechává relokace na místní funkce
+	 * na symbolu, RISC-V na každém symbolu včetně .L */
 	GROW(rels, nrels + 1);
 	rels[nrels].off = pos;
-	rels[nrels].sym = es;
+	if (es >= 0) {
+		rels[nrels].sym = es;
+		rels[nrels].sec = -1;
+		if (y->local)
+			y->keep = 1;
+	} else {
+		rels[nrels].sym = 0;
+		rels[nrels].sec = y->sec;
+		a += y->val;
+	}
 	rels[nrels].type = type;
 	if (A->elf64)
 		rels[nrels].add = a;
@@ -1410,6 +1599,49 @@ osh(Out *o, uint64_t name, int type, uint64_t flags, uint64_t off, uint64_t size
 	onum(o, ent, w);
 }
 
+/* Jméno symbolu v ELF: vnitřní jména místních návěští (.L#f<k>#jméno
+ * po souborech, .L#n#i číselná, .L#pc<k> u auipc) dostanou podobu GNU as:
+ * .Ljméno, .Ln^Bi a „.L0 “. */
+static char *
+symwname(ASymbol *y)
+{
+	static char buf[64];
+	char *p;
+	int num, inst;
+
+	p = y->name;
+	if (strncmp(p, ".L#f", 4) == 0) {
+		p = strchr(p + 4, '#');
+		if (!p)
+			return y->name;
+		p++;
+		if (*p != '#') {
+			if (strlen(p) + 3 > sizeof buf)
+				return p;
+			sprintf(buf, ".L%s", p);
+			return buf;
+		}
+	}
+	if (strncmp(p, ".L#pc", 5) == 0)
+		return ".L0 ";
+	if (strncmp(p, ".L#", 3) == 0 && isdigit((uchar)p[3])) {
+		/* .L#n#i: číselné návěští n, instance i */
+		num = 0;
+		for (p+=3; isdigit((uchar)*p); p++)
+			num = 10 * num + (*p - '0');
+		if (*p == '#' && isdigit((uchar)p[1])) {
+			inst = 0;
+			for (p++; isdigit((uchar)*p); p++)
+				inst = 10 * inst + (*p - '0');
+			if (*p == 0) {
+				sprintf(buf, ".L%d^B%d", num, inst);
+				return buf;
+			}
+		}
+	}
+	return y->name;
+}
+
 static void
 writeobj(char *out)
 {
@@ -1422,6 +1654,8 @@ writeobj(char *out)
 	uchar *buf;
 	uint n, m, k, nsyms, firstglobal, nsh;
 	uint64_t pos, pos2, strpos, shstrpos, shoff, fl;
+	Rel **secrels;
+	char *nm;
 	int64_t disp, t;
 	int resolved, w, symtabidx, strtabidx, shstridx, symsz, info;
 	uint64_t *secoff, *reloff, *relsz, *secname, *relname;
@@ -1445,43 +1679,12 @@ writeobj(char *out)
 		asecs[n].relaidx = 0;
 	}
 
-	/* tabulka symbolů: 0, soubor, symboly sekcí, místní, globální */
+	/* obsah sekcí; relokace si každá sekce schová, symboly dostanou
+	 * indexy až podle toho, na které z nich relokace odkazují */
 	elfsym = emalloc((nasyms + 1) * sizeof elfsym[0]);
-	nsyms = 1;
-	ozero(&strtab, 1);
-	ozero(&symtab, symsz);
-	if (filename) {
-		nsyms++;
-		osym(&symtab, strtab.n, 4, 0xfff1, 0, 0); /* STT_FILE, SHN_ABS */
-		oput(&strtab, filename, strlen(filename) + 1);
-	}
-	for (n=0; n<nasecs; n++) {
-		asecs[n].symidx = nsyms++;
-		osym(&symtab, 0, 3, asecs[n].elfidx, 0, 0); /* STT_SECTION */
-	}
-	firstglobal = nsyms;
-	for (k=0; k<2; k++) {
-		if (k == 1)
-			firstglobal = nsyms;
-		for (n=0; n<nasyms; n++) {
-			y = &asyms[n];
-			if (y->local)
-				continue;
-			if ((uint)(y->global || y->weak || !y->defined) != k)
-				continue;
-			elfsym[n] = nsyms++;
-			info = (y->weak ? 2 : y->global || !y->defined ? 1 : 0) << 4;
-			info |= y->type == TFunc ? 2 : y->type == TObject ? 1 : 0;
-			if (y->common)
-				osym(&symtab, strtab.n, info, 0xfff2, y->common, symsize(y));
-			else
-				osym(&symtab, strtab.n, info, y->defined ? asecs[y->sec].elfidx : 0,
-					y->defined ? y->val : 0, symsize(y));
-			oput(&strtab, y->name, strlen(y->name) + 1);
-		}
-	}
-
-	/* obsah sekcí a relokace */
+	for (n=0; n<nasyms; n++)
+		elfsym[n] = -1;
+	secrels = emalloc((nasecs + 1) * sizeof secrels[0]);
 	secoff = emalloc((nasecs + 1) * sizeof secoff[0]);
 	reloff = emalloc((nasecs + 1) * sizeof reloff[0]);
 	relsz = emalloc((nasecs + 1) * sizeof relsz[0]);
@@ -1514,14 +1717,22 @@ writeobj(char *out)
 					A->nops(buf + i->off, i->size);
 				break;
 			case IJump:
+				y = &asyms[i->target.sym];
 				resolved = exprin(&i->target, n, &t);
 				disp = resolved ? (int64_t)t - (int64_t)(i->off + i->size) : 0;
 				A->jemit(i, buf + i->off, disp, resolved);
-				if (!resolved) {
+				/* relokace: cíl jinde, nebo globální/jiný než .L symbol,
+				 * který se podle architektury nevyřeší (RISC-V dostane
+				 * relokaci i s vyplněnou předběžnou hodnotou) */
+				if (!resolved || (!A->resolveglobal && (y->global || y->weak))
+				|| (A->localonly && !y->local)) {
 					memset(&fx, 0, sizeof fx);
 					fx.size = 4;
 					fx.kind = FBranch;
-					fx.pcoff = -4;
+					/* x86 počítá od konce instrukce, RISC-V od začátku */
+					fx.pcoff = A->relaxmode == 1 ? 0 : -4;
+					fx.enc = A->jenc ? A->jenc(i) : 0;
+					fx.relsym = -1;
 					fx.e = i->target;
 					resolvefix(n, buf, i->off + i->size - 4, &fx, 1);
 				}
@@ -1531,20 +1742,84 @@ writeobj(char *out)
 		oput(&o, buf, s->size);
 		free(buf);
 		relcnt[n] = nrels;
-		if (nrels) {
-			opad(&o, w);
-			reloff[n] = o.n;
-			for (k=0; k<nrels; k++)
-				if (A->elf64) {
-					onum(&o, rels[k].off, 8);
-					onum(&o, ((uint64_t)(uint32_t)rels[k].sym << 32) | (uint32_t)rels[k].type, 8);
-					onum(&o, rels[k].add, 8);
-				} else {
-					onum(&o, rels[k].off, 4);
-					onum(&o, ((uint32_t)rels[k].sym << 8) | (uint32_t)rels[k].type, 4);
-				}
-			relsz[n] = o.n - reloff[n];
+		secrels[n] = rels;
+		rels = 0;
+		nrels = 0;
+	}
+
+	/* tabulka symbolů: 0, soubor, symboly sekcí, místní, globální */
+	nsyms = 1;
+	ozero(&strtab, 1);
+	ozero(&symtab, symsz);
+	if (filename) {
+		nsyms++;
+		osym(&symtab, strtab.n, 4, 0xfff1, 0, 0); /* STT_FILE, SHN_ABS */
+		oput(&strtab, filename, strlen(filename) + 1);
+	}
+	for (n=0; n<nasecs; n++) {
+		asecs[n].symidx = nsyms++;
+		osym(&symtab, 0, 3, asecs[n].elfidx, 0, 0); /* STT_SECTION */
+	}
+	firstglobal = nsyms;
+	for (k=0; k<2; k++) {
+		if (k == 1)
+			firstglobal = nsyms;
+		for (n=0; n<nasyms; n++) {
+			y = &asyms[n];
+			if (y->local && !y->keep)
+				continue;
+			if (y->isabs) {
+				/* .equ: místní absolutní symbol (GNU as ho zapisuje) */
+				if (k != 0)
+					continue;
+				elfsym[n] = nsyms++;
+				osym(&symtab, strtab.n, 0, 0xfff1, y->absval, 0);
+				nm = symwname(y);
+				oput(&strtab, nm, strlen(nm) + 1);
+				continue;
+			}
+			if ((uint)(y->global || y->weak || !y->defined) != k)
+				continue;
+			elfsym[n] = nsyms++;
+			info = (y->weak ? 2 : y->global || !y->defined ? 1 : 0) << 4;
+			info |= y->type == TFunc ? 2 : y->type == TObject ? 1 : 0;
+			if (y->common)
+				osym(&symtab, strtab.n, info, 0xfff2, y->common, symsize(y));
+			else
+				osym(&symtab, strtab.n, info, y->defined ? asecs[y->sec].elfidx : 0,
+					y->defined ? y->val : 0, symsize(y));
+			nm = symwname(y);
+			oput(&strtab, nm, strlen(nm) + 1);
 		}
+	}
+
+	/* relokace */
+	for (n=0; n<nasecs; n++) {
+		if (!relcnt[n])
+			continue;
+		rels = secrels[n];
+		opad(&o, w);
+		reloff[n] = o.n;
+		for (k=0; k<relcnt[n]; k++) {
+			if (rels[k].sec >= 0)
+				m = asecs[rels[k].sec].symidx;
+			else {
+				if (elfsym[rels[k].sym] < 0)
+					die("as: relocation symbol without a table entry");
+				m = elfsym[rels[k].sym];
+			}
+			if (A->elf64) {
+				onum(&o, rels[k].off, 8);
+				onum(&o, ((uint64_t)m << 32) | (uint32_t)rels[k].type, 8);
+				onum(&o, rels[k].add, 8);
+			} else {
+				onum(&o, rels[k].off, 4);
+				onum(&o, ((uint32_t)m << 8) | (uint32_t)rels[k].type, 4);
+			}
+		}
+		relsz[n] = o.n - reloff[n];
+		free(rels);
+		rels = 0;
 	}
 
 	/* konečné indexy sekcí: relokační sekce za svou sekcí */
@@ -1561,7 +1836,7 @@ writeobj(char *out)
 		putval(symtab.b + asecs[n].symidx * symsz + (A->elf64 ? 6 : 14), asecs[n].elfidx, 2);
 	for (n=0; n<nasyms; n++) {
 		y = &asyms[n];
-		if (!y->local && y->defined)
+		if ((!y->local || y->keep) && y->defined)
 			putval(symtab.b + elfsym[n] * symsz + (A->elf64 ? 6 : 14), asecs[y->sec].elfidx, 2);
 	}
 
@@ -1618,6 +1893,7 @@ writeobj(char *out)
 	putval(o.b + 16, 1, 2); /* ET_REL */
 	putval(o.b + 18, A->machine, 2);
 	putval(o.b + 20, 1, 4);
+	putval(o.b + (A->elf64 ? 48 : 36), A->eflags, 4);
 	if (A->elf64) {
 		putval(o.b + 40, shoff, 8);
 		putval(o.b + 52, 64, 2);
@@ -1653,6 +1929,8 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	nlocnum = 0;
 	filename = 0;
 	newsec(".text", SAlloc | SExec, 1);
+	if (A->textalign > 1)
+		asecs[0].align = A->textalign;
 	newsec(".data", SAlloc | SWrite, 1);
 	newsec(".bss", SAlloc | SWrite | SNobits, 8);
 	usesec(0);
@@ -1668,8 +1946,14 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	afile = 0;
 	aline = 0;
 	for (n=0; n<nasyms; n++)
-		if (!asyms[n].defined && asyms[n].local)
+		if (!asyms[n].defined && asyms[n].local && !asyms[n].isabs)
 			aerr("undefined local symbol %s", asyms[n].name);
+	if (A->padcode)
+		for (n=0; n<nasecs; n++)
+			if ((asecs[n].flags & (SExec | SNobits)) == SExec && asecs[n].nitem) {
+				usesec(n);
+				align(asecs[n].align, 0, 0);
+			}
 	rounds = 0;
 	layout(1);
 	while (layout(0))

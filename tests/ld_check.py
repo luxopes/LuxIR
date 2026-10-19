@@ -6,7 +6,7 @@ bez PIE i PIE) a i386; programy se spustí a výstup porovná s .out. Navíc se
 kontroluje smlouva obrazu: bez interpretu, bez RWX segmentu, GNU_STACK bez
 práva spouštění, bez tabulky symbolů.
 
-Použití: ld_check.py --backend LUXIR [--backend …] [--arch x86_64|i386]
+Použití: ld_check.py --backend LUXIR [--backend …] [--arch x86_64|i386|arm64|rv64]
 """
 import argparse, struct, subprocess, sys, tempfile
 from pathlib import Path
@@ -18,8 +18,9 @@ ARCH = {
     'x86_64': ('amd64_sysv', ['--target=x86_64-linux-gnu', '-mno-red-zone'], [], [['-fno-pic'], ['-fPIE', '-p']]),
     'i386': ('i386', ['--target=i686-linux-gnu', '-msse2', '-mfpmath=sse'], [BUILTINS], [['-fno-pic']]),
     'arm64': ('arm64', ['--target=aarch64-linux-gnu'], [], [['-fPIE', '-p']]),
+    'rv64': ('rv64', ['--target=riscv64-linux-gnu', '-march=rv64g', '-mabi=lp64d', '-mno-relax'], [], [['-fno-pic'], ['-fPIE', '-p']]),
 }
-RUNNER = {'arm64': ['qemu-aarch64']}
+RUNNER = {'arm64': ['qemu-aarch64'], 'rv64': ['qemu-riscv64']}
 UNSUPPORTED = {'memory', 'calls', 'tls'}   # i386: agregáty a variadické; tls: TLS nepodporuje linker
 
 
@@ -101,7 +102,8 @@ def main():
                                     return 1
                             objs.append(obj)
                         s, o, exe = tmp / 'p.s', tmp / 'p.o', tmp / 'p'
-                        r = run([backend, '-t', target, '-o', s, lir], text=True)
+                        # rv64: PIE potřebuje i kód s adresami relativně k PC (-p backendu)
+                        r = run([backend, '-t', target] + (['-p'] if pie and arch == 'rv64' else []) + ['-o', s, lir], text=True)
                         if r.returncode == 0:
                             r = run([backend, '-a', '-t', target, '-o', o, s], text=True)
                         if r.returncode == 0:

@@ -615,6 +615,74 @@ relname(IObj *o, ISym *y)
 	return "(unnamed symbol)";
 }
 
+/* hodnota symbolu relokace po rozvržení (0 pro slabý nedefinovaný) */
+static uint64_t
+relvalue(IObj *o, IRel *r)
+{
+	ISec *t;
+	ISym *y;
+	uint64_t v;
+
+	y = &o->sym[r->sym];
+	t = relsec(o, r, &v);
+	if (!t) {
+		if (y->gsym >= 0 && gsyms[y->gsym].weak)
+			return 0;
+		lerr("undefined symbol %s (%s)", y->name, o->path);
+	} else if (t != (ISec *)-1) {
+		if (!t->keep)
+			lerr("%s: relocation against discarded section %s", o->path, t->name);
+		v += t->addr;
+	}
+	return v;
+}
+
+/* RISC-V: pole větve a skoku */
+static uint32_t
+rvbimm(int64_t v)
+{
+	return ((uint32_t)((v >> 12) & 1) << 31) | ((uint32_t)((v >> 5) & 0x3f) << 25)
+		| ((uint32_t)((v >> 1) & 0xf) << 8) | ((uint32_t)((v >> 11) & 1) << 7);
+}
+
+static uint32_t
+rvjimm(int64_t v)
+{
+	return ((uint32_t)((v >> 20) & 1) << 31) | ((uint32_t)((v >> 1) & 0x3ff) << 21)
+		| ((uint32_t)((v >> 11) & 1) << 20) | ((uint32_t)((v >> 12) & 0xff) << 12);
+}
+
+/* RISC-V %pcrel_lo: hodnota relokace PCREL_HI20 na adrese addr téže
+ * sekce (symbol .L0 u auipc); vrací S + A - P té relokace */
+static int64_t
+rvpcrelhi(IObj *o, ISec *s, uint k, uint64_t addr)
+{
+	IRel *h;
+	uint64_t off;
+	int64_t d;
+	uint m;
+
+	if (addr < s->addr || addr >= s->addr + s->size)
+		lerr("%s: %%pcrel_lo refers outside its section", o->path);
+	off = addr - s->addr;
+	h = 0;
+	for (m=k; m-- > 0; )
+		if (s->rel[m].off == off && (s->rel[m].type == 23 || s->rel[m].type == 18 || s->rel[m].type == 19)) {
+			h = &s->rel[m];
+			break;
+		}
+	if (!h)
+		for (m=k; m<s->nrel; m++)
+			if (s->rel[m].off == off && (s->rel[m].type == 23 || s->rel[m].type == 18 || s->rel[m].type == 19)) {
+				h = &s->rel[m];
+				break;
+			}
+	if (!h)
+		lerr("%s: %%pcrel_lo without a matching auipc relocation", o->path);
+	d = (int64_t)(relvalue(o, h) + h->add) - (int64_t)addr;
+	return d;
+}
+
 static void
 relocate(uchar *out)
 {
@@ -656,6 +724,101 @@ relocate(uchar *out)
 				a = r->add;
 				if (!s->rela)
 					a = (int64_t)(int32_t)rd(field, 4);
+				if (machine == 243) {
+					uint32_t ins = rd(field, 4);
+					int64_t sa = (int64_t)(v + a), d, hi, lo;
+					switch (r->type) {
+					case 1: /* 32 */
+					case 2: /* 64 */
+						if (pie)
+							lerr("%s: absolute relocation against %s in a position-independent executable", o->path, relname(o, y));
+						wr(field, sa, r->type == 2 ? 8 : 4);
+						continue;
+					case 16: /* BRANCH */
+						d = sa - (int64_t)p;
+						if ((d & 1) || d < -4096 || d >= 4096)
+							lerr("%s: branch out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0x01fff07f) | rvbimm(d);
+						break;
+					case 17: /* JAL */
+						d = sa - (int64_t)p;
+						if ((d & 1) || d < -(1 << 20) || d >= (1 << 20))
+							lerr("%s: jump out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0xfff) | rvjimm(d);
+						break;
+					case 18: /* CALL */
+					case 19: /* CALL_PLT */
+					case 23: /* PCREL_HI20 */
+						d = sa - (int64_t)p;
+						hi = (d + 0x800) >> 12;
+						lo = d - (hi << 12);
+						if (hi < -(1 << 19) || hi >= (1 << 19))
+							lerr("%s: pc-relative address out of range for %s", o->path, relname(o, y));
+						ins = (ins & 0xfff) | ((uint32_t)(hi & 0xfffff) << 12);
+						if (r->type != 23) {
+							uint32_t jalr = rd(field + 4, 4);
+							wr(field + 4, (jalr & 0xfffff) | ((uint32_t)(lo & 0xfff) << 20), 4);
+						}
+						break;
+					case 24: /* PCREL_LO12_I */
+					case 25: /* PCREL_LO12_S */
+						d = rvpcrelhi(o, s, k, sa);
+						hi = (d + 0x800) >> 12;
+						lo = d - (hi << 12);
+						if (r->type == 24)
+							ins = (ins & 0xfffff) | ((uint32_t)(lo & 0xfff) << 20);
+						else
+							ins = (ins & 0x01fff07f) | ((uint32_t)((lo >> 5) & 0x7f) << 25) | ((uint32_t)(lo & 0x1f) << 7);
+						break;
+					case 33: case 34: case 35: case 36: /* ADD8/16/32/64 */
+					case 37: case 38: case 39: case 40: /* SUB8/16/32/64 */
+					case 54: case 55: case 56: {         /* SET8/16/32 */
+						/* rozdíly návěští (tabulky skoků, .eh_frame):
+						 * pole += / -= / = S + A */
+						int sz = r->type == 33 || r->type == 37 || r->type == 54 ? 1
+							: r->type == 34 || r->type == 38 || r->type == 55 ? 2
+							: r->type == 35 || r->type == 39 || r->type == 56 ? 4 : 8;
+						int64_t cur = (int64_t)rd(field, sz);
+						if (r->type <= 36)
+							cur += sa;
+						else if (r->type <= 40)
+							cur -= sa;
+						else
+							cur = sa;
+						wr(field, cur, sz);
+						continue;
+					}
+					case 52: /* SUB6 */
+						wr(field, (rd(field, 1) & 0xc0) | (((rd(field, 1) & 0x3f) - sa) & 0x3f), 1);
+						continue;
+					case 53: /* SET6 */
+						wr(field, (rd(field, 1) & 0xc0) | (sa & 0x3f), 1);
+						continue;
+					case 57: /* 32_PCREL */
+						wr(field, sa - (int64_t)p, 4);
+						continue;
+					case 26: /* HI20 */
+					case 27: /* LO12_I */
+					case 28: /* LO12_S */
+						if (pie)
+							lerr("%s: absolute relocation against %s in a position-independent executable", o->path, relname(o, y));
+						hi = (sa + 0x800) >> 12;
+						lo = sa - (hi << 12);
+						if (sa != (int64_t)(int32_t)sa)
+							lerr("%s: absolute address out of range for %s", o->path, relname(o, y));
+						if (r->type == 26)
+							ins = (ins & 0xfff) | ((uint32_t)(hi & 0xfffff) << 12);
+						else if (r->type == 27)
+							ins = (ins & 0xfffff) | ((uint32_t)(lo & 0xfff) << 20);
+						else
+							ins = (ins & 0x01fff07f) | ((uint32_t)((lo >> 5) & 0x7f) << 25) | ((uint32_t)(lo & 0x1f) << 7);
+						break;
+					default:
+						lerr("%s: unsupported relocation type %u", o->path, r->type);
+					}
+					wr(field, ins, 4);
+					continue;
+				}
 				if (machine == 183) {
 					uint32_t ins = rd(field, 4);
 					int64_t sa = (int64_t)(v + a);
@@ -835,6 +998,8 @@ writeexe(char *out)
 	wr(buf + 16, pie ? 3 : 2, 2);
 	wr(buf + 18, machine, 2);
 	wr(buf + 20, 1, 4);
+	/* e_flags: RISC-V ABI lp64d */
+	wr(buf + (elf64 ? 48 : 36), machine == 243 ? 4 : 0, 4);
 	if (elf64) {
 		wr(buf + 24, entry, 8);
 		wr(buf + 32, 64, 8);

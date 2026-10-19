@@ -406,6 +406,9 @@ main(int ac, char *av[])
 		} else if (strcmp(T.name, "arm64") == 0) {
 			is64 = 1;
 			mach = 183;
+		} else if (strcmp(T.name, "rv64") == 0) {
+			is64 = 1;
+			mach = 243;
 		} else {
 			fprintf(stderr, "luxir: no built-in linker for %s\n", T.name);
 			exit(1);
@@ -427,6 +430,8 @@ main(int ac, char *av[])
 			arch = &AI386;
 		else if (strcmp(T.name, "arm64") == 0)
 			arch = &AARM64;
+		else if (strcmp(T.name, "rv64") == 0)
+			arch = &ARV64;
 		else {
 			fprintf(stderr, "luxir: no built-in assembler for %s\n", T.name);
 			exit(1);

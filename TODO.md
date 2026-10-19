@@ -130,7 +130,11 @@ Windows a macOS (navíc):
 - [x] Assembler a linker AArch64 ELF (`-t arm64`): bajtově shodné objekty
   s GNU as na překladači LSL i runtime, relokace adrp/:lo12:/skoků;
   LSL linux-arm64 bez binutils (19. 10. 2026).
-- [ ] Assembler a linker arm (32bit) a rv64 ELF; PE32+ s ASLR, DEP a
+- [x] Assembler a linker RISC-V ELF (`-t rv64`, rv64g bez relaxace):
+  bajtově shodné objekty s GNU as na překladači LSL i runtime včetně
+  relaxace větví a rozkladu `li`; LSL linux-riscv64 bez binutils
+  (19. 10. 2026). Baremetal-riscv64 zůstává na GNU ld (linker skript).
+- [ ] Assembler a linker arm (32bit) ELF; PE32+ s ASLR, DEP a
   high-entropy VA, importy `kernel32` a `ws2_32`; Mach-O s `LC_MAIN`,
   `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
