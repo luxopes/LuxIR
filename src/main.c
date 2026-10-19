@@ -286,8 +286,11 @@ main(int ac, char *av[])
 	FILE *inf, *hf;
 	char *f, *sep, *out, *rtdir;
 	char asmpath[4096];
-	int c, exe, asmode, ldmode;
-	char *entry;
+	int c, exe, asmode, ldmode, pipe, nobj, k;
+	char *entry, **objs, objpath[4096];
+
+	objs = 0;
+	nobj = 0;
 
 	T = Deftgt;
 	asmode = 0;
@@ -373,6 +376,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
 			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t)\n", "-a");
+			fprintf(hf, "\t%-11s with -l: compile .lir, assemble and link with the objects in one run\n", "-a -l");
 			fprintf(hf, "\t%-11s link ELF objects into a static executable (-p: PIE, -e: entry)\n", "-l");
 			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
@@ -389,7 +393,11 @@ main(int ac, char *av[])
 			exit(c != 'h');
 		}
 
-	if (ldmode) {
+	/* -a -l: překlad .lir, sestavení a slinkování v jednom běhu (bez dvou
+	 * dalších startů procesu): vstupy .lir se přeloží do OUT.s a sestaví
+	 * do OUT.o, ostatní vstupy jsou objekty pro linker */
+	pipe = asmode && ldmode;
+	if (ldmode && !pipe) {
 		/* vestavěný linker: objekty ELF architektury cíle */
 		int is64, mach;
 		if (!out || exe || asmode || dbg || !av[optind]) {
@@ -419,7 +427,7 @@ main(int ac, char *av[])
 		exit(link(av + optind, ac - optind, out, is64, mach, pic, entry));
 	}
 
-	if (asmode) {
+	if (asmode && !pipe) {
 		/* vestavěný assembler: vstup je .s pro architekturu cíle */
 		AArch *arch;
 		if (!out || exe || dbg || !av[optind]) {
@@ -444,6 +452,31 @@ main(int ac, char *av[])
 		exit(assemble(av + optind, ac - optind, out, arch));
 	}
 
+	if (pipe) {
+		if (!out || exe || dbg || !av[optind]) {
+			fprintf(stderr, "luxir: -a -l needs -o file, a .lir input and objects\n");
+			exit(1);
+		}
+		fclose(outf);
+		luxir_unlink(out);
+		snprintf(asmpath, sizeof asmpath, "%s.s", out);
+		snprintf(objpath, sizeof objpath, "%s.o", out);
+		outf = fopen(asmpath, "w");
+		if (!outf) {
+			fprintf(stderr, "cannot open '%s'\n", asmpath);
+			exit(1);
+		}
+		tmpasm = asmpath;
+		/* objekty pro linker: vstupy bez přípony .lir */
+		objs = emalloc((ac - optind + 2) * sizeof objs[0]);
+		nobj = 0;
+		objs[nobj++] = objpath;
+		for (k=optind; k<ac; k++) {
+			size_t n = strlen(av[k]);
+			if (n < 4 || strcmp(av[k] + n - 4, ".lir") != 0)
+				objs[nobj++] = av[k];
+		}
+	}
 	if (exe) {
 		/* Assembler jde do OUT.s; OUT zůstává až pro linker. */
 		if (!out || dbg) {
@@ -463,6 +496,11 @@ main(int ac, char *av[])
 
 	do {
 		f = av[optind];
+		if (pipe && f) {
+			size_t n = strlen(f);
+			if (n < 4 || strcmp(f + n - 4, ".lir") != 0)
+				continue;
+		}
 		if (!f || strcmp(f, "-") == 0) {
 			inf = stdin;
 			f = "-";
@@ -486,6 +524,43 @@ main(int ac, char *av[])
 		fclose(outf);
 		tmpasm = 0;
 		exit(linkexe(out, asmpath, rtdir));
+	}
+	if (pipe) {
+		AArch *arch;
+		int is64, mach, rc;
+		fputs("\n.file \"luxir\"\n", outf);
+		fclose(outf);
+		if (strncmp(T.name, "amd64", 5) == 0) {
+			arch = &AX86_64;
+			is64 = 1;
+			mach = 62;
+		} else if (strcmp(T.name, "i386") == 0) {
+			arch = &AI386;
+			is64 = 0;
+			mach = 3;
+		} else if (strcmp(T.name, "arm64") == 0) {
+			arch = &AARM64;
+			is64 = 1;
+			mach = 183;
+		} else if (strcmp(T.name, "rv64") == 0) {
+			arch = &ARV64;
+			is64 = 1;
+			mach = 243;
+		} else if (strcmp(T.name, "arm") == 0) {
+			arch = &AARM;
+			is64 = 0;
+			mach = 40;
+		} else {
+			fprintf(stderr, "luxir: no built-in assembler and linker for %s\n", T.name);
+			exit(1);
+		}
+		rc = assemble(&tmpasm, 1, objpath, arch);
+		luxir_unlink(asmpath);
+		tmpasm = 0;
+		if (rc == 0)
+			rc = link(objs, nobj, out, is64, mach, pic, entry);
+		luxir_unlink(objpath);
+		exit(rc);
 	}
 	exit(0);
 }

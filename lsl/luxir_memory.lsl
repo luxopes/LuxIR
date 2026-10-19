@@ -8,7 +8,8 @@
 load _platform as platform
 _pinned = {}
 _literals = {}
-_literal_texts = {}
+_literal_texts = None
+_literal_list = []
 _free_heads = __lsl_int_zeros(12)
 _slab_next = __lsl_int_zeros(12)
 _slab_end = __lsl_int_zeros(12)
@@ -395,18 +396,28 @@ end
 function literal(text):
     # Only the translator's immutable C string literals use this registration.
     # General cstr/malloc pointers may be modified or freed and are not cached.
-    address = cstr(text)
-    terminator = String(text).find(chr(0))
-    if terminator >= 0:
-        _literal_texts[address] = String(text)[0:terminator]
-    else:
-        _literal_texts[address] = text
-    end
-    return address
+    # Tisíce literálů se registrují při každém startu: bez kopie. Řetězec LSL
+    # leží na haldě jako [značka 8][délka 8][bajty][0], GC objekty nepřesouvá
+    # a globální proměnná literál drží, takže C dostane přímo adresu bajtů
+    # (včetně nuly na konci). Mapu pro literal_text sestaví až první dotaz.
+    _literal_list.append(text)
+    return __lsl_address(text) + 16
 end
 
 function literal_text(raw_address):
+    global _literal_texts
     address = __lsl_qbe_raw_int(raw_address)
+    if _literal_texts == None:
+        _literal_texts = {}
+        for registered in _literal_list:
+            shown = registered
+            terminator = String(registered).find(chr(0))
+            if terminator >= 0:
+                shown = String(registered)[0:terminator]
+            end
+            _literal_texts[__lsl_address(registered) + 16] = shown
+        end
+    end
     return _literal_texts.get(address, None)
 end
 

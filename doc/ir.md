@@ -28,7 +28,7 @@ end
 ## Verze protokolu
 
 `luxir --version` (samostatný příkaz) vypíše podporovanou revizi IR a
-runtime kontrakty. Aktuálně: `LuxIR 0.3.0 (IR 1; runtime ABI none, lsl-0)`.
+runtime kontrakty. Aktuálně: `LuxIR 0.3.1 (IR 1; runtime ABI none, lsl-0)`.
 Číslo původního QBE není verzí rozhraní LuxIR.
 
 Frontend může před všemi definicemi a direktivou `file` zapsat:
@@ -273,7 +273,8 @@ a `i386` (assembler) a `c32` (C pro 32bitové cíle). `-a` místo překladu
 LuxIR sestaví soubor `.s` vestavěným assemblerem do objektu ELF
 (architektura podle `-t`: x86-64, i386, arm64, rv64 nebo arm); `-l` slinkuje objekty ELF do
 statického spustitelného souboru (`-p` PIE, `-e` vstupní bod, výchozí
-`_start`). Bez `-o` jde výstup na standardní výstup.
+`_start`); `-a -l` dohromady přeloží `.lir`, sestaví a slinkuje s dalšími
+objekty v jednom běhu. Bez `-o` jde výstup na standardní výstup.
 Bez vstupu nebo se vstupem `-` se čte standardní vstup. `-d P` vypíše
 funkce po parsování ve tvaru LuxIR. Další ladicí příznaky odpovídají QBE.
 
