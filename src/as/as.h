@@ -150,6 +150,7 @@ extern uint nasyms;
 extern int acursec;
 extern int aline;
 void aerr(char *, ...);
+void awarn(char *, ...);
 char *aword(char **ps);
 void aspace(char **ps);
 int aexpr(char **ps, AExpr *e);

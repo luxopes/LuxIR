@@ -287,11 +287,21 @@ addfix(int pos, int size, int kind, int sext, AExpr *e)
 	nifix++;
 }
 
+/* Úzký immediate (1 a 2 bajty) jako GNU as: hodnota v rozsahu 32 bitů
+ * se nejprve znaménkově rozšíří (0xffffffff je -1), takže se vejde i do
+ * krátké formy imm8. */
+static void
+narrow(AExpr *e, int size)
+{
+	if (size <= 2 && e->sym < 0 && e->add >= 0x80000000 && e->add <= 0xffffffff)
+		e->add -= (int64_t)1 << 32;
+}
+
 static void
 putimm(AExpr *e, int size, int sext)
 {
 	int n;
-	int64_t v;
+	int64_t v, mask;
 
 	if (e->sym >= 0) {
 		if (size != 4 && size != 8)
@@ -301,11 +311,14 @@ putimm(AExpr *e, int size, int sext)
 			put(0);
 		return;
 	}
+	narrow(e, size);
 	v = e->add;
 	if (size < 8) {
-		int64_t lim = (int64_t)1 << (8 * size - 1);
-		if (v < -lim || v >= 2 * lim)
-			xerr("immediate out of range");
+		/* bity nad polem musí být samé nuly nebo jedničky, jinak se
+		 * hodnota zkrátí s varováním (offset_in_range v GNU as) */
+		mask = ((int64_t)1 << (8 * size)) - 1;
+		if ((v & ~mask) != 0 && (v | mask) != -1)
+			awarn("0x%llx shortened to 0x%llx", (unsigned long long)v, (unsigned long long)(v & mask));
 	}
 	for (n=0; n<size; n++)
 		put((v >> (8 * n)) & 0xff);
@@ -564,6 +577,7 @@ alu(int n, Opnd *o, int no, char *suf)
 	if (o[0].kind == OImm) {
 		if (o[1].kind == OImm)
 			xerr("invalid operands");
+		narrow(&o[0].e, size);
 		imm8 = size > 1 && fits8(&o[0].e);
 		if (size == 1) {
 			if (isacc(&o[1])) {
@@ -838,6 +852,7 @@ imul(Opnd *o, int no, char *suf)
 		dst = no == 3 ? &o[2] : &o[1];
 		if (dst->kind != OReg)
 			xerr("invalid operands");
+		narrow(&o[0].e, s16 ? 2 : 4);
 		if (fits8(&o[0].e)) {
 			modrm(w, dst->reg, src, s16, legacy, 0, 0x6b, -1, -1);
 			putimm(&o[0].e, 1, 0);

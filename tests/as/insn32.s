@@ -44,3 +44,11 @@ g:
 .data
 	.int f, g+4
 	.int 0
+# úzké immediate: 32bitová hodnota se znaménkově rozšíří, jinak zkrátí (varování)
+	movw $4294967295, 112(%eax)
+	addw $0xffffffff, %ax
+	cmpb $4294967295, %al
+	andw $0xffff8000, %ax
+	movb $-129, %al
+	imulw $0xffffffff, %ax, %ax
+	subw $0x7fffffff, %ax

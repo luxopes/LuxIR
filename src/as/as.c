@@ -32,6 +32,19 @@ aerr(char *fmt, ...)
 	exit(1);
 }
 
+/* Varování jako GNU as: vypíše se, překlad pokračuje. */
+void
+awarn(char *fmt, ...)
+{
+	va_list ap;
+
+	fprintf(stderr, "%s:%d: Warning: ", apath, aline);
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	fputc('\n', stderr);
+}
+
 /* Pole s kapacitou v mocninách dvou: zvětší na n prvků. */
 static void *
 grow(void *p, uint n, size_t esz)
@@ -1077,7 +1090,9 @@ aparse(void)
 		s = line;
 		instr = 0;
 		for (t=line; *t; t++) {
-			if (*t == '"')
+			if (instr && *t == '\\' && t[1])
+				t++;
+			else if (*t == '"')
 				instr = !instr;
 			else if (*t == ';' && !instr) {
 				*t = 0;

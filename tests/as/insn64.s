@@ -77,3 +77,13 @@
 	ud2
 	leave
 	ret
+# úzké immediate: 32bitová hodnota se znaménkově rozšíří, jinak zkrátí (varování)
+	movw $4294967295, 112(%rax)
+	addw $0xffffffff, %ax
+	addw $0xffffffff, 2(%rax)
+	cmpb $4294967295, %al
+	andw $0xffff8000, %ax
+	movb $-129, %al
+	imulw $0xffffffff, %ax, %ax
+	subw $0x7fffffff, %ax
+	movw $65536, %ax

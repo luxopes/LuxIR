@@ -59,3 +59,9 @@ b1:
 	.zero 24
 .comm cm, 16, 8
 .section .note.GNU-stack,"",@progbits
+# středník a komentářový znak uvnitř řetězce s escapovanou uvozovkou
+	.data
+	.ascii " !P\"YQ<#]ZRJF=1$^W[DUSK6MGA>82,%_OX;\\IE0VCT5L@7+N:H/B4?*9.3)-('&"
+	.byte 0
+	.ascii "a\\"; .byte 1; .ascii ";\"#"
+	.text
