@@ -1,6 +1,6 @@
 # LuxIR
 
-Aktuální vydání: **0.3.1**. Změny a omezení: [RELEASE-0.3.1.md](RELEASE-0.3.1.md).
+Aktuální vydání: **0.4.0**. Změny a omezení: [RELEASE-0.4.0.md](RELEASE-0.4.0.md).
 
 LuxIR je samostatný backend překladače, podobně jako QBE. Má vlastní IR se
 syntaxí ve stylu LSL a v produkci běží jako program napsaný v LSL.

@@ -2,7 +2,7 @@
 #define LUXIR_VERSION_H
 
 /* Protocol revisions, independent of the upstream QBE release number. */
-#define LUXIR_RELEASE_VERSION "0.3.1"
+#define LUXIR_RELEASE_VERSION "0.4.0"
 #define LUXIR_IR_VERSION "1"
 #define LUXIR_RUNTIME_ABI "none"
 /* Runtime LSL dodávaný s LuxIR (runtime/lsl/, doc/lsl-runtime.md). Verze 0:
