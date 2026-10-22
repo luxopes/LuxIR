@@ -422,6 +422,121 @@ readlibs(char *path)
 	}
 }
 
+/* ---- importy: ověření proti sdíleným knihovnám hostitele ---- */
+
+/* definované symboly knihovny (SHT_DYNSYM, shndx != 0); 0 = knihovna není
+ * na hostiteli (křížový překlad: kontrola se přeskočí) */
+static char **
+libsyms(char *soname, uint *count)
+{
+	static char *dirs[] = {"/lib64/", "/usr/lib64/", "/usr/lib/x86_64-linux-gnu/", "/lib/x86_64-linux-gnu/", "/usr/lib/", "/lib/", "/usr/local/lib/", 0};
+	char path[1024], **names;
+	uchar *d, *sh, *st;
+	FILE *f;
+	long cap, len, got;
+	uint64_t shoff, off, size, stroff, k, n;
+	uint shnum, shent, link, nn;
+	int i;
+
+	*count = 0;
+	f = 0;
+	for (i=0; dirs[i]; i++) {
+		if (strlen(dirs[i]) + strlen(soname) + 1 > sizeof path)
+			continue;
+		memcpy(path, dirs[i], strlen(dirs[i]));
+		memcpy(path + strlen(dirs[i]), soname, strlen(soname) + 1);
+		f = fopen(path, "rb");
+		if (f)
+			break;
+	}
+	if (!f)
+		return 0;
+	cap = 1 << 20;
+	d = emalloc(cap);
+	len = 0;
+	for (;;) {
+		if (len + 65536 > cap) {
+			cap *= 2;
+			d = realloc(d, cap);
+			if (!d)
+				die("out of memory");
+		}
+		got = fread(d + len, 1, cap - len, f);
+		if (got == 0)
+			break;
+		len += got;
+	}
+	fclose(f);
+	if (len < 64 || memcmp(d, "\177ELF", 4) != 0 || d[4] != 2) {
+		free(d);
+		return 0;
+	}
+	shoff = rd(d + 40, 8);
+	shent = rd(d + 58, 2);
+	shnum = rd(d + 60, 2);
+	names = 0;
+	nn = 0;
+	for (k=0; k<shnum; k++) {
+		sh = d + shoff + k * shent;
+		if (rd(sh + 4, 4) != 11)      /* SHT_DYNSYM */
+			continue;
+		off = rd(sh + 24, 8);
+		size = rd(sh + 32, 8);
+		link = rd(sh + 40, 4);
+		stroff = rd(d + shoff + link * shent + 24, 8);
+		st = d + stroff;
+		for (n=0; n<size/24; n++) {
+			uchar *e = d + off + n * 24;
+			if (rd(e + 6, 2) == 0)    /* nedefinovaný */
+				continue;
+			GROW(names, nn + 1);
+			names[nn++] = (char *)st + rd(e, 4);
+		}
+		break;
+	}
+	*count = nn;
+	return names;   /* d zůstává: jména do něj ukazují */
+}
+
+static int
+symin(char **names, uint count, char *name)
+{
+	uint n;
+
+	for (n=0; n<count; n++)
+		if (strcmp(names[n], name) == 0)
+			return 1;
+	return 0;
+}
+
+/* každý import musí definovat některá z knihoven .libs (je-li na
+ * hostiteli); jinak by program spadl až při startu v ld.so */
+static void
+checkimports(void)
+{
+	char ***syms;
+	uint *counts, n, k;
+	int known;
+
+	syms = emalloc((ndynlibs + 1) * sizeof syms[0]);
+	counts = emalloc((ndynlibs + 1) * sizeof counts[0]);
+	known = 0;
+	for (n=0; n<ndynlibs; n++) {
+		syms[n] = libsyms(dynlibs[n], &counts[n]);
+		if (syms[n])
+			known = 1;
+	}
+	if (!known)
+		return;
+	for (k=0; k<nimps; k++) {
+		for (n=0; n<ndynlibs; n++)
+			if (syms[n] && symin(syms[n], counts[n], gsyms[impsyms[k]].name))
+				break;
+		if (n == ndynlibs)
+			lerr("undefined symbol %s (not in %s%s)", gsyms[impsyms[k]].name, dynlibs[0], ndynlibs > 1 ? ", ..." : "");
+	}
+}
+
 /* ---- symboly ---- */
 
 /* hašovací tabulka globálních jmen: index+1 do gsyms */
@@ -1572,6 +1687,8 @@ link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, int i
 		lerr("dynamic linking needs a PIE for x86-64");
 	resolve();
 	gc();
+	if (dynamic)
+		checkimports();
 	if (bare)
 		layoutbare();
 	else
