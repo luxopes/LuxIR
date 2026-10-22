@@ -596,6 +596,9 @@ main(int ac, char *av[])
 		AArch *arch;
 		int is64, mach, rc;
 		fputs("\n.file \"luxir\"\n", outf);
+		/* Mach-O: atomy po symbolech, nepoužité funkce linker vypustí */
+		if (strcmp(T.name, "amd64_apple") == 0 || strcmp(T.name, "arm64_apple") == 0)
+			fputs(".subsections_via_symbols\n", outf);
 		fclose(outf);
 		if (strncmp(T.name, "amd64", 5) == 0) {
 			arch = &AX86_64;
