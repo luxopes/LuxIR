@@ -8,6 +8,7 @@
 
 Target T;
 int pic;
+int bare;
 int wasmthreads;
 char *tmpasm;
 
@@ -306,7 +307,7 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpgxalVd:o:t:L:e:")) != -1)
+	while ((c = getopt(ac, av, "hpgxalbVd:o:t:L:e:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
@@ -345,6 +346,9 @@ main(int ac, char *av[])
 		case 'l':
 			ldmode = 1;
 			break;
+		case 'b':
+			bare = 1;
+			break;
 		case 'e':
 			entry = optarg;
 			break;
@@ -378,6 +382,7 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t)\n", "-a");
 			fprintf(hf, "\t%-11s with -l: compile .lir, assemble and link with the objects in one run\n", "-a -l");
 			fprintf(hf, "\t%-11s link ELF objects into a static executable (-p: PIE, -e: entry)\n", "-l");
+			fprintf(hf, "\t%-11s with -l: bare-metal image (rv64, RAM at 0x80000000, layout of the LSL board)\n", "-b");
 			fprintf(hf, "\t%-11s runtime directory for -x (default next to luxir)\n", "-L dir");
 			fprintf(hf, "\t%-11s PC-relative symbol addresses (rv64 static PIE)\n", "-p");
 			fprintf(hf, "\t%-11s wasm32: threads (shared memory, GC safepoints)\n", "-g");
@@ -397,6 +402,10 @@ main(int ac, char *av[])
 	 * dalších startů procesu): vstupy .lir se přeloží do OUT.s a sestaví
 	 * do OUT.o, ostatní vstupy jsou objekty pro linker */
 	pipe = asmode && ldmode;
+	if (bare && (!ldmode || strcmp(T.name, "rv64") != 0)) {
+		fprintf(stderr, "luxir: -b needs -l and the rv64 target\n");
+		exit(1);
+	}
 	if (ldmode && !pipe) {
 		/* vestavěný linker: objekty ELF architektury cíle */
 		int is64, mach;
@@ -424,7 +433,7 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in linker for %s\n", T.name);
 			exit(1);
 		}
-		exit(link(av + optind, ac - optind, out, is64, mach, pic, entry));
+		exit(link(av + optind, ac - optind, out, is64, mach, pic, bare, entry));
 	}
 
 	if (asmode && !pipe) {
@@ -558,7 +567,7 @@ main(int ac, char *av[])
 		luxir_unlink(asmpath);
 		tmpasm = 0;
 		if (rc == 0)
-			rc = link(objs, nobj, out, is64, mach, pic, entry);
+			rc = link(objs, nobj, out, is64, mach, pic, bare, entry);
 		luxir_unlink(objpath);
 		exit(rc);
 	}

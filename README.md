@@ -108,6 +108,16 @@ tak na Linuxu x86-64, x86, arm, arm64 a riscv64 překládá bez binutils.
 Nepodporuje archivy, sdílené knihovny, TLS, linker skripty a common symboly
 mimo `.bss`.
 
+`luxir -l -b -t rv64` (i v jednom běhu `-a -l -b -p`) místo linker skriptu
+rozloží obraz bare metal pro desku LSL (qemu virt): ET_EXEC od RAM
+0x80000000, nejdřív `.text.start`, `.text`, `.rodata` a `.data` na hranicích
+stránek, za `.bss` zásobníky pastí 8 hartů a hlavní zásobník 8 MiB se
+strážními stránkami; definuje symboly rozložení `lsl_text_end`,
+`lsl_rodata_end`, `__bss_start`, `__bss_end`, `lsl_trap_stacks`,
+`lsl_stack_guard`, `lsl_stack_top` a `lsl_image_end`. Hlavičky se
+nenahrávají. `make check-ld` porovná nahraný paměťový obraz s GNU ld
+a skriptem `tests/ld_bare/board.ld` (shodný).
+
 ## Struktura
 
 | Cesta | Obsah |

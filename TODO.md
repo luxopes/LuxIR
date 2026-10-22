@@ -133,7 +133,10 @@ Windows a macOS (navíc):
 - [x] Assembler a linker RISC-V ELF (`-t rv64`, rv64g bez relaxace):
   bajtově shodné objekty s GNU as na překladači LSL i runtime včetně
   relaxace větví a rozkladu `li`; LSL linux-riscv64 bez binutils
-  (19. 10. 2026). Baremetal-riscv64 zůstává na GNU ld (linker skript).
+  (19. 10. 2026).
+- [x] Obraz bare metal RISC-V bez linker skriptu (`luxir -l -b`): rozložení
+  desky LSL a jeho symboly, paměťový obraz shodný s GNU ld se skriptem;
+  LSL baremetal-riscv64 bez binutils (22. 10. 2026).
 - [x] Assembler a linker ARM (32bit, `-t arm`, A32 ARMv7-A s VFPv3-D16,
   objekty REL): bajtově shodné objekty s GNU as na překladači LSL,
   runtime i pomocných funkcích w32; LSL linux-arm bez binutils

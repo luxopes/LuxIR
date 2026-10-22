@@ -132,9 +132,10 @@ check-as: c native
 
 # Vestavěný linker (luxir -l): programy LuxIR slinkované s testovacím
 # runtime (x86-64 bez PIE i PIE, i386, arm64 a rv64 v qemu), spuštěné
-# a smlouva obrazu.
+# a smlouva obrazu; obraz bare metal (-b) proti GNU ld s linker skriptem.
 check-ld: c native
 	$(PYTHON) tests/ld_check.py --backend src/luxir --backend build/luxir --arch x86_64 --arch i386 --arch arm64 --arch rv64 --arch arm
+	$(PYTHON) tests/ld_bare.py --backend src/luxir --backend build/luxir
 
 clean:
 	$(MAKE) -C src clean

@@ -12,7 +12,15 @@
  * relokace, jinak by potřeboval zavaděč; výstup bez PIE (i386) je ET_EXEC
  * na pevné bázi. Segmenty: hlavičky (R), .text (RX), .rodata (R),
  * .data+.bss (RW), PT_GNU_STACK bez práva spouštění. Tabulka symbolů se
- * nezapisuje (strip), zůstávají hlavičky sekcí pro nástroje. */
+ * nezapisuje (strip), zůstávají hlavičky sekcí pro nástroje.
+ *
+ * Režim bare metal (-b) nahrazuje linker skript runtime LSL pro desku
+ * (runtime/arch/baremetal_riscv64.ld v LSL): ET_EXEC od RAM 0x80000000,
+ * nejdřív .text.start, sekce na hranici stránky kvůli oprávněním
+ * stránkování, za .bss zásobníky pastí hartů a hlavní zásobník se
+ * strážními stránkami a symboly rozložení, které skript definuje
+ * (lsl_text_end, __bss_start, lsl_stack_top, lsl_image_end, …). Hlavičky
+ * se nenahrávají (pod RAM nic není). */
 
 typedef struct ISec ISec;
 typedef struct ISym ISym;
@@ -80,13 +88,14 @@ struct GSym {
 	uint64_t calign;
 	uint64_t value;  /* adresa po rozvržení */
 	int sec;         /* výstupní sekce commonu */
+	int linkdef;     /* symbol rozložení definovaný linkerem (bare metal) */
 };
 
 static IObj *objs;
 static uint nobjs;
 static GSym *gsyms;
 static uint ngsyms;
-static int elf64, machine, pie;
+static int elf64, machine, pie, bare;
 static uint64_t base;
 static char *entryname;
 
@@ -98,6 +107,24 @@ static OSec osecs[NOut] = {
 	{".data", 3, 0, 0, 0, 0, 1},
 	{".bss", 3, 1, 0, 0, 0, 1},
 };
+
+/* bare metal: sekce bez vstupu za .bss a symboly rozložení */
+enum {
+	BareHarts = 8,
+	BareTrapStack = 20480,   /* 4 KiB stráž + 16 KiB na hart */
+	BareStack = 0x800000,    /* hlavní zásobník 8 MiB pod strážní stránkou */
+};
+static const uint64_t BareRam = 0x80000000;
+static OSec baresecs[2] = {
+	{".trapstacks", 3, 1, 0, 0, 0, 4096},
+	{".stack", 3, 1, 0, 0, 0, 4096},
+};
+static char *barenames[] = {
+	"lsl_text_end", "lsl_rodata_end", "__bss_start", "__bss_end",
+	"lsl_trap_stacks", "lsl_stack_guard", "lsl_stack_top", "lsl_image_end",
+};
+enum { NBareSym = sizeof barenames / sizeof barenames[0] };
+static uint64_t barevals[NBareSym];
 
 static void
 lerr(char *fmt, ...)
@@ -389,6 +416,11 @@ resolve(void)
 			g->common = 0;
 		}
 	}
+	if (bare)
+		for (n=0; n<ngsyms; n++)
+			for (m=0; m<NBareSym; m++)
+				if (gsyms[n].sym < 0 && strcmp(gsyms[n].name, barenames[m]) == 0)
+					gsyms[n].linkdef = 1;
 }
 
 /* ---- výběr sekcí a gc ---- */
@@ -400,6 +432,9 @@ outsec(ISec *s)
 		return -1;
 	if (s->flags & 0x400)
 		lerr("thread-local section %s is not supported", s->name);
+	/* /DISCARD/ linker skriptu bare metal */
+	if (bare && (strcmp(s->name, ".eh_frame") == 0 || strcmp(s->name, ".note.GNU-stack") == 0))
+		return -1;
 	if (s->type == 8)
 		return OBss;
 	if (s->flags & 4)
@@ -421,6 +456,10 @@ relsec(IObj *o, IRel *r, uint64_t *value)
 	y = &o->sym[r->sym];
 	if (y->gsym >= 0) {
 		g = &gsyms[y->gsym];
+		if (g->sym < 0 && g->linkdef) {
+			*value = g->value;
+			return (ISec *)-1;
+		}
 		if (g->sym < 0)
 			return 0;
 		if (g->common) {
@@ -530,13 +569,19 @@ layoutsec(int k, uint64_t addr)
 	GSym *g;
 	uint n, m;
 	uint64_t start;
+	int pass, first;
 
 	start = addr;
+	/* bare metal: .text.start na začátek obrazu (KEEP(*(.text.start))) */
+	first = bare && k == OText;
+	for (pass=!first; pass<2; pass++)
 	for (n=0; n<nobjs; n++) {
 		o = &objs[n];
 		for (m=0; m<o->nsec; m++) {
 			s = &o->sec[m];
 			if (!s->keep || s->out != k)
+				continue;
+			if (first && (strcmp(s->name, ".text.start") == 0) != (pass == 0))
 				continue;
 			addr = alignup(addr, s->align);
 			if (s->align > osecs[k].align)
@@ -561,6 +606,79 @@ layoutsec(int k, uint64_t addr)
 }
 
 static uint64_t page = 4096;
+
+/* největší zarovnání vstupu výstupní sekce (začátek výstupní sekce jako ld) */
+static uint64_t
+maxalign(int k)
+{
+	uint n, m;
+	uint64_t a;
+
+	a = 1;
+	for (n=0; n<nobjs; n++)
+		for (m=0; m<objs[n].nsec; m++)
+			if (objs[n].sec[m].keep && objs[n].sec[m].out == k && objs[n].sec[m].align > a)
+				a = objs[n].sec[m].align;
+	if (k == OBss)
+		for (n=0; n<ngsyms; n++)
+			if (gsyms[n].common && gsyms[n].sec >= 0 && gsyms[n].calign > a)
+				a = gsyms[n].calign;
+	return a;
+}
+
+/* bare metal: rozložení podle linker skriptu desky; v souboru leží obsah
+ * od druhé stránky s posunem adresa - RAM + 4096 (hlavičky v první) */
+static void
+layoutbare(void)
+{
+	uint64_t va;
+	uint n, m;
+	int i;
+
+	va = BareRam;
+	osecs[OText].addr = va;
+	va = layoutsec(OText, va);
+	va = alignup(va, 4096);
+	barevals[0] = va;                       /* lsl_text_end */
+	osecs[ORodata].addr = va;
+	va = layoutsec(ORodata, va);
+	va = alignup(va, 4096);
+	barevals[1] = va;                       /* lsl_rodata_end */
+	va = alignup(va, maxalign(OData));
+	osecs[OData].addr = va;
+	va = layoutsec(OData, va);
+	va = alignup(va, maxalign(OBss) > 16 ? maxalign(OBss) : 16);
+	osecs[OBss].addr = va;
+	barevals[2] = va;                       /* __bss_start */
+	va = layoutsec(OBss, va);
+	va = alignup(va, 16);
+	osecs[OBss].size = va - osecs[OBss].addr;
+	barevals[3] = va;                       /* __bss_end */
+	va = alignup(va, 4096);
+	baresecs[0].addr = va;
+	barevals[4] = va;                       /* lsl_trap_stacks */
+	va += BareHarts * BareTrapStack;
+	baresecs[0].size = va - baresecs[0].addr;
+	va = alignup(va, 4096);
+	baresecs[1].addr = va;
+	barevals[5] = va;                       /* lsl_stack_guard */
+	va += 4096 + BareStack;
+	baresecs[1].size = va - baresecs[1].addr;
+	barevals[6] = va;                       /* lsl_stack_top */
+	barevals[7] = va;                       /* lsl_image_end */
+	for (i=OText; i<=OData; i++)
+		osecs[i].off = osecs[i].addr - BareRam + 4096;
+	osecs[OBss].off = osecs[OData].off + osecs[OData].size;
+	baresecs[0].off = baresecs[1].off = osecs[OBss].off;
+	for (n=0; n<ngsyms; n++)
+		if (gsyms[n].linkdef)
+			for (m=0; m<NBareSym; m++)
+				if (strcmp(gsyms[n].name, barenames[m]) == 0)
+					gsyms[n].value = barevals[m];
+	for (i=0; i<NOut; i++)
+		if (osecs[i].align < 1)
+			osecs[i].align = 1;
+}
 
 static void
 layout(void)
@@ -1035,15 +1153,23 @@ writeexe(char *out)
 	GSym *g;
 	ISym *y;
 	static char shstr[] = "\0.text\0.rodata\0.data\0.bss\0.shstrtab";
+	static char bareshstr[] = "\0.text\0.rodata\0.data\0.bss\0.trapstacks\0.stack\0.shstrtab";
 	uint32_t names[NOut] = {1, 7, 15, 21};
+	char *strs;
+	uint64_t nstrs;
+	int nsh;
 
-	phnum = 5;
+	/* bare metal: bez segmentu hlaviček, sekce bez vstupu za .bss */
+	phnum = bare ? 4 : 5;
+	nsh = bare ? NOut + 4 : NOut + 2;
+	strs = bare ? bareshstr : shstr;
+	nstrs = bare ? sizeof bareshstr : sizeof shstr;
 	phent = elf64 ? 56 : 32;
 	shent = elf64 ? 64 : 40;
 	ehsz = elf64 ? 64 : 52;
 	end = osecs[OData].off + osecs[OData].size;
-	shoff = alignup(end + sizeof shstr, 8);
-	total = shoff + (NOut + 2) * shent;
+	shoff = alignup(end + nstrs, 8);
+	total = shoff + nsh * shent;
 	buf = emalloc(total);
 	memset(buf, 0, total);
 	relocate(buf);
@@ -1070,8 +1196,8 @@ writeexe(char *out)
 		wr(buf + 54, phent, 2);
 		wr(buf + 56, phnum, 2);
 		wr(buf + 58, shent, 2);
-		wr(buf + 60, NOut + 2, 2);
-		wr(buf + 62, NOut + 1, 2);
+		wr(buf + 60, nsh, 2);
+		wr(buf + 62, nsh - 1, 2);
 	} else {
 		wr(buf + 24, entry, 4);
 		wr(buf + 28, 52, 4);
@@ -1080,30 +1206,38 @@ writeexe(char *out)
 		wr(buf + 42, phent, 2);
 		wr(buf + 44, phnum, 2);
 		wr(buf + 46, shent, 2);
-		wr(buf + 48, NOut + 2, 2);
-		wr(buf + 50, NOut + 1, 2);
+		wr(buf + 48, nsh, 2);
+		wr(buf + 50, nsh - 1, 2);
 	}
 	p = buf + ehsz;
-	phdr(p, 1, 4, 0, base, ehsz + phnum * phent, ehsz + phnum * phent, page);
-	p += phent;
+	if (!bare) {
+		phdr(p, 1, 4, 0, base, ehsz + phnum * phent, ehsz + phnum * phent, page);
+		p += phent;
+	}
 	phdr(p, 1, 5, osecs[OText].off, osecs[OText].addr, osecs[OText].size, osecs[OText].size, page);
 	p += phent;
 	phdr(p, 1, 4, osecs[ORodata].off, osecs[ORodata].addr, osecs[ORodata].size, osecs[ORodata].size, page);
 	p += phent;
 	phdr(p, 1, 6, osecs[OData].off, osecs[OData].addr, osecs[OData].size,
-		osecs[OBss].addr + osecs[OBss].size - osecs[OData].addr, page);
+		(bare ? barevals[7] : osecs[OBss].addr + osecs[OBss].size) - osecs[OData].addr, page);
 	p += phent;
 	phdr(p, 0x6474e551, 6, 0, 0, 0, 0, 16);
 	/* hlavičky sekcí */
-	memcpy(buf + end, shstr, sizeof shstr);
+	memcpy(buf + end, strs, nstrs);
 	p = buf + shoff;
 	shdr(p, 0, 0, 0, 0, 0, 0, 0);
 	for (i=0; i<NOut; i++) {
 		p += shent;
 		shdr(p, names[i], osecs[i].nobits ? 8 : 1, osecs[i].flags, osecs[i].addr, osecs[i].off, osecs[i].size, osecs[i].align);
 	}
+	if (bare) {
+		p += shent;
+		shdr(p, 26, 8, 3, baresecs[0].addr, baresecs[0].off, baresecs[0].size, 4096);
+		p += shent;
+		shdr(p, 38, 8, 3, baresecs[1].addr, baresecs[1].off, baresecs[1].size, 4096);
+	}
 	p += shent;
-	shdr(p, 26, 3, 0, 0, end, sizeof shstr, 1);
+	shdr(p, bare ? 45 : 26, 3, 0, 0, end, nstrs, 1);
 	f = fopen(out, "wb");
 	if (!f)
 		lerr("cannot create %s", out);
@@ -1115,7 +1249,7 @@ writeexe(char *out)
 }
 
 int
-link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, char *entry)
+link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, int isbare, char *entry)
 {
 	int n;
 
@@ -1124,7 +1258,9 @@ link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, char 
 	 * stránkou; ostatní cíle mají stránku 4 KiB */
 	page = mach == 183 ? 65536 : 4096;
 	machine = mach;
-	pie = ispie;
+	/* bare metal: pevné adresy (ET_EXEC), absolutní relokace dovolené */
+	bare = isbare;
+	pie = ispie && !bare;
 	entryname = entry ? entry : "_start";
 	/* pevná báze jako GNU ld: i386 0x08048000, arm 0x10000, jinak 0x400000 */
 	base = pie ? 0 : (elf64 ? 0x400000 : machine == 40 ? 0x10000 : 0x08048000);
@@ -1132,7 +1268,10 @@ link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, char 
 		readobj(inputs[n]);
 	resolve();
 	gc();
-	layout();
+	if (bare)
+		layoutbare();
+	else
+		layout();
 	writeexe(out);
 	return 0;
 }
