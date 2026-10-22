@@ -287,7 +287,7 @@ main(int ac, char *av[])
 	FILE *inf, *hf;
 	char *f, *sep, *out, *rtdir;
 	char asmpath[4096];
-	int c, exe, asmode, ldmode, pipe, nobj, k;
+	int c, exe, asmode, ldmode, pipe, wpipe, nobj, k;
 	char *entry, **objs, objpath[4096];
 
 	objs = 0;
@@ -379,7 +379,8 @@ main(int ac, char *av[])
 			fprintf(hf, "\t%-11s prints IR/runtime protocol revisions (standalone)\n", "--version");
 			fprintf(hf, "\t%-11s output to file\n", "-o file");
 			fprintf(hf, "\t%-11s link an executable with the runtime named by runtime_abi\n", "-x");
-			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t)\n", "-a");
+			fprintf(hf, "\t%-11s assemble file.s into an ELF object (architecture of -t);\n", "-a");
+			fprintf(hf, "\t%-11s wasm32: .wat (and .lir) inputs into one binary module\n", "");
 			fprintf(hf, "\t%-11s with -l: compile .lir, assemble and link with the objects in one run\n", "-a -l");
 			fprintf(hf, "\t%-11s link ELF objects into a static executable (-p: PIE, -e: entry)\n", "-l");
 			fprintf(hf, "\t%-11s with -l: bare-metal image (rv64, RAM at 0x80000000, layout of the LSL board)\n", "-b");
@@ -436,7 +437,40 @@ main(int ac, char *av[])
 		exit(link(av + optind, ac - optind, out, is64, mach, pic, bare, entry));
 	}
 
-	if (asmode && !pipe) {
+	/* -a -t wasm32: vstupy .wat do binárního modulu; se vstupy .lir v jednom
+	 * běhu (ty se přeloží do OUT.wat na místě prvního z nich) */
+	wpipe = 0;
+	if (asmode && !pipe && T.wasm) {
+		if (!out || exe || dbg || !av[optind]) {
+			fprintf(stderr, "luxir: -a needs -o file and input files\n");
+			exit(1);
+		}
+		fclose(outf);
+		objs = emalloc((ac - optind + 1) * sizeof objs[0]);
+		nobj = 0;
+		snprintf(asmpath, sizeof asmpath, "%s.wat", out);
+		for (k=optind; k<ac; k++) {
+			size_t n = strlen(av[k]);
+			if (n < 4 || strcmp(av[k] + n - 4, ".lir") != 0)
+				objs[nobj++] = av[k];
+			else if (!wpipe) {
+				objs[nobj++] = asmpath;
+				wpipe = 1;
+			}
+		}
+		/* výstup vznikne až celý; při chybě žádný */
+		luxir_unlink(out);
+		if (!wpipe)
+			exit(watassemble(objs, nobj, out));
+		outf = fopen(asmpath, "w");
+		if (!outf) {
+			fprintf(stderr, "cannot open '%s'\n", asmpath);
+			exit(1);
+		}
+		tmpasm = asmpath;
+	}
+
+	if (asmode && !pipe && !wpipe) {
 		/* vestavěný assembler: vstup je .s pro architekturu cíle */
 		AArch *arch;
 		if (!out || exe || dbg || !av[optind]) {
@@ -505,7 +539,7 @@ main(int ac, char *av[])
 
 	do {
 		f = av[optind];
-		if (pipe && f) {
+		if ((pipe || wpipe) && f) {
 			size_t n = strlen(f);
 			if (n < 4 || strcmp(f + n - 4, ".lir") != 0)
 				continue;
@@ -526,6 +560,15 @@ main(int ac, char *av[])
 
 	if (!dbg)
 		T.emitfin(outf);
+
+	if (wpipe) {
+		int rc;
+		fclose(outf);
+		rc = watassemble(objs, nobj, out);
+		luxir_unlink(asmpath);
+		tmpasm = 0;
+		exit(rc);
+	}
 
 	if (exe) {
 		/* Jméno dočasného souboru se nesmí dostat do binárky. */

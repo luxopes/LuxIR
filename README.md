@@ -47,7 +47,7 @@ end
 | `arm64_apple` | macOS Apple Silicon |
 | `arm64_win` | Windows on ARM64 |
 | `rv64` | Linux RISC-V 64, bare metal RISC-V (`-p`: adresy relativní k PC) |
-| `wasm32` | WebAssembly (text pro `wat2wasm`; `-g`: vlákna wasi-threads) |
+| `wasm32` | WebAssembly (text WAT, binární modul přes `-a`; `-g`: vlákna wasi-threads) |
 | `arm` | Linux ARMv7 32bit (hard-float, VFPv3-D16; Raspberry Pi OS 32bit, Android armv7) |
 | `i386` | Linux x86 32bit (i686 se SSE2) |
 
@@ -57,6 +57,16 @@ zůstávají 64bitové, adresy do lineární paměti 32bitové; každá funkce s
 rámcem kontroluje mez stínového zásobníku. S `-g` je modul pro více instancí
 nad sdílenou pamětí: pasivní data a bezpečné body pro GC na vstupu funkcí a
 zpětných skocích. Podrobnosti v komentáři `src/wasm/emit.c`.
+
+`luxir -a -t wasm32 -o modul.wasm a.wat b.wat …` sestaví text WAT do
+binárního modulu bez WABT: vstupy se spojí do jednoho modulu (každý je
+`(module …)` nebo jen pole), výstup je bajtově shodný s `wat2wasm`. Se
+vstupem `.lir` v jednom běhu: `luxir -a [-g] -t wasm32 -o modul.wasm
+vrstva.wat program.lir` přeloží LIR a na jeho místě sestaví celý modul.
+Podporuje instrukce MVP, sign-extension, saturační převody, bulk memory
+a atomické operace; ne konstanty f32/f64 ani bloky s parametry.
+`make check-wasm` (ruční modul, sondy všech instrukcí, chybné vstupy);
+LSL tak překládá pro WebAssembly bez `wat2wasm`.
 
 Cíle `arm` a `i386` vypisují assembler pro GNU as. Hodnoty zůstávají
 64bitové: průchod `src/w32.c` před snížením ABI rozloží každou hodnotu `Kl`

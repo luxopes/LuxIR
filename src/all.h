@@ -650,6 +650,9 @@ void wasm_emitfn(Fn *, FILE *);
 void wasm_emitfin(FILE *);
 void wasm_emitdat(Dat *);
 
+/* wasm/wat.c */
+int watassemble(char **, int, char *);
+
 /* c/emit.c */
 extern char *c_outpath;
 void c_emitfn(Fn *, FILE *);

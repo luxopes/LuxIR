@@ -6,6 +6,7 @@
 #   make runtime-lsl     runtime LSL (ABI lsl-0) pro luxir -x:
 #                        build/luxir-runtime/lsl-0/amd64_sysv.o
 #   make check           testy C reference a native backendu
+#   make check-wasm      assembler WebAssembly proti wat2wasm
 #
 # LSLC je LSL compiler (lslc) s podporou modulů označených
 # "# lsl: internal-abi" mimo strom compileru. LSLC_BACKEND je volitelný
@@ -137,8 +138,13 @@ check-ld: c native
 	$(PYTHON) tests/ld_check.py --backend src/luxir --backend build/luxir --arch x86_64 --arch i386 --arch arm64 --arch rv64 --arch arm
 	$(PYTHON) tests/ld_bare.py --backend src/luxir --backend build/luxir
 
+# Vestavěný assembler WebAssembly (luxir -a -t wasm32) proti wat2wasm:
+# ruční modul se všemi konstrukcemi, sondy všech instrukcí, chybné vstupy.
+check-wasm: c native
+	$(PYTHON) tests/wat_diff.py --backend src/luxir --backend build/luxir --probes tests/wasm/*.wat
+
 clean:
 	$(MAKE) -C src clean
 	rm -rf build
 
-.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 check-w32 check-as check-ld runtime-lsl check-link clean
+.PHONY: all c lsl native check check-dominance check-bitsets check-runtime check-cross check-c32 check-w32 check-as check-ld check-wasm runtime-lsl check-link clean

@@ -141,6 +141,9 @@ Windows a macOS (navíc):
   objekty REL): bajtově shodné objekty s GNU as na překladači LSL,
   runtime i pomocných funkcích w32; LSL linux-arm bez binutils
   (19. 10. 2026).
+- [x] Binární moduly WebAssembly bez WABT (`luxir -a -t wasm32`, src/wasm/wat.c):
+  text WAT z LuxIR a vrstev architektury LSL, bajtově shodný s `wat2wasm`
+  na všech testech cílů wasm32-wasi a wasm32-wasi-threads (22. 10. 2026).
 - [ ] PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
   Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
