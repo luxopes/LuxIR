@@ -415,6 +415,11 @@ main(int ac, char *av[])
 			exit(1);
 		}
 		fclose(outf);
+		/* Windows: program PE32+ z objektů COFF a importy z .def */
+		if (strcmp(T.name, "amd64_win") == 0)
+			exit(linkpe(av + optind, ac - optind, out, 0x8664, entry));
+		if (strcmp(T.name, "arm64_win") == 0)
+			exit(linkpe(av + optind, ac - optind, out, 0xaa64, entry));
 		if (strncmp(T.name, "amd64", 5) == 0) {
 			is64 = 1;
 			mach = 62;
@@ -482,7 +487,7 @@ main(int ac, char *av[])
 			arch = &AX86_64;
 		else if (strcmp(T.name, "i386") == 0)
 			arch = &AI386;
-		else if (strcmp(T.name, "arm64") == 0)
+		else if (strcmp(T.name, "arm64") == 0 || strcmp(T.name, "arm64_win") == 0)
 			arch = &AARM64;
 		else if (strcmp(T.name, "rv64") == 0)
 			arch = &ARV64;
@@ -492,6 +497,8 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in assembler for %s\n", T.name);
 			exit(1);
 		}
+		/* Windows: objekt COFF */
+		acoff = strcmp(T.name, "amd64_win") == 0 || strcmp(T.name, "arm64_win") == 0;
 		exit(assemble(av + optind, ac - optind, out, arch));
 	}
 
@@ -590,7 +597,7 @@ main(int ac, char *av[])
 			arch = &AI386;
 			is64 = 0;
 			mach = 3;
-		} else if (strcmp(T.name, "arm64") == 0) {
+		} else if (strcmp(T.name, "arm64") == 0 || strcmp(T.name, "arm64_win") == 0) {
 			arch = &AARM64;
 			is64 = 1;
 			mach = 183;
@@ -606,10 +613,14 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in assembler and linker for %s\n", T.name);
 			exit(1);
 		}
+		/* Windows: objekt COFF a program PE32+ */
+		acoff = strcmp(T.name, "amd64_win") == 0 || strcmp(T.name, "arm64_win") == 0;
 		rc = assemble(&tmpasm, 1, objpath, arch);
 		luxir_unlink(asmpath);
 		tmpasm = 0;
-		if (rc == 0)
+		if (rc == 0 && acoff)
+			rc = linkpe(objs, nobj, out, mach == 62 ? 0x8664 : 0xaa64, entry);
+		else if (rc == 0)
 			rc = link(objs, nobj, out, is64, mach, pic, bare, entry);
 		luxir_unlink(objpath);
 		exit(rc);

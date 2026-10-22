@@ -1177,6 +1177,59 @@ a64fixenc(uchar *b, AFix *f, int64_t v)
 	b[3] = w >> 24;
 }
 
+/* COFF (Windows, jako LLVM): typ relokace ARM64 */
+static int
+a64coffrel(AFix *f)
+{
+	switch (f->enc) {
+	case ENone:
+		if (f->kind == FAbs)
+			return f->size == 8 ? 0xe : f->size == 4 ? 1 : 0;  /* ADDR64, ADDR32 */
+		return f->size == 4 ? 0x11 : 0;                     /* REL32 */
+	case EBr26:
+	case EBl26: return 3;     /* BRANCH26 */
+	case EBr19: return 0xf;   /* BRANCH19 */
+	case EBr14: return 0x10;  /* BRANCH14 */
+	case EAdrp: return 4;     /* PAGEBASE_REL21 */
+	case EAdd12: return 6;    /* PAGEOFFSET_12A */
+	case ELd8: case ELd16: case ELd32: case ELd64: case ELd128:
+		return 7;             /* PAGEOFFSET_12L */
+	}
+	return 0;
+}
+
+/* COFF: addend v poli instrukce (relokace REL): adrp v bajtech, add
+ * :lo12: přímo, ldr/str :lo12: škálovaný velikostí přístupu; skoky bez
+ * addendu */
+static void
+a64coffenc(uchar *b, AFix *f, int64_t a)
+{
+	uint32_t w;
+	int sh;
+
+	w = b[0] | (b[1] << 8) | (b[2] << 16) | ((uint32_t)b[3] << 24);
+	switch (f->enc) {
+	case EAdrp:
+		w = (w & 0x9f00001f) | ((uint32_t)(a & 3) << 29) | ((uint32_t)((a >> 2) & 0x7ffff) << 5);
+		break;
+	case EAdd12:
+		w = (w & ~(0xfffu << 10)) | ((uint32_t)(a & 0xfff) << 10);
+		break;
+	case ELd8: case ELd16: case ELd32: case ELd64: case ELd128:
+		sh = f->enc - ELd8;
+		w = (w & ~(0xfffu << 10)) | ((uint32_t)((a >> sh) & 0xfff) << 10);
+		break;
+	default:
+		if (a)
+			aerr("cannot perform a PC-relative fixup with a non-zero symbol offset");
+		break;
+	}
+	b[0] = w;
+	b[1] = w >> 8;
+	b[2] = w >> 16;
+	b[3] = w >> 24;
+}
+
 AArch AARM64 = {
 	.name = "arm64",
 	.machine = 183,
@@ -1188,6 +1241,8 @@ AArch AARM64 = {
 	.nops = a64nops,
 	.reloc = a64reloc,
 	.fixenc = a64fixenc,
+	.coffrel = a64coffrel,
+	.coffenc = a64coffenc,
 	.resolveglobal = 0,
 	.minalign = 4,
 	.comment = 0,

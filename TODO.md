@@ -144,8 +144,10 @@ Windows a macOS (navíc):
 - [x] Binární moduly WebAssembly bez WABT (`luxir -a -t wasm32`, src/wasm/wat.c):
   text WAT z LuxIR a vrstev architektury LSL, bajtově shodný s `wat2wasm`
   na všech testech cílů wasm32-wasi a wasm32-wasi-threads (22. 10. 2026).
-- [ ] PE32+ s ASLR, DEP a high-entropy VA, importy `kernel32` a `ws2_32`;
-  Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
+- [x] COFF a PE32+ pro Windows x86-64 a arm64 (`luxir -a/-l -t amd64_win|arm64_win`):
+  objekty bajtově jako GNU as (x86-64) a LLVM (arm64), program s ASLR,
+  DEP a high-entropy VA, importy z `.def` (22. 10. 2026).
+- [ ] Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se

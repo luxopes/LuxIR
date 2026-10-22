@@ -142,6 +142,10 @@ struct AArch {
 	void (*nops)(uchar *, uint n);
 	/* typ relokace ELF pro opravu (0 = nelze) */
 	int (*reloc)(AFix *);
+	/* COFF: typ relokace a zápis addendu do pole instrukce (enc != 0);
+	 * bez nich x86-64 (ADDR64, ADDR32, REL32) */
+	int (*coffrel)(AFix *);
+	void (*coffenc)(uchar *, AFix *, int64_t);
 	/* zápis vyřešené hodnoty do instrukce pro enc != 0 (0 = jen prostá pole) */
 	void (*fixenc)(uchar *, AFix *, int64_t);
 	/* skoky na globální symbol téže sekce se vyřeší (x86 jako GNU as),
@@ -181,6 +185,7 @@ extern ASymbol *asyms;
 extern uint nasyms;
 extern int acursec;
 extern int aline;
+extern int acoff;
 void aerr(char *, ...) __attribute__((noreturn));
 void awarn(char *, ...);
 char *aword(char **ps);

@@ -17,6 +17,10 @@ ARCH = {
     'arm64': (['aarch64-linux-gnu-as'], 'arm64', ['--target=aarch64-linux-gnu']),
     # bez komprese a relaxace: tak kóduje vestavěný assembler
     'rv64': (['riscv64-linux-gnu-as', '-march=rv64g', '-mno-relax'], 'rv64', ['--target=riscv64-linux-gnu']),
+    # COFF pro Windows (mingw-w64): objekt musí být shodný bajt po bajtu
+    'x86_64-coff': (['x86_64-w64-mingw32-as'], 'amd64_win', ['--target=x86_64-w64-windows-gnu']),
+    # arm64 pro Windows: vzorem je LLVM (clang), objekt shodný bajt po bajtu
+    'arm64-coff': (['clang', '--target=aarch64-windows-gnu', '-c', '-x', 'assembler'], 'arm64_win', ['--target=aarch64-windows-gnu']),
     'arm': (['arm-linux-gnueabihf-as', '-march=armv7-a', '-mfpu=vfpv3-d16', '-mfloat-abi=hard'], 'arm', ['--target=armv7a-linux-gnueabihf']),
 }
 IGNORED_SECTIONS = {'.riscv.attributes', '.ARM.attributes'}   # vestavěný assembler atributy nezapisuje
@@ -94,7 +98,25 @@ def symbols(obj):
     return res
 
 
+def coffdiff(ref, new):
+    """COFF: první rozdíl a souhrn hlavičky, sekcí a počtu symbolů."""
+    a, b = ref.read_bytes(), new.read_bytes()
+    if a == b:
+        return []
+    n = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
+    bad = [f'object differs at offset {n:#x} (gas {a[n:n+12].hex()} luxir {b[n:n+12].hex()}), sizes {len(a)} {len(b)}']
+    for d, who in ((a, 'gas'), (b, 'luxir')):
+        nsec, = struct.unpack_from('<H', d, 2)
+        symptr, nsym = struct.unpack_from('<II', d, 8)
+        heads = [(d[20 + 40 * i:28 + 40 * i].rstrip(b'\0').decode(errors='replace'),) + struct.unpack_from('<IIIHI', d, 36 + 40 * i)
+                 for i in range(nsec)]
+        bad.append(f'{who}: {nsec} sections, {nsym} symbols, ' + ', '.join(f'{h[0]} size {h[1]} relocs {h[4]} flags {h[5]:#x}' for h in heads[:6]))
+    return bad
+
+
 def compare(name, ref, new, tmp):
+    if ref.read_bytes()[:4] != b'\x7fELF':
+        return coffdiff(ref, new)
     bad = []
     rs, ns = elfsections(ref), elfsections(new)
     for s in sorted(set(rs) | set(ns)):
@@ -284,7 +306,7 @@ def main():
         tmp = Path(tmp)
         inputs = list(a.inputs)
         if a.probes:
-            inputs += {'arm64': probes_arm64, 'rv64': probes_rv64, 'arm': probes_arm}.get(a.arch, probes)(tmp)
+            inputs += {'arm64': probes_arm64, 'arm64-coff': probes_arm64, 'rv64': probes_rv64, 'arm': probes_arm}.get(a.arch, probes)(tmp)
         for backend in a.backend:
             backend = str(Path(backend).resolve())
             for inp in inputs:

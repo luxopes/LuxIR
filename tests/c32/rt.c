@@ -7,6 +7,27 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+#if defined(_WIN32)
+/* Windows (tests/pe_check.py): zápis a konec přes kernel32 (importy
+ * z tests/pe/kernel32.def), sys3 jen napodobuje write a exit */
+void *__stdcall GetStdHandle(unsigned int);
+int __stdcall WriteFile(void *, const void *, unsigned int, unsigned int *, void *);
+void __stdcall ExitProcess(unsigned int);
+
+/* long má na Windows 32 bitů: ukazatel jako intptr_t */
+static long
+sys3(long n, long a, intptr_t b, long c)
+{
+	unsigned int done;
+
+	if (n == 1) {
+		WriteFile(GetStdHandle(-11), (const void *)(uintptr_t)b, (unsigned int)c, &done, 0);
+		return (long)done;
+	}
+	ExitProcess((unsigned int)a);
+	return 0;
+}
+#else
 static long
 sys3(long n, long a, long b, long c)
 {
@@ -44,8 +65,11 @@ sys3(long n, long a, long b, long c)
 #error unsupported architecture
 #endif
 }
+#endif
 
-#if defined(__riscv)
+#if defined(_WIN32)
+enum { SYS_write = 1, SYS_exit = 2 };
+#elif defined(__riscv)
 enum { SYS_write = 64, SYS_exit = 94 };
 #elif defined(__arm__)
 enum { SYS_write = 4, SYS_exit = 248 };
@@ -65,7 +89,7 @@ flush(void)
 {
 	int done = 0;
 	while (done < olen) {
-		long n = sys3(SYS_write, 1, (long)(obuf + done), olen - done);
+		long n = sys3(SYS_write, 1, (intptr_t)(obuf + done), olen - done);
 		if (n <= 0)
 			break;
 		done += n;
@@ -207,14 +231,24 @@ int main(int, char **);
 __attribute__((used, noreturn)) void
 lux_start(long *sp)
 {
+#if defined(_WIN32)
+	/* bez argumentů na zásobníku */
+	int status = main(0, 0);
+	(void)sp;
+#else
 	int status = main((int)sp[0], (char **)(sp + 1));
+#endif
 	flush();
 	sys3(SYS_exit, status, 0, 0);
 	for (;;)
 		;
 }
 
-#if defined(__riscv)
+#if defined(_WIN32) && defined(__x86_64__)
+__asm__(".text\n.globl _start\n_start:\n and $-16, %rsp\n sub $32, %rsp\n xor %ecx, %ecx\n call lux_start\n");
+#elif defined(_WIN32)
+__asm__(".text\n.globl _start\n_start:\n mov x0, #0\n bl lux_start\n");
+#elif defined(__riscv)
 __asm__(".text\n.globl _start\n_start:\n mv a0, sp\n andi sp, sp, -16\n call lux_start\n");
 #elif defined(__arm__)
 __asm__(".text\n.globl _start\n_start:\n mov r0, sp\n bic sp, sp, #15\n bl lux_start\n");

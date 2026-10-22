@@ -30,6 +30,7 @@ static AItem *cur;      /* otevřená datová položka aktuální sekce */
 static int *locnum;     /* číselná návěští: počet definic každého čísla */
 static int nlocnum;
 static char *filename;  /* .file */
+int acoff;              /* objekt COFF (Windows) místo ELF */
 static int *elfsym;     /* index symbolu v tabulce ELF */
 
 void
@@ -151,6 +152,16 @@ usesec(int idx)
 
 static int afile;  /* pořadí vstupního souboru (místní symboly zvlášť) */
 
+/* místní jméno (nejde do tabulky symbolů): .L…, v COFF pro x86-64 každé
+ * jméno začínající L (GNU as pro pe-x86-64) */
+static int
+localname(char *name)
+{
+	if (name[0] == '.' && name[1] == 'L')
+		return 1;
+	return acoff && A->machine == 62 && name[0] == 'L';
+}
+
 int
 asymidx(char *name)
 {
@@ -161,7 +172,7 @@ asymidx(char *name)
 	size_t need;
 
 	/* místní symboly .L… platí v jednom souboru jako v GNU as */
-	if (afile > 0 && name[0] == '.' && name[1] == 'L') {
+	if (afile > 0 && localname(name) && name[0] == '.') {
 		need = strlen(name) + 16;
 		if (need > cap) {
 			cap = 2 * need;
@@ -181,7 +192,7 @@ asymidx(char *name)
 	s->name = dupstr(name);
 	s->sec = -1;
 	s->sizesub = -1;
-	s->local = name[0] == '.' && name[1] == 'L';
+	s->local = localname(name);
 	return nasyms++;
 }
 
@@ -736,6 +747,53 @@ dsection(char *p)
 	flags = -1;
 	type = 1; /* SHT_PROGBITS */
 	aspace(&p);
+	if (acoff) {
+		/* COFF (GNU as pro PE): příznaky jen z řetězce, bez něj data pro
+		 * čtení i zápis; x kód, b neinicializovaná data, r jen pro čtení,
+		 * d a w data (d s r jen pro čtení) */
+		flags = SAlloc | SWrite;
+		if (*p == ',') {
+			int hasx, hasb, hasr, hasw, hasd;
+			p++;
+			aspace(&p);
+			if (*p != '"')
+				aerr("section flags expected");
+			w = aword(&p);
+			hasx = hasb = hasr = hasw = hasd = 0;
+			for (; *w; w++)
+				switch (*w) {
+				case 'x': hasx = 1; break;
+				case 'b': hasb = 1; break;
+				case 'r': hasr = 1; break;
+				case 'w': hasw = 1; break;
+				case 'd': hasd = 1; break;
+				default: aerr("unknown section flag %c", *w);
+				}
+			flags = SAlloc;
+			if (hasx)
+				flags |= SExec;
+			if (hasb) {
+				flags |= SNobits;
+				type = 8;
+			}
+			if (hasw || ((hasd || hasb) && !hasr))
+				flags |= SWrite;
+		}
+		idx = findsec(name);
+		if (idx < 0) {
+			idx = newsec(name, flags, type);
+			/* výchozí zarovnání: GNU as 16 u .text*, .data* a .rdata*,
+			 * jinak 4; LLVM 1 */
+			if (A->machine == 183)
+				asecs[idx].align = 1;
+			else if (strncmp(name, ".text", 5) == 0 || strncmp(name, ".data", 5) == 0 || strncmp(name, ".rdata", 6) == 0)
+				asecs[idx].align = 16;
+			else
+				asecs[idx].align = 4;
+		}
+		usesec(idx);
+		return;
+	}
 	if (*p == ',') {
 		p++;
 		aspace(&p);
@@ -1136,7 +1194,8 @@ statement(char *p)
 	aspace(&q);
 	if (nmacros && expandmacro(p, q))
 		return;
-	if (A->minalign > asecs[acursec].align)
+	/* LLVM v COFF zarovnání sekce instrukcemi nezvyšuje */
+	if (A->minalign > asecs[acursec].align && !acoff)
 		asecs[acursec].align = A->minalign;
 	if (!A->insn(p, q))
 		aerr("unknown instruction %s", p);
@@ -2076,6 +2135,561 @@ writeobj(char *out)
 	fclose(f);
 }
 
+/* ---- COFF (Windows) ----
+ *
+ * Dvě podoby podle toho, čí výstup je vzorem:
+ *
+ * x86-64 jako GNU as pro PE (pe-x86-64): hlavička s LINE_NUMS_STRIPPED
+ * (bez relokací i RELOCS_STRIPPED), sekce doplněné na své zarovnání (kód
+ * bajty 0x90, data nulami) s délkou bez výplně v pomocném záznamu,
+ * relokace proti definovanému symbolu vždy přes symbol jeho sekce
+ * s posunem v poli, odkaz relativní k PC na symbol téže sekce se vyřeší.
+ * Symboly: .file (bez direktivy „fake“), místní (C_LABEL v .text, jinde
+ * C_STAT), symboly sekcí, definované globální, nedefinované; tabulka
+ * řetězců v pořadí použití.
+ *
+ * arm64 jako LLVM (clang --target=aarch64-windows-gnu): hlavička bez
+ * příznaků, sekce bez výplně, pomocný záznam s CRC obsahu a číslem
+ * sekce, relokace na dočasná návěští .L přes symbol sekce, jinak na
+ * symbol sám, addend v poli instrukce; odkaz relativní k PC na symbol
+ * téže sekce se vyřeší i u globálních (na rozdíl od ELF). Symboly: sekce, ostatní v pořadí
+ * vzniku, .file až na konci (dlouhé jméno ve více pomocných záznamech);
+ * tabulka řetězců seřazená jako StringTableBuilder (sestupně podle
+ * obráceného řetězce, přípona předchozího se sdílí). */
+
+static int
+coffllvm(void)
+{
+	return A->machine == 183;
+}
+
+static int
+coffmach(void)
+{
+	return A->machine == 62 ? 0x8664 : 0xaa64;
+}
+
+/* typ relokace; *a: hodnota pole (x86-64: REL32 počítá od konce pole) */
+static int
+coffrel(AFix *f, int64_t *a)
+{
+	if (A->coffrel)
+		return A->coffrel(f);
+	if (f->kind == FAbs) {
+		if (f->size == 8)
+			return 1;               /* ADDR64 */
+		if (f->size == 4)
+			return 2;               /* ADDR32 */
+		return 0;
+	}
+	if (f->size != 4)
+		return 0;
+	/* REL32: S + A - (P + 4), hodnota pole = A + 4 */
+	*a += f->pcoff + 4;
+	return 4;
+}
+
+static void
+coffresolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f)
+{
+	ASymbol *y;
+	int64_t v, a;
+	int type, llvm;
+
+	llvm = coffllvm();
+	y = f->e.sym >= 0 ? &asyms[f->e.sym] : 0;
+	if (!y) {
+		if (f->kind != FAbs)
+			aerr("pc-relative reference to a constant");
+		putval(buf + pos, f->e.add, f->size);
+		return;
+	}
+	if (f->kind != FAbs && y->defined && y->sec == secidx) {
+		v = (int64_t)y->val + f->e.add + f->pcoff - (int64_t)pos;
+		if (f->enc) {
+			A->fixenc(buf + pos, f, v);
+			return;
+		}
+		if (f->size == 1 && (v < -128 || v > 127))
+			aerr("jump out of range");
+		putval(buf + pos, v, f->size);
+		return;
+	}
+	a = f->e.add;
+	type = coffrel(f, &a);
+	if (!type)
+		aerr("cannot relocate a reference to %s", y->name);
+	GROW(rels, nrels + 1);
+	rels[nrels].off = pos;
+	if (y->defined && (!llvm || y->local)) {
+		rels[nrels].sym = 0;
+		rels[nrels].sec = y->sec;
+		a += y->val;
+	} else {
+		rels[nrels].sym = f->e.sym;
+		rels[nrels].sec = -1;
+	}
+	rels[nrels].type = type;
+	rels[nrels].add = 0;
+	if (f->enc && A->coffenc)
+		A->coffenc(buf + pos, f, a);
+	else
+		putval(buf + pos, a, f->size);
+	nrels++;
+}
+
+/* tabulka řetězců: jména delší než 8 bajtů a jejich posuny */
+static char **cstr;
+static uint64_t *cstroff;
+static uint ncstr;
+static uint64_t cstrsize;
+
+static void
+coffaddstr(char *name)
+{
+	uint n;
+
+	if (strlen(name) <= 8)
+		return;
+	for (n=0; n<ncstr; n++)
+		if (strcmp(cstr[n], name) == 0)
+			return;
+	GROW(cstr, ncstr + 1);
+	GROW(cstroff, ncstr + 1);
+	cstr[ncstr] = name;
+	cstroff[ncstr] = 0;
+	ncstr++;
+}
+
+/* pořadí LLVM: sestupně podle obráceného řetězce */
+static int
+cstrcmp(const void *pa, const void *pb)
+{
+	char *a, *b;
+	size_t i, j;
+	int ca, cb;
+
+	a = *(char **)pa;
+	b = *(char **)pb;
+	i = strlen(a);
+	j = strlen(b);
+	while (i > 0 && j > 0) {
+		ca = (uchar)a[--i];
+		cb = (uchar)b[--j];
+		if (ca != cb)
+			return ca > cb ? -1 : 1;
+	}
+	if (i == j)
+		return 0;
+	return i > 0 ? -1 : 1;
+}
+
+static void
+cstrlayout(Out *strs)
+{
+	uint n;
+	char *prev;
+	size_t lp, ln;
+
+	if (coffllvm())
+		qsort(cstr, ncstr, sizeof cstr[0], cstrcmp);
+	prev = 0;
+	lp = 0;
+	cstrsize = 4;
+	for (n=0; n<ncstr; n++) {
+		ln = strlen(cstr[n]);
+		if (coffllvm() && prev && lp >= ln && strcmp(prev + lp - ln, cstr[n]) == 0) {
+			cstroff[n] = cstrsize - ln - 1;
+			continue;
+		}
+		cstroff[n] = cstrsize;
+		oput(strs, cstr[n], ln + 1);
+		cstrsize += ln + 1;
+		prev = cstr[n];
+		lp = ln;
+	}
+}
+
+static Out *cstrout;  /* GNU: řetězce se připojují při každém použití */
+
+static uint64_t
+cstrfind(char *name)
+{
+	uint n;
+	uint64_t off;
+
+	if (!coffllvm()) {
+		off = cstrsize;
+		oput(cstrout, name, strlen(name) + 1);
+		cstrsize += strlen(name) + 1;
+		return off;
+	}
+	for (n=0; n<ncstr; n++)
+		if (strcmp(cstr[n], name) == 0)
+			return cstroff[n];
+	die("as: COFF string missing");
+	return 0;
+}
+
+/* jméno do záznamu (8 bajtů): krátké přímo, dlouhé jako posun v tabulce
+ * řetězců (symbol: nuly a posun; sekce: "/posun") */
+static void
+coffname(Out *o, char *name, int sec)
+{
+	char b[24];
+	size_t n;
+
+	memset(b, 0, sizeof b);
+	n = strlen(name);
+	if (n <= 8) {
+		memcpy(b, name, n);
+		oput(o, b, 8);
+		return;
+	}
+	if (!sec) {
+		onum(o, 0, 4);
+		onum(o, cstrfind(name), 4);
+		return;
+	}
+	sprintf(b, "/%d", (int)cstrfind(name));
+	oput(o, b, 8);
+}
+
+static void
+coffsym(Out *o, char *name, uint64_t value, int sec, int cls, int naux)
+{
+	coffname(o, name, 0);
+	onum(o, value, 4);
+	onum(o, sec, 2);
+	onum(o, 0, 2);
+	onum(o, cls, 1);
+	onum(o, naux, 1);
+}
+
+static int
+coffalign(uint64_t al)
+{
+	int k;
+
+	for (k=0; ((uint64_t)1 << k) < al; k++)
+		;
+	return k + 1;
+}
+
+static uint32_t crctab[256];
+
+/* CRC-32 (polynom 0xedb88320) od 0 bez závěrečné inverze (JamCRC LLVM) */
+static uint32_t
+coffcrc(uchar *p, uint64_t n)
+{
+	uint32_t c, k;
+	uint64_t i;
+	int j;
+
+	if (!crctab[1])
+		for (k=0; k<256; k++) {
+			c = k;
+			for (j=0; j<8; j++)
+				c = c & 1 ? 0xedb88320u ^ (c >> 1) : c >> 1;
+			crctab[k] = c;
+		}
+	c = 0;
+	for (i=0; i<n; i++)
+		c = crctab[(c ^ p[i]) & 0xff] ^ (c >> 8);
+	return c;
+}
+
+/* symbol do tabulky COFF (místní i globální, ne .L) */
+static int
+coffkeep(ASymbol *y)
+{
+	if (y->local)
+		return 0;
+	if (y->weak)
+		aerr("weak symbols are not supported in COFF");
+	if (y->common)
+		aerr("common symbols are not supported in COFF");
+	return 1;
+}
+
+static void
+coffsymof(Out *syms, ASymbol *y, int llvm)
+{
+	if (y->isabs)
+		coffsym(syms, y->name, y->absval, -1, 3, 0);
+	else if (!y->defined)
+		coffsym(syms, y->name, 0, 0, 2, 0);
+	else if (y->global)
+		coffsym(syms, y->name, y->val, asecs[y->sec].elfidx, 2, 0);
+	else
+		coffsym(syms, y->name, y->val, asecs[y->sec].elfidx,
+			!llvm && strcmp(asecs[y->sec].name, ".text") == 0 ? 6 : 3, 0);
+}
+
+static void
+coffrelocs(Out *o, Rel *r, uint cnt, int *secsym)
+{
+	uint k;
+
+	for (k=0; k<cnt; k++) {
+		onum(o, r[k].off, 4);
+		if (r[k].sec >= 0)
+			onum(o, secsym[r[k].sec], 4);
+		else {
+			if (elfsym[r[k].sym] < 0)
+				die("as: relocation symbol without a table entry");
+			onum(o, elfsym[r[k].sym], 4);
+		}
+		onum(o, r[k].type, 2);
+	}
+}
+
+static void
+writecoff(char *out)
+{
+	Out o, hdr, strs, syms;
+	ASec *s;
+	ASymbol *y;
+	AItem *i;
+	AFix fx;
+	FILE *f;
+	uchar **bufs;
+	uint64_t *psize, *dataoff, *reloff, pos;
+	Rel **secrels;
+	uint *relcnt;
+	uint n, m, k, nsyms, fl, total;
+	int64_t disp, t;
+	int resolved, *secsym, naux, al, llvm;
+	char *fname;
+
+	llvm = coffllvm();
+	memset(&o, 0, sizeof o);
+	memset(&hdr, 0, sizeof hdr);
+	memset(&strs, 0, sizeof strs);
+	memset(&syms, 0, sizeof syms);
+	bufs = emalloc((nasecs + 1) * sizeof bufs[0]);
+	psize = emalloc((nasecs + 1) * sizeof psize[0]);
+	dataoff = emalloc((nasecs + 1) * sizeof dataoff[0]);
+	reloff = emalloc((nasecs + 1) * sizeof reloff[0]);
+	secrels = emalloc((nasecs + 1) * sizeof secrels[0]);
+	relcnt = emalloc((nasecs + 1) * sizeof relcnt[0]);
+	secsym = emalloc((nasecs + 1) * sizeof secsym[0]);
+	elfsym = emalloc((nasyms + 1) * sizeof elfsym[0]);
+	for (n=0; n<nasyms; n++)
+		elfsym[n] = -1;
+	ncstr = 0;
+
+	/* obsah sekcí a relokace */
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		psize[n] = llvm ? s->size : (s->size + s->align - 1) & -(uint64_t)s->align;
+		nrels = 0;
+		bufs[n] = 0;
+		if (!(s->flags & SNobits)) {
+			bufs[n] = emalloc(psize[n] + 1);
+			memset(bufs[n], 0, psize[n] + 1);
+			if (s->flags & SExec)
+				memset(bufs[n] + s->size, 0x90, psize[n] - s->size);
+			for (m=0; m<s->nitem; m++) {
+				i = &s->item[m];
+				aline = i->line;
+				switch (i->kind) {
+				case IData:
+					if (i->size)
+						memcpy(bufs[n] + i->off, i->data, i->size);
+					for (k=0; k<i->nfix; k++)
+						coffresolvefix(n, bufs[n], i->off + i->fix[k].off, &i->fix[k]);
+					break;
+				case IAlign:
+					if (i->nops && i->size)
+						A->nops(bufs[n] + i->off, i->size);
+					break;
+				case IJump:
+					y = &asyms[i->target.sym];
+					resolved = exprin(&i->target, n, &t);
+					disp = resolved ? (int64_t)t - (int64_t)(i->off + i->size) : 0;
+					A->jemit(i, bufs[n] + i->off, disp, resolved);
+					if (!resolved) {
+						memset(&fx, 0, sizeof fx);
+						fx.size = 4;
+						fx.kind = FBranch;
+						fx.pcoff = -4;
+						fx.enc = A->jenc ? A->jenc(i) : 0;
+						fx.relsym = -1;
+						fx.e = i->target;
+						coffresolvefix(n, bufs[n], i->off + i->size - 4, &fx);
+					}
+					break;
+				}
+			}
+		}
+		secrels[n] = rels;
+		relcnt[n] = nrels;
+		rels = 0;
+		nrels = 0;
+	}
+
+	/* tabulka řetězců: LLVM předem seřazená a bez opakování, GNU podle
+	 * použití (záhlaví sekcí, .file, symboly) */
+	fname = filename ? filename : llvm ? 0 : "fake";
+	cstrout = &strs;
+	cstrsize = 4;
+	if (llvm) {
+		for (n=0; n<nasecs; n++)
+			coffaddstr(asecs[n].name);
+		for (n=0; n<nasyms; n++)
+			if (coffkeep(&asyms[n]))
+				coffaddstr(asyms[n].name);
+		cstrlayout(&strs);
+	}
+
+	/* záhlaví sekcí */
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		coffname(&hdr, s->name, 1);
+		onum(&hdr, 0, 4);
+		onum(&hdr, 0, 4);
+		onum(&hdr, psize[n], 4);
+		onum(&hdr, 0, 4);  /* posun dat */
+		onum(&hdr, 0, 4);  /* posun relokací */
+		onum(&hdr, 0, 4);
+		onum(&hdr, relcnt[n], 2);
+		onum(&hdr, 0, 2);
+		al = coffalign(s->align);
+		if (s->flags & SExec)
+			fl = 0x60000020;
+		else if (s->flags & SNobits)
+			fl = 0x40000080;
+		else
+			fl = 0x40000040;
+		if (s->flags & SWrite)
+			fl |= 0x80000000u;
+		onum(&hdr, fl | ((uint)al << 20), 4);
+	}
+
+	/* symboly */
+	nsyms = 0;
+	if (!llvm) {
+		/* jméno souboru v pomocném záznamu, delší než 18 bajtů v tabulce
+		 * řetězců (nuly a posun) */
+		coffsym(&syms, ".file", 0, -2, 103, 1);
+		if (strlen(fname) > 18) {
+			onum(&syms, 0, 4);
+			onum(&syms, cstrfind(fname), 4);
+			ozero(&syms, 10);
+		} else {
+			char aux[19];
+			memset(aux, 0, sizeof aux);
+			memcpy(aux, fname, strlen(fname));
+			oput(&syms, aux, 18);
+		}
+		nsyms = 2;
+		for (n=0; n<nasyms; n++) {
+			y = &asyms[n];
+			if (y->global || !y->defined || !coffkeep(y))
+				continue;
+			elfsym[n] = nsyms++;
+			coffsymof(&syms, y, 0);
+		}
+	}
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		secsym[n] = nsyms;
+		nsyms += 2;
+		coffsym(&syms, s->name, 0, n + 1, 3, 1);
+		onum(&syms, s->size, 4);
+		onum(&syms, relcnt[n], 2);
+		onum(&syms, 0, 2);
+		onum(&syms, llvm && bufs[n] ? coffcrc(bufs[n], s->size) : 0, 4);
+		onum(&syms, llvm ? n + 1 : 0, 2);
+		ozero(&syms, 4);
+	}
+	if (!llvm) {
+		for (k=0; k<2; k++)
+			for (n=0; n<nasyms; n++) {
+				y = &asyms[n];
+				if (!(y->global || !y->defined) || (uint)!y->defined != k || !coffkeep(y))
+					continue;
+				elfsym[n] = nsyms++;
+				coffsymof(&syms, y, 0);
+			}
+	} else {
+		for (n=0; n<nasyms; n++) {
+			y = &asyms[n];
+			if (!coffkeep(y))
+				continue;
+			elfsym[n] = nsyms++;
+			coffsymof(&syms, y, 1);
+		}
+		if (fname) {
+			/* .file: jméno v pomocných záznamech po 18 bajtech */
+			char *aux;
+			naux = (strlen(fname) + 17) / 18;
+			coffsym(&syms, ".file", 0, -2, 103, naux);
+			aux = emalloc(18 * naux + 1);
+			memset(aux, 0, 18 * naux + 1);
+			memcpy(aux, fname, strlen(fname));
+			oput(&syms, aux, 18 * naux);
+			free(aux);
+			nsyms += 1 + naux;
+		}
+	}
+
+	/* rozložení souboru: GNU obsah všech sekcí a pak relokace, LLVM za
+	 * obsahem každé sekce její relokace (posun dat i u prázdné sekce) */
+	pos = 20 + 40 * (uint64_t)nasecs;
+	for (n=0; n<nasecs; n++) {
+		dataoff[n] = 0;
+		reloff[n] = 0;
+		if (bufs[n] && (psize[n] || llvm)) {
+			dataoff[n] = pos;
+			pos += psize[n];
+		}
+		if (llvm && relcnt[n]) {
+			reloff[n] = pos;
+			pos += 10 * (uint64_t)relcnt[n];
+		}
+	}
+	for (n=0; n<nasecs && !llvm; n++)
+		if (relcnt[n]) {
+			reloff[n] = pos;
+			pos += 10 * (uint64_t)relcnt[n];
+		}
+	total = 0;
+	for (n=0; n<nasecs; n++)
+		total += relcnt[n];
+	onum(&o, coffmach(), 2);
+	onum(&o, nasecs, 2);
+	onum(&o, 0, 4);
+	onum(&o, pos, 4);
+	onum(&o, nsyms, 4);
+	onum(&o, 0, 2);
+	/* GNU as: LINE_NUMS_STRIPPED, bez relokací i RELOCS_STRIPPED */
+	onum(&o, llvm ? 0 : total ? 4 : 5, 2);
+	for (n=0; n<nasecs; n++) {
+		putval(hdr.b + 40 * n + 20, dataoff[n], 4);
+		putval(hdr.b + 40 * n + 24, reloff[n], 4);
+	}
+	oput(&o, hdr.b, hdr.n);
+	for (n=0; n<nasecs; n++) {
+		if (dataoff[n])
+			oput(&o, bufs[n], psize[n]);
+		if (llvm)
+			coffrelocs(&o, secrels[n], relcnt[n], secsym);
+	}
+	for (n=0; n<nasecs && !llvm; n++)
+		coffrelocs(&o, secrels[n], relcnt[n], secsym);
+	oput(&o, syms.b, syms.n);
+	onum(&o, cstrsize, 4);
+	oput(&o, strs.b, strs.n);
+	f = fopen(out, "wb");
+	if (!f)
+		aerr("cannot create %s", out);
+	for (pos=0; pos<o.n; pos++)
+		fputc(o.b[pos], f);
+	fclose(f);
+}
+
 int
 assemble(char **paths, int npaths, char *out, AArch *arch)
 {
@@ -2096,6 +2710,10 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 		asecs[0].align = A->textalign;
 	newsec(".data", SAlloc | SWrite, 1);
 	newsec(".bss", SAlloc | SWrite | SNobits, 8);
+	if (acoff)
+		/* výchozí sekce: GNU as pro PE na 16, LLVM na 4 */
+		for (n=0; n<3; n++)
+			asecs[n].align = A->machine == 183 ? 4 : 16;
 	usesec(0);
 	/* více vstupů: jeden objekt, jako by šly za sebou (sekce, symboly
 	 * a číselná návěští se sdílejí) */
@@ -2125,6 +2743,11 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	while (layout(0))
 		if (++rounds > 1000)
 			aerr("jump relaxation does not converge");
-	writeobj(out);
+	if (acoff) {
+		for (n=0; n<nasecs; n++)
+			asecs[n].elfidx = n + 1;
+		writecoff(out);
+	} else
+		writeobj(out);
 	return 0;
 }

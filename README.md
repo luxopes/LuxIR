@@ -118,6 +118,15 @@ tak na Linuxu x86-64, x86, arm, arm64 a riscv64 překládá bez binutils.
 Nepodporuje archivy, sdílené knihovny, TLS, linker skripty a common symboly
 mimo `.bss`.
 
+Pro Windows (`-t amd64_win`, `-t arm64_win`) zapisuje `luxir -a` objekty
+COFF: x86-64 bajtově jako GNU as (mingw-w64), arm64 bajtově jako LLVM
+(`clang --target=aarch64-windows-gnu`). `luxir -l` z nich slinkuje konzolový
+program PE32+ (ASLR s high-entropy VA, NX, zásobník 8 MiB, bázové relokace
+pro absolutní adresy, bez tabulky symbolů a časového razítka); importy
+popisují soubory `.def` mezi vstupy (`LIBRARY dll`, `EXPORTS` a jména
+funkcí): volání importované funkce jde přes thunk, `__imp_jméno` je přímo
+položka IAT. `make check-ld` (x86-64 ve wine).
+
 `luxir -l -b -t rv64` (i v jednom běhu `-a -l -b -p`) místo linker skriptu
 rozloží obraz bare metal pro desku LSL (qemu virt): ET_EXEC od RAM
 0x80000000, nejdřív `.text.start`, `.text`, `.rodata` a `.data` na hranicích
