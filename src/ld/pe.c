@@ -596,7 +596,9 @@ pelayout(void)
 	pendll = ndll;
 	sz = 0;
 	if (ndll) {
-		sz = 20 * (ndll + 1) + 2 * 8 * nslots;
+		/* ILT a IAT za deskriptory zarovnané na 8 (arm64 je čte ldr
+		 * s posunem násobkem 8) */
+		sz = peal(20 * (ndll + 1), 8) + 2 * 8 * nslots;
 		for (n=0; n<penimps; n++)
 			if (peimps[n].used)
 				sz += peal(2 + strlen(peimps[n].name) + 1, 2);
@@ -625,7 +627,7 @@ pelayout(void)
 			peimps[n].thunk += perva[PText];
 	/* IAT, ILT a jména: RVA položek */
 	if (ndll) {
-		peilt = perva[PIdata] + 20 * (ndll + 1);
+		peilt = perva[PIdata] + peal(20 * (ndll + 1), 8);
 		peiat = peilt + 8 * nslots;
 		peiatsz = 8 * nslots;
 		names = peiat + 8 * nslots;

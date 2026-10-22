@@ -169,17 +169,59 @@ localname(char *name)
 	return acoff && A->machine == 62 && name[0] == 'L';
 }
 
+/* místní jméno .L… (ELF i COFF; Mach-O jen vnitřní .L#…); inline: v LSL
+ * buildu se funkce bez volání vkládají do místa použití */
+static inline int
+dotlname(char *name)
+{
+	return name[0] == '.' && name[1] == 'L' && (!amacho || name[2] == '#');
+}
+
+/* hašovací tabulka jmen symbolů: index+1 do asyms (lineární hledání
+ * dělalo z každého odkazu průchod celou tabulkou) */
+static uint *symhash;
+static uint symhashcap;
+
+static uint
+namehash(char *s)
+{
+	uint h;
+
+	h = 2166136261u;
+	for (; *s; s++)
+		h = (h ^ (uchar)*s) * 16777619u;
+	return h;
+}
+
+static void
+symrehash(void)
+{
+	uint n, i, cap;
+
+	cap = symhashcap ? 2 * symhashcap : 4096;
+	free(symhash);
+	symhash = emalloc(cap * sizeof symhash[0]);
+	memset(symhash, 0, cap * sizeof symhash[0]);
+	symhashcap = cap;
+	for (n=0; n<nasyms; n++) {
+		i = namehash(asyms[n].name) & (cap - 1);
+		while (symhash[i])
+			i = (i + 1) & (cap - 1);
+		symhash[i] = n + 1;
+	}
+}
+
 int
 asymidx(char *name)
 {
-	uint n;
+	uint n, i;
 	ASymbol *s;
 	static char *buf;
 	static size_t cap;
 	size_t need;
 
 	/* místní symboly .L… platí v jednom souboru jako v GNU as */
-	if (afile > 0 && localname(name) && name[0] == '.') {
+	if (afile > 0 && dotlname(name)) {
 		need = strlen(name) + 16;
 		if (need > cap) {
 			cap = 2 * need;
@@ -190,16 +232,23 @@ asymidx(char *name)
 		sprintf(buf, ".L#f%d#%s", afile, name + 2);
 		name = buf;
 	}
-	for (n=0; n<nasyms; n++)
+	if (2 * (nasyms + 1) > symhashcap)
+		symrehash();
+	i = namehash(name) & (symhashcap - 1);
+	while (symhash[i]) {
+		n = symhash[i] - 1;
 		if (strcmp(asyms[n].name, name) == 0)
 			return n;
+		i = (i + 1) & (symhashcap - 1);
+	}
 	GROW(asyms, nasyms + 1);
 	s = &asyms[nasyms];
 	memset(s, 0, sizeof *s);
 	s->name = dupstr(name);
 	s->sec = -1;
 	s->sizesub = -1;
-	s->local = localname(name);
+	s->local = dotlname(name) || ((acoff || amacho) && localname(name));
+	symhash[i] = nasyms + 1;
 	return nasyms++;
 }
 
@@ -1354,7 +1403,7 @@ statement(char *p)
 	/* LLVM v COFF a Mach-O zarovnání sekce instrukcemi nezvyšuje */
 	if (A->minalign > asecs[acursec].align && !acoff && !amacho)
 		asecs[acursec].align = A->minalign;
-	if (acursec >= 0)
+	if (amacho && acursec >= 0)
 		asecs[acursec].flags |= SInsn;
 	if (!A->insn(p, q))
 		aerr("unknown instruction %s", p);
@@ -1628,7 +1677,7 @@ fragoff(ASec *s, uint m, uint yi)
 }
 
 /* Hodnota výrazu, je-li symbol definovaný v sekci sec. */
-static int
+static inline int
 exprin(AExpr *e, int sec, int64_t *v)
 {
 	ASymbol *s;
@@ -1700,16 +1749,17 @@ layout(int initial)
 	uint n, m;
 	uint64_t off;
 	int64_t stretch, total, t, disp, size;
+	int llvmrelax;
 
 	total = 0;
+	/* Mach-O x86-64 jako LLVM: skoky se v průchodu posuzují podle posunů
+	 * z minulého rozložení (cíl i skok sám), krátká forma se už nevrací */
+	llvmrelax = amacho && A->machine == 62;
 	for (n=0; n<nasecs; n++) {
 		s = &asecs[n];
 		stretch = 0;
 		off = 0;
-		/* Mach-O x86-64 jako LLVM: skoky se v průchodu posuzují podle
-		 * posunů z minulého rozložení (cíl i skok sám), krátká forma se už
-		 * nevrací */
-		if (amacho && A->machine == 62 && !initial) {
+		if (llvmrelax && !initial) {
 			free(s->oldoff);
 			s->oldoff = emalloc((s->nitem + 1) * sizeof s->oldoff[0]);
 			for (m=0; m<s->nitem; m++)
@@ -1723,7 +1773,7 @@ layout(int initial)
 			else
 				i->off += stretch;
 			size = i->size;
-			if (i->kind == IJump && amacho && A->machine == 62) {
+			if (llvmrelax && i->kind == IJump) {
 				y = &asyms[i->target.sym];
 				if (!initial && !i->jlong) {
 					if (!y->defined || y->sec != (int)n || y->weak || !machoresolvable(n, m, y, 0))
@@ -3425,6 +3475,7 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	A = arch;
 	nasecs = 0;
 	nasyms = 0;
+	symhashcap = 0;
 	acursec = -1;
 	cur = 0;
 	nlocnum = 0;

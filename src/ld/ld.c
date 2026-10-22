@@ -350,15 +350,78 @@ readobj(char *path)
 
 /* ---- symboly ---- */
 
+/* hašovací tabulka globálních jmen: index+1 do gsyms */
+static uint *ghash;
+static uint ghashcap;
+
+static uint
+gnamehash(char *s)
+{
+	uint h;
+
+	h = 2166136261u;
+	for (; *s; s++)
+		h = (h ^ (uchar)*s) * 16777619u;
+	return h;
+}
+
+static void
+grehash(void)
+{
+	uint n, i, cap;
+
+	cap = ghashcap ? 2 * ghashcap : 4096;
+	free(ghash);
+	ghash = emalloc(cap * sizeof ghash[0]);
+	memset(ghash, 0, cap * sizeof ghash[0]);
+	ghashcap = cap;
+	for (n=0; n<ngsyms; n++) {
+		i = gnamehash(gsyms[n].name) & (cap - 1);
+		while (ghash[i])
+			i = (i + 1) & (cap - 1);
+		ghash[i] = n + 1;
+	}
+}
+
 static int
 findg(char *name)
 {
-	uint n;
+	uint i;
 
-	for (n=0; n<ngsyms; n++)
-		if (strcmp(gsyms[n].name, name) == 0)
-			return n;
+	if (!ghashcap)
+		grehash();
+	i = gnamehash(name) & (ghashcap - 1);
+	while (ghash[i]) {
+		if (strcmp(gsyms[ghash[i] - 1].name, name) == 0)
+			return ghash[i] - 1;
+		i = (i + 1) & (ghashcap - 1);
+	}
 	return -1;
+}
+
+/* nový globální symbol (jméno ještě v tabulce není) */
+static int
+addg(char *name)
+{
+	GSym *g;
+	uint i;
+
+	GROW(gsyms, ngsyms + 1);
+	g = &gsyms[ngsyms];
+	memset(g, 0, sizeof *g);
+	g->name = name;
+	g->sym = -1;
+	g->sec = -1;
+	ngsyms++;
+	if (2 * ngsyms > ghashcap)
+		grehash();
+	else {
+		i = gnamehash(name) & (ghashcap - 1);
+		while (ghash[i])
+			i = (i + 1) & (ghashcap - 1);
+		ghash[i] = ngsyms;
+	}
+	return ngsyms - 1;
 }
 
 static void
@@ -377,15 +440,8 @@ resolve(void)
 			if (y->bind == 0 || !y->name[0])
 				continue;
 			gi = findg(y->name);
-			if (gi < 0) {
-				GROW(gsyms, ngsyms + 1);
-				gi = ngsyms++;
-				g = &gsyms[gi];
-				memset(g, 0, sizeof *g);
-				g->name = y->name;
-				g->sym = -1;
-				g->sec = -1;
-			}
+			if (gi < 0)
+				gi = addg(y->name);
 			g = &gsyms[gi];
 			y->gsym = gi;
 			if (y->shndx == 0)
