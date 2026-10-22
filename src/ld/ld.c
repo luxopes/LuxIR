@@ -20,7 +20,16 @@
  * stránkování, za .bss zásobníky pastí hartů a hlavní zásobník se
  * strážními stránkami a symboly rozložení, které skript definuje
  * (lsl_text_end, __bss_start, lsl_stack_top, lsl_image_end, …). Hlavičky
- * se nenahrávají (pod RAM nic není). */
+ * se nenahrávají (pod RAM nic není).
+ *
+ * Dynamický program (vstup .libs se jmény knihoven, jen x86-64): PIE
+ * s PT_INTERP /lib64/ld-linux-x86-64.so.2 a PT_DYNAMIC; nedefinované
+ * symboly jsou importy z knihoven (DT_NEEDED), volání jdou přes stub
+ * v .plt (jmp *GOT) a slot v .got, který ld.so naváže při startu
+ * (BIND_NOW, relokace GLOB_DAT); tabulky .dynsym, .dynstr, .hash,
+ * .rela.dyn a .dynamic leží v zapisovatelném segmentu za .data. Žádný
+ * symbol se nevyváží, absolutní relokace zůstávají chybou. Tak LSL
+ * volá systémové knihovny (glibc, GTK) bez libc ve vlastním runtime. */
 
 typedef struct ISec ISec;
 typedef struct ISym ISym;
@@ -89,6 +98,7 @@ struct GSym {
 	uint64_t value;  /* adresa po rozvržení */
 	int sec;         /* výstupní sekce commonu */
 	int linkdef;     /* symbol rozložení definovaný linkerem (bare metal) */
+	int imp;         /* import z knihovny (dynamický program) nebo -1 */
 };
 
 static IObj *objs;
@@ -96,6 +106,18 @@ static uint nobjs;
 static GSym *gsyms;
 static uint ngsyms;
 static int elf64, machine, pie, bare;
+
+/* dynamický program */
+static int dynamic;
+static char **dynlibs;
+static uint ndynlibs;
+static int *impsyms;        /* importy: index v gsyms */
+static uint nimps;
+static uint64_t pltaddr, interpaddr, gotaddr, dynsymaddr, dynstraddr, hashaddr, reladdr, dynaddr;
+static uint64_t dynstrsz, dynsz;
+static char *dynstr;
+static char *interp = "/lib64/ld-linux-x86-64.so.2";
+enum { PltEntry = 16 };
 static uint64_t base;
 static char *entryname;
 
@@ -348,6 +370,58 @@ readobj(char *path)
 	(void)shsize; (void)size; (void)symoff; (void)symsize; (void)stroff; (void)roff; (void)rsize;
 }
 
+/* .libs: jména sdílených knihoven (soname) po řádcích; komentáře '#' */
+static void
+readlibs(char *path)
+{
+	FILE *f;
+	char *d, *p, *e;
+	long cap, len, got;
+
+	f = fopen(path, "rb");
+	if (!f)
+		lerr("cannot open %s", path);
+	cap = 4096;
+	d = emalloc(cap);
+	len = 0;
+	for (;;) {
+		if (len + 1024 > cap) {
+			cap *= 2;
+			d = realloc(d, cap);
+			if (!d)
+				die("out of memory");
+		}
+		got = fread(d + len, 1, cap - len - 1, f);
+		if (got == 0)
+			break;
+		len += got;
+	}
+	fclose(f);
+	d[len] = 0;
+	dynamic = 1;
+	p = d;
+	while (*p) {
+		while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
+			p++;
+		if (*p == '#') {
+			while (*p && *p != '\n')
+				p++;
+			continue;
+		}
+		e = p;
+		while (*e && *e != '#' && *e != '\n' && *e != '\r' && *e != ' ' && *e != '\t')
+			e++;
+		if (e > p) {
+			GROW(dynlibs, ndynlibs + 1);
+			dynlibs[ndynlibs] = emalloc(e - p + 1);
+			memcpy(dynlibs[ndynlibs], p, e - p);
+			dynlibs[ndynlibs][e - p] = 0;
+			ndynlibs++;
+		}
+		p = e;
+	}
+}
+
 /* ---- symboly ---- */
 
 /* hašovací tabulka globálních jmen: index+1 do gsyms */
@@ -412,6 +486,7 @@ addg(char *name)
 	g->name = name;
 	g->sym = -1;
 	g->sec = -1;
+	g->imp = -1;
 	ngsyms++;
 	if (2 * ngsyms > ghashcap)
 		grehash();
@@ -443,6 +518,7 @@ resolve(void)
 			if (gi < 0)
 				gi = addg(y->name);
 			g = &gsyms[gi];
+			g->imp = -1;
 			y->gsym = gi;
 			if (y->shndx == 0)
 				continue;
@@ -560,6 +636,15 @@ mark(ISec *s)
 		else if (!t) {
 			ISym *y = &o->sym[r->sym];
 			GSym *g = y->gsym >= 0 ? &gsyms[y->gsym] : 0;
+			if (g && g->sym < 0 && !g->weak && dynamic) {
+				/* import z knihovny: slot GOT a stub PLT */
+				if (g->imp < 0) {
+					GROW(impsyms, nimps + 1);
+					impsyms[nimps] = y->gsym;
+					g->imp = nimps++;
+				}
+				continue;
+			}
 			if (!g || (g->sym < 0 && !g->weak))
 				lerr("undefined symbol %s (%s)", y->name, o->path);
 		}
@@ -663,6 +748,68 @@ layoutsec(int k, uint64_t addr)
 
 static uint64_t page = 4096;
 
+/* dynamický program: stuby PLT na konci kódu */
+static uint64_t
+layoutplt(uint64_t va)
+{
+	if (!dynamic)
+		return va;
+	va = alignup(va, 16);
+	pltaddr = va;
+	va += PltEntry * (uint64_t)nimps;
+	osecs[OText].size = va - osecs[OText].addr;
+	return va;
+}
+
+/* dynamický program: za .data sloty GOT, .dynsym, .dynstr, .hash,
+ * .rela.dyn a .dynamic (zapisovatelný segment: ld.so plní GOT a DT_DEBUG) */
+static uint64_t
+layoutdynamic(uint64_t va)
+{
+	uint n;
+	uint64_t len;
+	char *name;
+
+	va = alignup(va, 8);
+	gotaddr = va;
+	va += 8 * (uint64_t)nimps;
+	dynsymaddr = va;
+	va += 24 * ((uint64_t)nimps + 1);
+	/* .dynstr: prázdné jméno, importy, knihovny */
+	len = 1;
+	for (n=0; n<nimps; n++)
+		len += strlen(gsyms[impsyms[n]].name) + 1;
+	for (n=0; n<ndynlibs; n++)
+		len += strlen(dynlibs[n]) + 1;
+	dynstr = emalloc(len + 1);
+	memset(dynstr, 0, len + 1);
+	len = 1;
+	for (n=0; n<nimps; n++) {
+		name = gsyms[impsyms[n]].name;
+		memcpy(dynstr + len, name, strlen(name));
+		len += strlen(name) + 1;
+	}
+	for (n=0; n<ndynlibs; n++) {
+		memcpy(dynstr + len, dynlibs[n], strlen(dynlibs[n]));
+		len += strlen(dynlibs[n]) + 1;
+	}
+	dynstrsz = len;
+	dynstraddr = va;
+	va = alignup(va + len, 8);
+	hashaddr = va;
+	va += 4 * (2 + 1 + ((uint64_t)nimps + 1));
+	va = alignup(va, 8);
+	reladdr = va;
+	va += 24 * (uint64_t)nimps;
+	dynaddr = va;
+	/* NEEDED×n, HASH, STRTAB, SYMTAB, STRSZ, SYMENT, RELA, RELASZ, RELAENT,
+	 * FLAGS, FLAGS_1, DEBUG, NULL */
+	dynsz = 16 * ((uint64_t)ndynlibs + 12);
+	va += dynsz;
+	osecs[OData].size = va - osecs[OData].addr;
+	return va;
+}
+
 /* největší zarovnání vstupu výstupní sekce (začátek výstupní sekce jako ld) */
 static uint64_t
 maxalign(int k)
@@ -742,7 +889,7 @@ layout(void)
 	uint64_t hdr, off, va, k;
 	int phnum, i;
 
-	phnum = 5; /* 4 LOAD + GNU_STACK */
+	phnum = 5 + (dynamic ? 3 : 0); /* 4 LOAD + GNU_STACK (+ PHDR, INTERP, DYNAMIC) */
 	hdr = elf64 ? 64 + 56 * phnum : 52 + 32 * phnum;
 	if (page <= 4096) {
 		/* .text ve druhé stránce (oddělený kód jako ld), .rodata na další
@@ -752,6 +899,7 @@ layout(void)
 		osecs[OText].off = off;
 		osecs[OText].addr = va;
 		va = layoutsec(OText, va);
+		va = layoutplt(va);
 		off += osecs[OText].size;
 		off = alignup(off, page);
 		va = alignup(va, page);
@@ -764,6 +912,7 @@ layout(void)
 		osecs[OText].off = off;
 		osecs[OText].addr = va;
 		va = layoutsec(OText, va);
+		va = layoutplt(va);
 		off += osecs[OText].size;
 		off = alignup(off, 16);
 		va = alignup(va, page) + off % page;
@@ -771,6 +920,12 @@ layout(void)
 	osecs[ORodata].off = off;
 	osecs[ORodata].addr = va;
 	va = layoutsec(ORodata, va);
+	if (dynamic) {
+		/* řetězec interpretu za daty jen pro čtení */
+		interpaddr = va;
+		va += strlen(interp) + 1;
+		osecs[ORodata].size = va - osecs[ORodata].addr;
+	}
 	off += osecs[ORodata].size;
 	/* RW segment: další stránka, posun v souboru dál bez zarovnání na
 	 * stránku (vaddr ≡ offset mod stránka) */
@@ -780,6 +935,8 @@ layout(void)
 	osecs[OData].off = off;
 	osecs[OData].addr = va;
 	va = layoutsec(OData, va);
+	if (dynamic)
+		va = layoutdynamic(va);
 	off += osecs[OData].size;
 	osecs[OBss].off = off;
 	osecs[OBss].addr = va;
@@ -814,6 +971,8 @@ relvalue(IObj *o, IRel *r)
 	y = &o->sym[r->sym];
 	t = relsec(o, r, &v);
 	if (!t) {
+		if (y->gsym >= 0 && gsyms[y->gsym].imp >= 0)
+			return pltaddr + PltEntry * gsyms[y->gsym].imp;
 		if (y->gsym >= 0 && gsyms[y->gsym].weak)
 			return 0;
 		lerr("undefined symbol %s (%s)", y->name, o->path);
@@ -896,7 +1055,9 @@ relocate(uchar *out)
 				y = &o->sym[r->sym];
 				t = relsec(o, r, &v);
 				if (!t) {
-					if (y->gsym >= 0 && gsyms[y->gsym].weak)
+					if (y->gsym >= 0 && gsyms[y->gsym].imp >= 0)
+						v = pltaddr + PltEntry * gsyms[y->gsym].imp;
+					else if (y->gsym >= 0 && gsyms[y->gsym].weak)
 						v = 0;
 					else
 						lerr("undefined symbol %s (%s)", y->name, o->path);
@@ -1199,6 +1360,71 @@ shdr(uchar *p, uint32_t name, uint32_t type, uint64_t flags, uint64_t addr, uint
 	wr(p + 16 + 5 * w, 0, w);
 }
 
+/* dynamický program: obsah PLT, GOT, tabulek ld.so a .dynamic */
+static void
+writedynamic(uchar *buf)
+{
+	uchar *p, *b;
+	uint n;
+	uint64_t off, s;
+	char *name;
+
+	memcpy(buf + osecs[ORodata].off + (interpaddr - osecs[ORodata].addr), interp, strlen(interp) + 1);
+	b = buf + osecs[OData].off - osecs[OData].addr;   /* adresa -> soubor v .data */
+	for (n=0; n<nimps; n++) {
+		/* stub: jmp *GOT(%rip); výplň int3 */
+		p = buf + osecs[OText].off + (pltaddr + PltEntry * n - osecs[OText].addr);
+		p[0] = 0xff;
+		p[1] = 0x25;
+		wr(p + 2, (int64_t)(gotaddr + 8 * n) - (int64_t)(pltaddr + PltEntry * n + 6), 4);
+		memset(p + 6, 0xcc, PltEntry - 6);
+		/* .dynsym: nedefinovaná funkce GLOBAL */
+		p = b + dynsymaddr + 24 * (n + 1);
+		off = 1;
+		for (s=0; s<n; s++)
+			off += strlen(gsyms[impsyms[s]].name) + 1;
+		wr(p, off, 4);
+		p[4] = 0x12;
+		/* .rela.dyn: GLOB_DAT do slotu GOT */
+		p = b + reladdr + 24 * n;
+		wr(p, gotaddr + 8 * n, 8);
+		wr(p + 8, ((uint64_t)(n + 1) << 32) | 6, 8);
+		wr(p + 16, 0, 8);
+	}
+	memcpy(b + dynstraddr, dynstr, dynstrsz);
+	/* .hash: jeden koš, nic v něm (program nic nevyváží) */
+	p = b + hashaddr;
+	wr(p, 1, 4);
+	wr(p + 4, nimps + 1, 4);
+	/* .dynamic */
+	p = b + dynaddr;
+	off = 1;
+	for (n=0; n<nimps; n++)
+		off += strlen(gsyms[impsyms[n]].name) + 1;
+	for (n=0; n<ndynlibs; n++) {
+		name = dynlibs[n];
+		wr(p, 1, 8);              /* DT_NEEDED */
+		wr(p + 8, off, 8);
+		off += strlen(name) + 1;
+		p += 16;
+	}
+	{
+		uint64_t tags[12][2] = {
+			{4, hashaddr}, {5, dynstraddr}, {6, dynsymaddr}, {10, dynstrsz}, {11, 24},
+			{7, reladdr}, {8, 24 * (uint64_t)nimps}, {9, 24},
+			{30, 8},                       /* DT_FLAGS: BIND_NOW */
+			{0x6ffffffb, 1 | 0x08000000},  /* DT_FLAGS_1: NOW | PIE */
+			{21, 0},                       /* DT_DEBUG */
+			{0, 0},
+		};
+		for (n=0; n<12; n++) {
+			wr(p, tags[n][0], 8);
+			wr(p + 8, tags[n][1], 8);
+			p += 16;
+		}
+	}
+}
+
 static void
 writeexe(char *out)
 {
@@ -1215,8 +1441,9 @@ writeexe(char *out)
 	uint64_t nstrs;
 	int nsh;
 
-	/* bare metal: bez segmentu hlaviček, sekce bez vstupu za .bss */
-	phnum = bare ? 4 : 5;
+	/* bare metal: bez segmentu hlaviček, sekce bez vstupu za .bss;
+	 * dynamický program: PHDR, INTERP a DYNAMIC navíc */
+	phnum = bare ? 4 : dynamic ? 8 : 5;
 	nsh = bare ? NOut + 4 : NOut + 2;
 	strs = bare ? bareshstr : shstr;
 	nstrs = bare ? sizeof bareshstr : sizeof shstr;
@@ -1229,6 +1456,8 @@ writeexe(char *out)
 	buf = emalloc(total);
 	memset(buf, 0, total);
 	relocate(buf);
+	if (dynamic)
+		writedynamic(buf);
 	/* vstupní bod */
 	gi = findg(entryname);
 	g = &gsyms[gi];
@@ -1266,6 +1495,13 @@ writeexe(char *out)
 		wr(buf + 50, nsh - 1, 2);
 	}
 	p = buf + ehsz;
+	if (dynamic) {
+		/* PT_PHDR a PT_INTERP před nahrávanými segmenty */
+		phdr(p, 6, 4, ehsz, base + ehsz, phnum * phent, phnum * phent, 8);
+		p += phent;
+		phdr(p, 3, 4, osecs[ORodata].off + (interpaddr - osecs[ORodata].addr), interpaddr, strlen(interp) + 1, strlen(interp) + 1, 1);
+		p += phent;
+	}
 	if (!bare) {
 		phdr(p, 1, 4, 0, base, ehsz + phnum * phent, ehsz + phnum * phent, page);
 		p += phent;
@@ -1277,6 +1513,10 @@ writeexe(char *out)
 	phdr(p, 1, 6, osecs[OData].off, osecs[OData].addr, osecs[OData].size,
 		(bare ? barevals[7] : osecs[OBss].addr + osecs[OBss].size) - osecs[OData].addr, page);
 	p += phent;
+	if (dynamic) {
+		phdr(p, 2, 6, osecs[OData].off + (dynaddr - osecs[OData].addr), dynaddr, dynsz, dynsz, 8);
+		p += phent;
+	}
 	phdr(p, 0x6474e551, 6, 0, 0, 0, 0, 16);
 	/* hlavičky sekcí */
 	memcpy(buf + end, strs, nstrs);
@@ -1320,8 +1560,16 @@ link(char **inputs, int ninputs, char *out, int is64, int mach, int ispie, int i
 	entryname = entry ? entry : "_start";
 	/* pevná báze jako GNU ld: i386 0x08048000, arm 0x10000, jinak 0x400000 */
 	base = pie ? 0 : (elf64 ? 0x400000 : machine == 40 ? 0x10000 : 0x08048000);
-	for (n=0; n<ninputs; n++)
+	for (n=0; n<ninputs; n++) {
+		size_t l = strlen(inputs[n]);
+		if (l > 5 && strcmp(inputs[n] + l - 5, ".libs") == 0) {
+			readlibs(inputs[n]);
+			continue;
+		}
 		readobj(inputs[n]);
+	}
+	if (dynamic && (machine != 62 || !pie))
+		lerr("dynamic linking needs a PIE for x86-64");
 	resolve();
 	gc();
 	if (bare)

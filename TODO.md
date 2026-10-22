@@ -151,6 +151,8 @@ Windows a macOS (navíc):
   objekty bajtově jako LLVM, spustitelný program s dead strip, stuby přes
   GOT, rebase/bind, `LC_MAIN`, `libSystem` z `.tbd` a ad-hoc podpisem
   (22. 10. 2026).
+- [x] Dynamicky linkovaný ELF x86-64 (vstup `.libs`): ld.so, DT_NEEDED,
+  PLT/GOT s BIND_NOW; LSL linux-x86_64-gnu volá glibc a GTK (22. 10. 2026).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se

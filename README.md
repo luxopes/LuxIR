@@ -138,6 +138,16 @@ rebase, `LC_MAIN` na `_main`, `LC_BUILD_VERSION` macOS 11.0 a ad-hoc podpis
 (SHA-256, linker-signed). `make check-ld` ověří relokace, dyld info, stuby
 a podpis proti mapě rozvržení (`-M`); spuštění ověřují testy na macOS v LSL.
 
+Dynamicky linkovaný program (x86-64): je-li mezi vstupy `luxir -l -p` soubor
+`.libs` se jmény sdílených knihoven (`libc.so.6`, `libgtk-3.so.0`, …), vznikne
+PIE s `PT_INTERP` (ld.so) a `PT_DYNAMIC`: nedefinované symboly jsou importy
+(`DT_NEEDED`), volání jdou přes stub v `.plt` a slot `.got`, který ld.so
+naváže při startu (`BIND_NOW`, relokace `GLOB_DAT`); tabulky `.dynsym`,
+`.dynstr`, `.hash`, `.rela.dyn` a `.dynamic` leží za `.data`. Program nic
+nevyváží a absolutní relokace zůstávají chybou. `make check-ld`
+(tests/dyn_check.py) linkuje `tests/run` proti glibc hostitele a spouští je.
+LSL tak na cíli `linux-x86_64-gnu` volá systémové knihovny (GTK, GLib).
+
 `luxir -l -b -t rv64` (i v jednom běhu `-a -l -b -p`) místo linker skriptu
 rozloží obraz bare metal pro desku LSL (qemu virt): ET_EXEC od RAM
 0x80000000, nejdřív `.text.start`, `.text`, `.rodata` a `.data` na hranicích
