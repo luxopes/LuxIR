@@ -29,6 +29,7 @@ enum {
 	SNobits = 8,
 	STls = 16,
 	SNote = 32,
+	SInsn = 64,     /* obsahuje instrukce (Mach-O: S_ATTR_SOME_INSTRUCTIONS) */
 };
 
 /* hodnota: sym + add (sym: index symbolu nebo -1) */
@@ -88,6 +89,9 @@ struct ASec {
 	int elfidx;
 	int relaidx;
 	uint nrel;
+	uint32_t mflags; /* Mach-O: typ a atributy sekce */
+	int *atom;       /* Mach-O: symbol atomu pro každou položku (-1 žádný) */
+	uint64_t *oldoff; /* Mach-O x86-64: posuny položek z minulého rozložení */
 };
 
 enum {
@@ -146,6 +150,8 @@ struct AArch {
 	 * bez nich x86-64 (ADDR64, ADDR32, REL32) */
 	int (*coffrel)(AFix *);
 	void (*coffenc)(uchar *, AFix *, int64_t);
+	/* Mach-O (arm64): typ relokace; 0 = data (UNSIGNED nebo podle druhu) */
+	int (*machorel)(AFix *);
 	/* zápis vyřešené hodnoty do instrukce pro enc != 0 (0 = jen prostá pole) */
 	void (*fixenc)(uchar *, AFix *, int64_t);
 	/* skoky na globální symbol téže sekce se vyřeší (x86 jako GNU as),
@@ -186,6 +192,7 @@ extern uint nasyms;
 extern int acursec;
 extern int aline;
 extern int acoff;
+extern int amacho;
 void aerr(char *, ...) __attribute__((noreturn));
 void awarn(char *, ...);
 char *aword(char **ps);

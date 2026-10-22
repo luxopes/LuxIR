@@ -147,7 +147,10 @@ Windows a macOS (navíc):
 - [x] COFF a PE32+ pro Windows x86-64 a arm64 (`luxir -a/-l -t amd64_win|arm64_win`):
   objekty bajtově jako GNU as (x86-64) a LLVM (arm64), program s ASLR,
   DEP a high-entropy VA, importy z `.def` (22. 10. 2026).
-- [ ] Mach-O s `LC_MAIN`, `libSystem` a ad-hoc podpisem (na arm64 povinný).
+- [x] Mach-O pro macOS x86-64 a arm64 (`luxir -a/-l -t amd64_apple|arm64_apple`):
+  objekty bajtově jako LLVM, spustitelný program s dead strip, stuby přes
+  GOT, rebase/bind, `LC_MAIN`, `libSystem` z `.tbd` a ad-hoc podpisem
+  (22. 10. 2026).
 - [ ] `luxir -t <cíl> -o program program.lir runtime.lir …`: od `.lir` po
   spustitelný soubor jedním příkazem, bajtově deterministicky.
 - [ ] Odstranění mrtvého kódu celého obrazu včetně runtime (dnes se

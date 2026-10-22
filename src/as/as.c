@@ -31,6 +31,10 @@ static int *locnum;     /* číselná návěští: počet definic každého čí
 static int nlocnum;
 static char *filename;  /* .file */
 int acoff;              /* objekt COFF (Windows) místo ELF */
+int amacho;             /* objekt Mach-O (macOS) místo ELF */
+static int amachosubs;  /* .subsections_via_symbols */
+static int altmp;       /* počet symbolů ltmpN (Mach-O arm64) */
+static int machoresolvable(int sec, uint item, ASymbol *y, int pagefix);
 static int *elfsym;     /* index symbolu v tabulce ELF */
 
 void
@@ -157,6 +161,9 @@ static int afile;  /* pořadí vstupního souboru (místní symboly zvlášť) *
 static int
 localname(char *name)
 {
+	if (amacho)
+		/* dočasná návěští L… a vnitřní jména číselných návěští .L#… */
+		return name[0] == 'L' || (name[0] == '.' && name[1] == 'L' && name[2] == '#');
 	if (name[0] == '.' && name[1] == 'L')
 		return 1;
 	return acoff && A->machine == 62 && name[0] == 'L';
@@ -1033,13 +1040,163 @@ dalign(char *d, char *p)
 	align(v, fillgiven, fill);
 }
 
+/* Mach-O: sekce "SEG,sect" s typem a atributy; nová dostane na arm64
+ * na začátku symbol ltmpN (jako LLVM) */
+static int
+machosec(char *name, uint32_t mflags)
+{
+	int idx, flags, old;
+	char nm[24];
+
+	idx = findsec(name);
+	if (idx >= 0)
+		return idx;
+	flags = SAlloc;
+	if ((mflags & 0xff) == 1)
+		flags |= SNobits;
+	if (strncmp(name, "__TEXT,", 7) != 0)
+		flags |= SWrite;
+	if (mflags & 0x80000000u)
+		flags |= SExec;
+	idx = newsec(name, flags, (mflags & 0xff) == 1 ? 8 : 1);
+	asecs[idx].mflags = mflags;
+	if (A->machine == 183) {
+		old = acursec;
+		usesec(idx);
+		sprintf(nm, "ltmp%d", altmp++);
+		herelabel(nm);
+		if (old >= 0)
+			usesec(old);
+	}
+	return idx;
+}
+
+/* .section SEG,sect[,typ[,atributy]] */
+static void
+dsectionmacho(char *p)
+{
+	char name[64], *w, *q;
+	uint32_t fl;
+	int n;
+
+	q = p;
+	n = 0;
+	while (*q && *q != ',' && n < 20)
+		name[n++] = *q++;
+	if (*q != ',')
+		aerr("Mach-O section name SEG,sect expected");
+	name[n++] = *q++;
+	while (*q && *q != ',' && *q != ' ' && *q != '\t' && n < 40)
+		name[n++] = *q++;
+	name[n] = 0;
+	fl = 0;
+	aspace(&q);
+	if (*q == ',') {
+		q++;
+		aspace(&q);
+		w = aword(&q);
+		if (strcmp(w, "regular") == 0)
+			fl = 0;
+		else if (strcmp(w, "zerofill") == 0)
+			fl = 1;
+		else if (strcmp(w, "cstring_literals") == 0)
+			fl = 2;
+		else if (strcmp(w, "4byte_literals") == 0)
+			fl = 3;
+		else if (strcmp(w, "8byte_literals") == 0)
+			fl = 4;
+		else if (strcmp(w, "16byte_literals") == 0)
+			fl = 0xe;
+		else
+			aerr("unsupported Mach-O section type %s", w);
+		aspace(&q);
+		if (*q == ',') {
+			q++;
+			aspace(&q);
+			w = aword(&q);
+			if (strcmp(w, "pure_instructions") == 0)
+				fl |= 0x80000000u;
+			else
+				aerr("unsupported Mach-O section attribute %s", w);
+		}
+	} else if (strcmp(name, "__TEXT,__text") == 0)
+		fl = 0x80000000u;
+	usesec(machosec(name, fl));
+}
+
+/* .zerofill SEG,sect[,symbol,velikost[,zarovnání]] */
+static void
+dzerofill(char *p)
+{
+	char name[64], sym[256], *w;
+	int64_t size, al;
+	int idx, old, n;
+
+	n = 0;
+	while (*p && *p != ',' && n < 20)
+		name[n++] = *p++;
+	if (*p != ',')
+		aerr(".zerofill SEG,sect expected");
+	name[n++] = *p++;
+	while (*p && *p != ',' && *p != ' ' && *p != '\t' && n < 40)
+		name[n++] = *p++;
+	name[n] = 0;
+	idx = machosec(name, 1);
+	aspace(&p);
+	if (*p != ',')
+		return;
+	p++;
+	aspace(&p);
+	w = aword(&p);
+	if (strlen(w) >= sizeof sym)
+		aerr("symbol name too long");
+	strcpy(sym, w);
+	aspace(&p);
+	if (*p != ',')
+		aerr(".zerofill size expected");
+	p++;
+	aspace(&p);
+	if (!anumber(&p, &size))
+		aerr(".zerofill size expected");
+	al = 0;
+	aspace(&p);
+	if (*p == ',') {
+		p++;
+		aspace(&p);
+		if (!anumber(&p, &al))
+			aerr(".zerofill alignment expected");
+	}
+	old = acursec;
+	usesec(idx);
+	align(1u << al, 0, 0);
+	herelabel(sym);
+	aemit(size);
+	usesec(old);
+}
+
 static void
 directive(char *d, char *p)
 {
 	int64_t v;
 
 	aspace(&p);
-	if (strcmp(d, ".text") == 0)
+	if (amacho && strcmp(d, ".text") == 0)
+		usesec(machosec("__TEXT,__text", 0x80000000u));
+	else if (amacho && strcmp(d, ".data") == 0)
+		usesec(machosec("__DATA,__data", 0));
+	else if (amacho && strcmp(d, ".bss") == 0)
+		usesec(machosec("__DATA,__bss", 1));
+	else if (amacho && strcmp(d, ".const") == 0)
+		usesec(machosec("__TEXT,__const", 0));
+	else if (amacho && strcmp(d, ".cstring") == 0)
+		usesec(machosec("__TEXT,__cstring", 2));
+	else if (amacho && strcmp(d, ".section") == 0)
+		dsectionmacho(p);
+	else if (amacho && strcmp(d, ".zerofill") == 0)
+		dzerofill(p);
+	else if (amacho && strcmp(d, ".subsections_via_symbols") == 0)
+		amachosubs = 1;
+	else if (strcmp(d, ".text") == 0)
 		usesec(findsec(".text"));
 	else if (strcmp(d, ".data") == 0)
 		usesec(findsec(".data"));
@@ -1194,9 +1351,11 @@ statement(char *p)
 	aspace(&q);
 	if (nmacros && expandmacro(p, q))
 		return;
-	/* LLVM v COFF zarovnání sekce instrukcemi nezvyšuje */
-	if (A->minalign > asecs[acursec].align && !acoff)
+	/* LLVM v COFF a Mach-O zarovnání sekce instrukcemi nezvyšuje */
+	if (A->minalign > asecs[acursec].align && !acoff && !amacho)
 		asecs[acursec].align = A->minalign;
+	if (acursec >= 0)
+		asecs[acursec].flags |= SInsn;
 	if (!A->insn(p, q))
 		aerr("unknown instruction %s", p);
 }
@@ -1547,6 +1706,16 @@ layout(int initial)
 		s = &asecs[n];
 		stretch = 0;
 		off = 0;
+		/* Mach-O x86-64 jako LLVM: skoky se v průchodu posuzují podle
+		 * posunů z minulého rozložení (cíl i skok sám), krátká forma se už
+		 * nevrací */
+		if (amacho && A->machine == 62 && !initial) {
+			free(s->oldoff);
+			s->oldoff = emalloc((s->nitem + 1) * sizeof s->oldoff[0]);
+			for (m=0; m<s->nitem; m++)
+				s->oldoff[m] = s->item[m].off;
+			s->oldoff[s->nitem] = s->size;
+		}
 		for (m=0; m<s->nitem; m++) {
 			i = &s->item[m];
 			if (initial)
@@ -1554,6 +1723,25 @@ layout(int initial)
 			else
 				i->off += stretch;
 			size = i->size;
+			if (i->kind == IJump && amacho && A->machine == 62) {
+				y = &asyms[i->target.sym];
+				if (!initial && !i->jlong) {
+					if (!y->defined || y->sec != (int)n || y->weak || !machoresolvable(n, m, y, 0))
+						i->jlong = 1;
+					else {
+						t = (int64_t)s->oldoff[y->item] + i->target.add;
+						disp = t - (int64_t)(s->oldoff[m] + A->jsize(i));
+						if (!A->jfits(i, disp))
+							i->jlong = 1;
+					}
+				}
+				size = A->jsize(i);
+				if (!initial)
+					stretch += size - (int64_t)i->size;
+				i->size = size;
+				off = i->off + size;
+				continue;
+			}
 			switch (i->kind) {
 			case IAlign:
 				size = (int64_t)(((i->off + i->align - 1) & -(uint64_t)i->align) - i->off);
@@ -1564,7 +1752,7 @@ layout(int initial)
 					/* forma znovu v každém průchodu: cíl před skokem má
 					 * adresu tohoto průchodu, cíl za ním adresu minulého,
 					 * v prvním průchodu jen posun ve svém fragmentu */
-					if (!y->defined || y->sec != (int)n || y->weak)
+					if (!y->defined || y->sec != (int)n || y->weak || (amacho && !machoresolvable(n, m, y, 0)))
 						i->jlong = 1;
 					else {
 						if (y->item <= m)
@@ -1581,7 +1769,7 @@ layout(int initial)
 				}
 				if (!i->jlong && !initial) {
 					size = A->jsize(i);
-					if (!y->defined || y->sec != (int)n || y->weak)
+					if (!y->defined || y->sec != (int)n || y->weak || (amacho && !machoresolvable(n, m, y, 0)))
 						i->jlong = 1;
 					else {
 						t = symaddr(y, n, m, stretch) + i->target.add;
@@ -2244,13 +2432,20 @@ static uint64_t *cstroff;
 static uint ncstr;
 static uint64_t cstrsize;
 
+static void cstradd(char *name);
+
 static void
 coffaddstr(char *name)
 {
+	if (strlen(name) > 8)
+		cstradd(name);
+}
+
+static void
+cstradd(char *name)
+{
 	uint n;
 
-	if (strlen(name) <= 8)
-		return;
 	for (n=0; n<ncstr; n++)
 		if (strcmp(cstr[n], name) == 0)
 			return;
@@ -2291,14 +2486,19 @@ cstrlayout(Out *strs)
 	char *prev;
 	size_t lp, ln;
 
-	if (coffllvm())
+	if (coffllvm() || amacho)
 		qsort(cstr, ncstr, sizeof cstr[0], cstrcmp);
 	prev = 0;
 	lp = 0;
+	/* COFF: za čtyřbajtovou délkou; Mach-O: za prázdným jménem na 0 */
 	cstrsize = 4;
+	if (amacho) {
+		ozero(strs, 1);
+		cstrsize = 1;
+	}
 	for (n=0; n<ncstr; n++) {
 		ln = strlen(cstr[n]);
-		if (coffllvm() && prev && lp >= ln && strcmp(prev + lp - ln, cstr[n]) == 0) {
+		if ((coffllvm() || amacho) && prev && lp >= ln && strcmp(prev + lp - ln, cstr[n]) == 0) {
 			cstroff[n] = cstrsize - ln - 1;
 			continue;
 		}
@@ -2318,7 +2518,7 @@ cstrfind(char *name)
 	uint n;
 	uint64_t off;
 
-	if (!coffllvm()) {
+	if (!coffllvm() && !amacho) {
 		off = cstrsize;
 		oput(cstrout, name, strlen(name) + 1);
 		cstrsize += strlen(name) + 1;
@@ -2431,6 +2631,12 @@ coffrelocs(Out *o, Rel *r, uint cnt, int *secsym)
 {
 	uint k;
 
+	if (cnt > 0xffff) {
+		/* první relokace nese počet (včetně sebe) */
+		onum(o, cnt + 1, 4);
+		onum(o, 0, 4);
+		onum(o, 0, 2);
+	}
 	for (k=0; k<cnt; k++) {
 		onum(o, r[k].off, 4);
 		if (r[k].sec >= 0)
@@ -2553,7 +2759,8 @@ writecoff(char *out)
 		onum(&hdr, 0, 4);  /* posun dat */
 		onum(&hdr, 0, 4);  /* posun relokací */
 		onum(&hdr, 0, 4);
-		onum(&hdr, relcnt[n], 2);
+		/* přes 65535 relokací: 0xffff a skutečný počet v první relokaci */
+		onum(&hdr, relcnt[n] > 0xffff ? 0xffff : relcnt[n], 2);
 		onum(&hdr, 0, 2);
 		al = coffalign(s->align);
 		if (s->flags & SExec)
@@ -2564,6 +2771,8 @@ writecoff(char *out)
 			fl = 0x40000040;
 		if (s->flags & SWrite)
 			fl |= 0x80000000u;
+		if (relcnt[n] > 0xffff)
+			fl |= 0x01000000;     /* IMAGE_SCN_LNK_NRELOC_OVFL */
 		onum(&hdr, fl | ((uint)al << 20), 4);
 	}
 
@@ -2598,7 +2807,8 @@ writecoff(char *out)
 		nsyms += 2;
 		coffsym(&syms, s->name, 0, n + 1, 3, 1);
 		onum(&syms, s->size, 4);
-		onum(&syms, relcnt[n], 2);
+		/* počet relokací: GNU oříznutý na 16 bitů, LLVM nejvýš 0xffff */
+		onum(&syms, llvm && relcnt[n] > 0xffff ? 0xffff : relcnt[n] & 0xffff, 2);
 		onum(&syms, 0, 2);
 		onum(&syms, llvm && bufs[n] ? coffcrc(bufs[n], s->size) : 0, 4);
 		onum(&syms, llvm ? n + 1 : 0, 2);
@@ -2647,13 +2857,13 @@ writecoff(char *out)
 		}
 		if (llvm && relcnt[n]) {
 			reloff[n] = pos;
-			pos += 10 * (uint64_t)relcnt[n];
+			pos += 10 * ((uint64_t)relcnt[n] + (relcnt[n] > 0xffff));
 		}
 	}
 	for (n=0; n<nasecs && !llvm; n++)
 		if (relcnt[n]) {
 			reloff[n] = pos;
-			pos += 10 * (uint64_t)relcnt[n];
+			pos += 10 * ((uint64_t)relcnt[n] + (relcnt[n] > 0xffff));
 		}
 	total = 0;
 	for (n=0; n<nasecs; n++)
@@ -2690,6 +2900,522 @@ writecoff(char *out)
 	fclose(f);
 }
 
+/* ---- Mach-O (macOS) ----
+ *
+ * Objekt MH_OBJECT jako LLVM (clang -target <arch>-apple-macos11): jeden
+ * nepojmenovaný segment se sekcemi v pořadí vzniku, adresy nejdřív
+ * běžných sekcí a pak zerofill, LC_BUILD_VERSION (macOS 11.0), LC_SYMTAB
+ * a LC_DYSYMTAB. Symboly: místní v pořadí vzniku (na arm64 i ltmpN na
+ * začátku každé sekce), definované externí a nedefinované podle jména;
+ * tabulka řetězců jako StringTableBuilder (sestupně podle obráceného
+ * řetězce, sdílené přípony), doplněná na 8 bajtů.
+ *
+ * Atom je úsek sekce od symbolu, který vidí linker (ne dočasné návěští
+ * L…), po další takový. Odkaz relativní k PC na cíl v téže sekci se
+ * vyřeší, je-li ve stejném atomu (arm64: i na každé dočasné návěští;
+ * x86-64: na dočasné návěští, nemá-li místo odkazu atom); jinak zůstane
+ * relokace na symbol, u dočasného návěští na symbol jeho atomu s posunem
+ * (v sekci literálů na návěští samotné, x86-64 relokace na sekci).
+ * arm64: adrp a @PAGEOFF jsou vždy relokace, nenulový addend jde do
+ * relokace ADDEND; x86-64: addend v poli, typ SIGNED_1/2/4 podle hodnoty
+ * pole jako LLVM. Relokace sekce jsou v opačném pořadí. */
+
+static int
+machotype(ASec *s)
+{
+	return s->mflags & 0xff;
+}
+
+/* sekce s atomy po symbolech (ne cstring a literály) */
+static int
+machoatomized(ASec *s)
+{
+	int t;
+
+	t = machotype(s);
+	return t == 0 || t == 1;
+}
+
+/* symbol atomu pro každou položku sekce: poslední symbol viditelný pro
+ * linker, který leží na začátku položky nebo před ní (u více symbolů na
+ * téže položce ten vzniklý později) */
+static void
+machoatoms(void)
+{
+	uint n, m;
+	ASymbol *y;
+	ASec *s;
+	int *at;
+
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		free(s->atom);
+		s->atom = emalloc((s->nitem + 2) * sizeof s->atom[0]);
+		for (m=0; m<=s->nitem; m++)
+			s->atom[m] = -1;
+	}
+	for (n=0; n<nasyms; n++) {
+		y = &asyms[n];
+		if (!y->defined || y->local || y->isabs || y->sec < 0)
+			continue;
+		s = &asecs[y->sec];
+		if (!machoatomized(s))
+			continue;
+		at = s->atom;
+		if (at[y->item] < 0 || (int)n > at[y->item])
+			at[y->item] = n;
+	}
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		for (m=1; m<=s->nitem; m++)
+			if (s->atom[m] < 0)
+				s->atom[m] = s->atom[m - 1];
+	}
+}
+
+/* vyřeší se odkaz z položky item sekce sec na definovaný symbol y? */
+static int
+machoresolvable(int sec, uint item, ASymbol *y, int pagefix)
+{
+	ASec *s;
+	int fa, ta;
+
+	if (!y->defined || y->sec != sec || y->weak || pagefix)
+		return 0;
+	s = &asecs[sec];
+	fa = s->atom[item];
+	ta = s->atom[y->item];
+	if (A->machine == 183)
+		return y->local || fa == ta || !amachosubs;
+	return (y->local && fa < 0) || fa == ta;
+}
+
+/* x86-64: nop podle LLVM (po 10 bajtech, zbytek z tabulky); nop délky k
+ * začíná v machonopb na pozici k*(k-1)/2 */
+static uchar machonopb[] = {
+	0x90,
+	0x66, 0x90,
+	0x0f, 0x1f, 0x00,
+	0x0f, 0x1f, 0x40, 0x00,
+	0x0f, 0x1f, 0x44, 0x00, 0x00,
+	0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00,
+	0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00,
+	0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x66, 0x2e, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+static void
+machonops(uchar *b, uint n)
+{
+	uint k, j;
+
+	while (n) {
+		k = n > 10 ? 10 : n;
+		for (j=0; j<k; j++)
+			b[j] = machonopb[k * (k - 1) / 2 + j];
+		b += k;
+		n -= k;
+	}
+}
+
+static uint64_t *machoaddr;  /* adresa sekce v objektu */
+
+/* relokace: r_info bez čísla symbolu; sym (asyms) nebo sec (sekce, bez
+ * extern), u ADDEND sec = -2 a hodnota v add */
+static void
+machorel(uint64_t off, int sym, int sec, uint32_t info, int64_t add)
+{
+	GROW(rels, nrels + 1);
+	rels[nrels].off = off;
+	rels[nrels].sym = sym;
+	rels[nrels].sec = sec;
+	rels[nrels].type = info;
+	rels[nrels].add = add;
+	nrels++;
+}
+
+static void
+machoresolvefix(int secidx, uchar *buf, uint64_t pos, AFix *f, uint item)
+{
+	ASymbol *y;
+	ASec *ts;
+	int64_t v, a, P, T;
+	int type, pcrel, len, tsym, tsec, at, pagefix;
+
+	y = f->e.sym >= 0 ? &asyms[f->e.sym] : 0;
+	if (!y) {
+		if (f->kind != FAbs)
+			aerr("pc-relative reference to a constant");
+		putval(buf + pos, f->e.add, f->size);
+		return;
+	}
+	type = -1;
+	if (A->machine == 183)
+		type = A->machorel(f);
+	pagefix = type == 3 || type == 4;
+	if (f->kind != FAbs && machoresolvable(secidx, item, y, pagefix)) {
+		v = (int64_t)y->val + f->e.add + f->pcoff - (int64_t)pos;
+		if (f->enc) {
+			A->fixenc(buf + pos, f, v);
+			return;
+		}
+		if (f->size == 1 && (v < -128 || v > 127))
+			aerr("jump out of range");
+		putval(buf + pos, v, f->size);
+		return;
+	}
+	/* cíl relokace: symbol, atom dočasného návěští, nebo sekce */
+	a = f->e.add;
+	tsym = f->e.sym;
+	tsec = -1;
+	if (y->defined && y->local) {
+		ts = &asecs[y->sec];
+		at = machoatomized(ts) ? ts->atom[y->item] : -1;
+		if (at >= 0) {
+			a += (int64_t)y->val - (int64_t)asyms[at].val;
+			tsym = at;
+		} else if (A->machine == 183)
+			y->keep = 1;
+		else {
+			tsym = -1;
+			tsec = y->sec;
+		}
+	}
+	pcrel = f->kind != FAbs;
+	len = f->size == 8 ? 3 : f->size == 4 ? 2 : f->size == 2 ? 1 : 0;
+	if (A->machine == 183) {
+		if (type < 0 || (type == 0 && pcrel))
+			aerr("cannot relocate a reference to %s", y->name);
+		if (type == 0) {
+			putval(buf + pos, a, f->size);
+			machorel(pos, tsym, tsec, (pcrel << 24) | (len << 25) | (1u << 27) | (0u << 28), 0);
+			return;
+		}
+		/* instrukce: pole zůstává nulové, addend v relokaci ADDEND */
+		machorel(pos, tsym, tsec, ((uint32_t)(type != 4) << 24) | (2u << 25) | (1u << 27) | ((uint32_t)type << 28), 0);
+		if (a)
+			machorel(pos, 0, -2, (2u << 25) | (10u << 28), a);
+		return;
+	}
+	/* x86-64 */
+	if (!pcrel) {
+		if (f->size != 8 && f->size != 4)
+			aerr("cannot relocate a reference to %s", y->name);
+		if (tsec >= 0)
+			a += (int64_t)machoaddr[tsec] + (int64_t)y->val;
+		putval(buf + pos, a, f->size);
+		machorel(pos, tsym, tsec, (len << 25) | ((uint32_t)(tsec < 0) << 27), 0);
+		return;
+	}
+	if (f->size != 4)
+		aerr("cannot relocate a reference to %s", y->name);
+	v = a + f->pcoff + 4;
+	if (f->kind == FBranch)
+		type = 2;                       /* BRANCH */
+	else if (v == -1)
+		type = 6;                       /* SIGNED_1 */
+	else if (v == -2)
+		type = 7;
+	else if (v == -4)
+		type = 8;
+	else
+		type = 1;                       /* SIGNED */
+	if (tsec >= 0) {
+		/* relokace na sekci: pole je posun k cíli v rozložení objektu */
+		P = (int64_t)machoaddr[secidx] + (int64_t)pos;
+		T = (int64_t)machoaddr[tsec] + (int64_t)y->val;
+		v = T + v - (P + 4);
+	}
+	putval(buf + pos, v, 4);
+	machorel(pos, tsym, tsec, (1u << 24) | (2u << 25) | ((uint32_t)(tsec < 0) << 27) | ((uint32_t)type << 28), 0);
+}
+
+/* jméno sekce "SEG,sect" na části */
+static void
+machonames(char *name, char *seg, char *sect)
+{
+	char *c;
+	size_t n;
+
+	memset(seg, 0, 17);
+	memset(sect, 0, 17);
+	c = strchr(name, ',');
+	if (!c)
+		aerr("bad Mach-O section name %s", name);
+	n = c - name;
+	if (n > 16 || strlen(c + 1) > 16)
+		aerr("Mach-O section name too long: %s", name);
+	memcpy(seg, name, n);
+	memcpy(sect, c + 1, strlen(c + 1));
+}
+
+static int
+machosymcmp(const void *pa, const void *pb)
+{
+	return strcmp(asyms[*(int *)pa].name, asyms[*(int *)pb].name);
+}
+
+static void
+writemacho(char *out)
+{
+	Out o, cmds, syms, strs;
+	ASec *s;
+	ASymbol *y;
+	AItem *i;
+	AFix fx;
+	FILE *f;
+	uchar **bufs;
+	uint64_t addr, vmend, fileend, *reloff, pos, hdrsz;
+	Rel **secrels;
+	uint *relcnt;
+	uint n, m, k, nloc, next, nund, nsyms;
+	int64_t t, disp;
+	int resolved, *order, norder, llvm;
+	char seg[17], sect[17];
+
+	llvm = 1;
+	(void)llvm;
+	memset(&o, 0, sizeof o);
+	memset(&cmds, 0, sizeof cmds);
+	memset(&syms, 0, sizeof syms);
+	memset(&strs, 0, sizeof strs);
+	bufs = emalloc((nasecs + 1) * sizeof bufs[0]);
+	reloff = emalloc((nasecs + 1) * sizeof reloff[0]);
+	secrels = emalloc((nasecs + 1) * sizeof secrels[0]);
+	relcnt = emalloc((nasecs + 1) * sizeof relcnt[0]);
+	machoaddr = emalloc((nasecs + 1) * sizeof machoaddr[0]);
+	elfsym = emalloc((nasyms + 1) * sizeof elfsym[0]);
+	for (n=0; n<nasyms; n++)
+		elfsym[n] = -1;
+
+	/* adresy: běžné sekce v pořadí vzniku, pak zerofill */
+	addr = 0;
+	for (k=0; k<2; k++)
+		for (n=0; n<nasecs; n++) {
+			s = &asecs[n];
+			if ((machotype(s) == 1) != (int)k)
+				continue;
+			addr = (addr + s->align - 1) & -(uint64_t)s->align;
+			machoaddr[n] = addr;
+			addr += s->size;
+		}
+	vmend = addr;
+	fileend = 0;
+	for (n=0; n<nasecs; n++)
+		if (machotype(&asecs[n]) != 1 && machoaddr[n] + asecs[n].size > fileend)
+			fileend = machoaddr[n] + asecs[n].size;
+
+	/* obsah a relokace */
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		nrels = 0;
+		bufs[n] = 0;
+		if (machotype(s) != 1) {
+			bufs[n] = emalloc(s->size + 1);
+			memset(bufs[n], 0, s->size + 1);
+			for (m=0; m<s->nitem; m++) {
+				i = &s->item[m];
+				aline = i->line;
+				switch (i->kind) {
+				case IData:
+					if (i->size)
+						memcpy(bufs[n] + i->off, i->data, i->size);
+					for (k=0; k<i->nfix; k++)
+						machoresolvefix(n, bufs[n], i->off + i->fix[k].off, &i->fix[k], m);
+					break;
+				case IAlign:
+					if (i->nops && i->size) {
+						if (A->machine == 62)
+							machonops(bufs[n] + i->off, i->size);
+						else
+							A->nops(bufs[n] + i->off, i->size);
+					}
+					break;
+				case IJump:
+					y = &asyms[i->target.sym];
+					resolved = machoresolvable(n, m, y, 0) && exprin(&i->target, n, &t);
+					disp = resolved ? (int64_t)t - (int64_t)(i->off + i->size) : 0;
+					A->jemit(i, bufs[n] + i->off, disp, resolved);
+					if (!resolved) {
+						memset(&fx, 0, sizeof fx);
+						fx.size = 4;
+						fx.kind = FBranch;
+						fx.pcoff = A->relaxmode == 1 ? 0 : -4;
+						fx.enc = A->jenc ? A->jenc(i) : 0;
+						fx.relsym = -1;
+						fx.e = i->target;
+						machoresolvefix(n, bufs[n], i->off + i->size - 4, &fx, m);
+					}
+					break;
+				}
+			}
+		}
+		secrels[n] = rels;
+		relcnt[n] = nrels;
+		rels = 0;
+		nrels = 0;
+	}
+
+	/* symboly: místní v pořadí vzniku, externí definované a nedefinované
+	 * podle jména */
+	order = emalloc((nasyms + 1) * sizeof order[0]);
+	nsyms = 0;
+	norder = 0;
+	for (n=0; n<nasyms; n++) {
+		y = &asyms[n];
+		if ((y->local && !y->keep) || y->isabs || y->global || !y->defined)
+			continue;
+		elfsym[n] = nsyms++;
+		order[norder++] = n;
+	}
+	nloc = nsyms;
+	for (k=0; k<2; k++) {
+		int first = norder;
+		for (n=0; n<nasyms; n++) {
+			y = &asyms[n];
+			if (y->local || y->isabs || !(y->global || !y->defined) || (uint)!y->defined != k)
+				continue;
+			if (y->weak || y->common)
+				aerr("weak and common symbols are not supported in Mach-O");
+			order[norder++] = n;
+		}
+		qsort(order + first, norder - first, sizeof order[0], machosymcmp);
+		for (m=first; m<(uint)norder; m++)
+			elfsym[order[m]] = nsyms++;
+		if (k == 0)
+			next = nsyms - nloc;
+	}
+	nund = nsyms - nloc - next;
+	ncstr = 0;
+	for (m=0; m<(uint)norder; m++)
+		cstradd(asyms[order[m]].name);
+	cstrlayout(&strs);
+	for (m=0; m<(uint)norder; m++) {
+		y = &asyms[order[m]];
+		onum(&syms, y->name[0] ? cstrfind(y->name) : 0, 4);
+		if (!y->defined) {
+			onum(&syms, 1, 1);  /* N_UNDF | N_EXT */
+			onum(&syms, 0, 1);
+			onum(&syms, 0, 2);
+			onum(&syms, 0, 8);
+		} else {
+			onum(&syms, y->global ? 0xf : 0xe, 1);
+			onum(&syms, y->sec + 1, 1);
+			onum(&syms, 0, 2);
+			onum(&syms, machoaddr[y->sec] + y->val, 8);
+		}
+	}
+	while (strs.n % 8)
+		ozero(&strs, 1);
+
+	/* příkazy (bez symbolů LLVM vynechá LC_SYMTAB a LC_DYSYMTAB) */
+	hdrsz = 32 + 72 + 80 * (uint64_t)nasecs + 24 + (nsyms ? 24 + 80 : 0);
+	pos = hdrsz + fileend;
+	pos = (pos + 7) & ~(uint64_t)7;
+	for (n=0; n<nasecs; n++) {
+		reloff[n] = 0;
+		if (relcnt[n]) {
+			reloff[n] = pos;
+			pos += 8 * (uint64_t)relcnt[n];
+		}
+	}
+	onum(&cmds, 0x19, 4);
+	onum(&cmds, 72 + 80 * nasecs, 4);
+	ozero(&cmds, 16);
+	onum(&cmds, 0, 8);
+	onum(&cmds, vmend, 8);
+	onum(&cmds, hdrsz, 8);
+	onum(&cmds, fileend, 8);
+	onum(&cmds, 7, 4);
+	onum(&cmds, 7, 4);
+	onum(&cmds, nasecs, 4);
+	onum(&cmds, 0, 4);
+	for (n=0; n<nasecs; n++) {
+		s = &asecs[n];
+		machonames(s->name, seg, sect);
+		oput(&cmds, sect, 16);
+		oput(&cmds, seg, 16);
+		onum(&cmds, machoaddr[n], 8);
+		onum(&cmds, s->size, 8);
+		onum(&cmds, machotype(s) == 1 ? 0 : hdrsz + machoaddr[n], 4);
+		onum(&cmds, coffalign(s->align) - 1, 4);
+		onum(&cmds, reloff[n], 4);
+		onum(&cmds, relcnt[n], 4);
+		onum(&cmds, s->mflags | (s->flags & SInsn ? 0x400 : 0), 4);
+		ozero(&cmds, 12);
+	}
+	/* LC_BUILD_VERSION: macOS 11.0 */
+	onum(&cmds, 0x32, 4);
+	onum(&cmds, 24, 4);
+	onum(&cmds, 1, 4);
+	onum(&cmds, 0xb0000, 4);
+	onum(&cmds, 0, 4);
+	onum(&cmds, 0, 4);
+	if (nsyms) {
+	/* LC_SYMTAB */
+	onum(&cmds, 2, 4);
+	onum(&cmds, 24, 4);
+	onum(&cmds, pos, 4);
+	onum(&cmds, nsyms, 4);
+	onum(&cmds, pos + syms.n, 4);
+	onum(&cmds, strs.n, 4);
+	/* LC_DYSYMTAB */
+	onum(&cmds, 0xb, 4);
+	onum(&cmds, 80, 4);
+	onum(&cmds, 0, 4);
+	onum(&cmds, nloc, 4);
+	onum(&cmds, nloc, 4);
+	onum(&cmds, next, 4);
+	onum(&cmds, nloc + next, 4);
+	onum(&cmds, nund, 4);
+	ozero(&cmds, 48);
+	}
+
+	/* hlavička */
+	onum(&o, 0xfeedfacf, 4);
+	onum(&o, A->machine == 183 ? 0x0100000c : 0x01000007, 4);
+	onum(&o, A->machine == 183 ? 0 : 3, 4);
+	onum(&o, 1, 4);           /* MH_OBJECT */
+	onum(&o, nsyms ? 4 : 2, 4);
+	onum(&o, cmds.n, 4);
+	onum(&o, amachosubs ? 0x2000 : 0, 4);
+	onum(&o, 0, 4);
+	oput(&o, cmds.b, cmds.n);
+	for (n=0; n<nasecs; n++)
+		if (bufs[n]) {
+			ozero(&o, hdrsz + machoaddr[n] - o.n);
+			oput(&o, bufs[n], asecs[n].size);
+		}
+	ozero(&o, ((o.n + 7) & ~(uint64_t)7) - o.n);
+	for (n=0; n<nasecs; n++)
+		for (k=relcnt[n]; k-- > 0; ) {
+			Rel *r = &secrels[n][k];
+			uint32_t info = (uint32_t)r->type;
+			onum(&o, r->off, 4);
+			if (r->sec == -2)
+				info |= (uint32_t)r->add & 0xffffff;
+			else if (r->sec >= 0)
+				info |= (uint32_t)(r->sec + 1);
+			else {
+				if (elfsym[r->sym] < 0)
+					die("as: relocation symbol without a table entry");
+				info |= (uint32_t)elfsym[r->sym];
+			}
+			onum(&o, info, 4);
+		}
+	if (nsyms) {
+		oput(&o, syms.b, syms.n);
+		oput(&o, strs.b, strs.n);
+	}
+	f = fopen(out, "wb");
+	if (!f)
+		aerr("cannot create %s", out);
+	for (pos=0; pos<o.n; pos++)
+		fputc(o.b[pos], f);
+	fclose(f);
+}
+
 int
 assemble(char **paths, int npaths, char *out, AArch *arch)
 {
@@ -2705,11 +3431,18 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 	filename = 0;
 	nmacros = 0;
 	macrodepth = 0;
+	amachosubs = 0;
+	altmp = 0;
+	if (amacho)
+		/* Mach-O: na začátku jen __text, ostatní sekce až při použití */
+		machosec("__TEXT,__text", 0x80000000u);
+	else {
 	newsec(".text", SAlloc | SExec, 1);
 	if (A->textalign > 1)
 		asecs[0].align = A->textalign;
 	newsec(".data", SAlloc | SWrite, 1);
 	newsec(".bss", SAlloc | SWrite | SNobits, 8);
+	}
 	if (acoff)
 		/* výchozí sekce: GNU as pro PE na 16, LLVM na 4 */
 		for (n=0; n<3; n++)
@@ -2739,6 +3472,8 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 					align(4, 1, 0);
 			}
 	rounds = 0;
+	if (amacho)
+		machoatoms();
 	layout(1);
 	while (layout(0))
 		if (++rounds > 1000)
@@ -2747,7 +3482,9 @@ assemble(char **paths, int npaths, char *out, AArch *arch)
 		for (n=0; n<nasecs; n++)
 			asecs[n].elfidx = n + 1;
 		writecoff(out);
-	} else
+	} else if (amacho)
+		writemacho(out);
+	else
 		writeobj(out);
 	return 0;
 }

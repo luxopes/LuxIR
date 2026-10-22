@@ -175,6 +175,16 @@ shiftname(char *w)
 	return -1;
 }
 
+/* začíná text registrem (bez posunu ukazatele)? */
+static int
+startsreg(char *p)
+{
+	AOp t;
+
+	memset(&t, 0, sizeof t);
+	return parsereg(&p, &t);
+}
+
 static void
 parsemem(char **ps, AOp *o)
 {
@@ -209,6 +219,12 @@ parsemem(char **ps, AOp *o)
 				o->off = t.imm;
 				o->hasoff = 1;
 			}
+		} else if (!startsreg(p)) {
+			/* symbol bez '#' (Mach-O: [x9, sym@PAGEOFF]) */
+			if (!aexpr(&p, &o->e) || o->e.sym < 0)
+				aerr2("index register expected");
+			o->kind = 3;
+			o->hasoff = 2;
 		} else {
 			memset(&t, 0, sizeof t);
 			if (!parsereg(&p, &t) || !isxw(&t))
@@ -245,6 +261,36 @@ parsemem(char **ps, AOp *o)
 	*ps = p;
 }
 
+/* Mach-O (syntaxe Apple): přípony sym@PAGE a sym@PAGEOFF (i malými
+ * písmeny) se v textu operandů nahradí mezerami; vrací 1, byla-li
+ * @PAGEOFF (operand se symbolem pak dostane :lo12:). */
+static int
+applemods(char *s)
+{
+	char *p;
+	int off, n, k;
+
+	off = 0;
+	for (p=s; *p; p++) {
+		if (*p != '@')
+			continue;
+		n = 0;
+		if ((p[1] == 'P' || p[1] == 'p') && (p[2] == 'A' || p[2] == 'a') && (p[3] == 'G' || p[3] == 'g')
+		&& (p[4] == 'E' || p[4] == 'e')) {
+			n = 5;
+			if ((p[5] == 'O' || p[5] == 'o') && (p[6] == 'F' || p[6] == 'f') && (p[7] == 'F' || p[7] == 'f')) {
+				n = 8;
+				off = 1;
+			}
+		}
+		if (!n || identchar((uchar)p[n]))
+			continue;
+		for (k=0; k<n; k++)
+			p[k] = ' ';
+	}
+	return off;
+}
+
 static int
 parseop(char **ps, AOp *o)
 {
@@ -270,6 +316,14 @@ parseop(char **ps, AOp *o)
 			w = aword(&p);
 			if (!*w)
 				aerr2("operand expected");
+			/* jména podmínek a systémových registrů bez ohledu na velikost
+			 * písmen (Apple píše TPIDRRO_EL0) */
+			{
+				char *c;
+				for (c=w; *c; c++)
+					if (*c >= 'A' && *c <= 'Z')
+						*c += 'a' - 'A';
+			}
 			if (strlen(w) < sizeof o->word && (strcmp(w, "eq") == 0 || strcmp(w, "ne") == 0 || strcmp(w, "cs") == 0 || strcmp(w, "hs") == 0
 			|| strcmp(w, "cc") == 0 || strcmp(w, "lo") == 0 || strcmp(w, "mi") == 0 || strcmp(w, "pl") == 0 || strcmp(w, "vs") == 0
 			|| strcmp(w, "vc") == 0 || strcmp(w, "hi") == 0 || strcmp(w, "ls") == 0 || strcmp(w, "ge") == 0 || strcmp(w, "lt") == 0
@@ -811,11 +865,17 @@ static int
 arm64insn(char *mnem, char *ops)
 {
 	AOp o[5];
-	int no, cc, sf;
+	int no, cc, sf, pageoff, k;
 	uint32_t w;
 
 	curmnem = mnem;
+	pageoff = applemods(ops);
 	no = parseops(ops, o, 5);
+	/* sym@PAGEOFF: dolních 12 bitů jako :lo12: */
+	if (pageoff)
+		for (k=0; k<no; k++)
+			if (o[k].kind == 4 || (o[k].kind == 3 && o[k].hasoff == 2))
+				o[k].lo12 = 1;
 	sf = no > 0 && o[0].kind == 1 ? sfof(&o[0]) : 0;
 
 	if (strcmp(mnem, "add") == 0) addsub(0, 0, o, no);
@@ -1230,6 +1290,22 @@ a64coffenc(uchar *b, AFix *f, int64_t a)
 	b[3] = w >> 24;
 }
 
+/* Mach-O (jako LLVM): typ relokace ARM64; addend jde do relokace ADDEND */
+static int
+a64machorel(AFix *f)
+{
+	switch (f->enc) {
+	case ENone: return 0;     /* UNSIGNED */
+	case EBr26:
+	case EBl26: return 2;     /* BRANCH26 */
+	case EAdrp: return 3;     /* PAGE21 */
+	case EAdd12:
+	case ELd8: case ELd16: case ELd32: case ELd64: case ELd128:
+		return 4;             /* PAGEOFF12 */
+	}
+	return -1;
+}
+
 AArch AARM64 = {
 	.name = "arm64",
 	.machine = 183,
@@ -1243,6 +1319,7 @@ AArch AARM64 = {
 	.fixenc = a64fixenc,
 	.coffrel = a64coffrel,
 	.coffenc = a64coffenc,
+	.machorel = a64machorel,
 	.resolveglobal = 0,
 	.minalign = 4,
 	.comment = 0,

@@ -15,7 +15,7 @@ COBJ     = c/targ.o c/emit.o
 I386OBJ  = i386/targ.o i386/abi.o i386/isel.o i386/emit.o
 ARMOBJ   = arm/targ.o arm/abi.o arm/isel.o arm/emit.o
 ASOBJ    = as/as.o as/x86.o as/arm64.o as/rv64.o as/arm.o
-LDOBJ    = ld/ld.o ld/pe.o
+LDOBJ    = ld/ld.o ld/pe.o ld/macho.o
 OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ) $(WASMOBJ) $(COBJ) \
            $(I386OBJ) $(ARMOBJ) $(ASOBJ) $(LDOBJ)
 # Spouštění nástrojů jen v C; do LSL se nepřekládá (viz tool.c).

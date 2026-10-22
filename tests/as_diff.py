@@ -19,6 +19,9 @@ ARCH = {
     'rv64': (['riscv64-linux-gnu-as', '-march=rv64g', '-mno-relax'], 'rv64', ['--target=riscv64-linux-gnu']),
     # COFF pro Windows (mingw-w64): objekt musí být shodný bajt po bajtu
     'x86_64-coff': (['x86_64-w64-mingw32-as'], 'amd64_win', ['--target=x86_64-w64-windows-gnu']),
+    # macOS: Mach-O, vzorem je LLVM (clang), objekt shodný bajt po bajtu
+    'x86_64-macho': (['clang', '-target', 'x86_64-apple-macos11', '-c', '-x', 'assembler'], 'amd64_apple', ['-target', 'x86_64-apple-macos11']),
+    'arm64-macho': (['clang', '-target', 'arm64-apple-macos11', '-c', '-x', 'assembler'], 'arm64_apple', ['-target', 'arm64-apple-macos11']),
     # arm64 pro Windows: vzorem je LLVM (clang), objekt shodný bajt po bajtu
     'arm64-coff': (['clang', '--target=aarch64-windows-gnu', '-c', '-x', 'assembler'], 'arm64_win', ['--target=aarch64-windows-gnu']),
     'arm': (['arm-linux-gnueabihf-as', '-march=armv7-a', '-mfpu=vfpv3-d16', '-mfloat-abi=hard'], 'arm', ['--target=armv7a-linux-gnueabihf']),
@@ -115,6 +118,12 @@ def coffdiff(ref, new):
 
 
 def compare(name, ref, new, tmp):
+    if ref.read_bytes()[:4] == b'\xcf\xfa\xed\xfe':
+        a, b = ref.read_bytes(), new.read_bytes()
+        if a == b:
+            return []
+        n = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
+        return [f'object differs at offset {n:#x} (llvm {a[n:n+12].hex()} luxir {b[n:n+12].hex()}), sizes {len(a)} {len(b)}']
     if ref.read_bytes()[:4] != b'\x7fELF':
         return coffdiff(ref, new)
     bad = []
@@ -305,8 +314,14 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         inputs = list(a.inputs)
+        if a.probes and a.arch.endswith('-coff'):
+            # přes 65535 relokací v sekci (IMAGE_SCN_LNK_NRELOC_OVFL)
+            many = tmp / 'probe_many_relocs.s'
+            call = 'bl' if a.arch.startswith('arm64') else 'call'
+            many.write_text('\t.text\n' + ''.join(f'\t{call} ext{i % 5}\n' for i in range(66000)))
+            inputs.append(str(many))
         if a.probes:
-            inputs += {'arm64': probes_arm64, 'arm64-coff': probes_arm64, 'rv64': probes_rv64, 'arm': probes_arm}.get(a.arch, probes)(tmp)
+            inputs += {'arm64': probes_arm64, 'arm64-coff': probes_arm64, 'arm64-macho': probes_arm64, 'rv64': probes_rv64, 'arm': probes_arm}.get(a.arch, probes)(tmp)
         for backend in a.backend:
             backend = str(Path(backend).resolve())
             for inp in inputs:
@@ -323,6 +338,9 @@ def main():
                         continue
                     src = s
                 text = src.read_text(errors='replace')
+                if 'thread_local_variables' in text or '@TLVP' in text or '@tlvp' in text:
+                    print(f'skip {inp}: thread-local data is not supported')
+                    continue
                 if '@tpoff' in text or '@gotpcrel' in text or ':tprel_' in text or ':got' in text or '%tprel' in text:
                     print(f'skip {inp}: thread-local or GOT references are not supported')
                     continue

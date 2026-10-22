@@ -127,6 +127,17 @@ popisují soubory `.def` mezi vstupy (`LIBRARY dll`, `EXPORTS` a jména
 funkcí): volání importované funkce jde přes thunk, `__imp_jméno` je přímo
 položka IAT. `make check-ld` (x86-64 ve wine).
 
+Pro macOS (`-t amd64_apple`, `-t arm64_apple`) zapisuje `luxir -a` objekty
+Mach-O bajtově jako LLVM (`clang -target <arch>-apple-macos11`): atomy po
+symbolech s `.subsections_via_symbols`, dočasná návěští `L…`, na arm64
+symboly `ltmpN`, relokace ADDEND a `@PAGE`/`@PAGEOFF`, na x86-64 relaxace
+skoků a nop jako LLVM. `luxir -l` z nich a stubu knihovny `.tbd` slinkuje
+spustitelný Mach-O (PIE): nepoužité atomy vypustí, volání knihovny jde přes
+`__stubs` a `__got` navázané dyld při načtení, absolutní ukazatele dostanou
+rebase, `LC_MAIN` na `_main`, `LC_BUILD_VERSION` macOS 11.0 a ad-hoc podpis
+(SHA-256, linker-signed). `make check-ld` ověří relokace, dyld info, stuby
+a podpis proti mapě rozvržení (`-M`); spuštění ověřují testy na macOS v LSL.
+
 `luxir -l -b -t rv64` (i v jednom běhu `-a -l -b -p`) místo linker skriptu
 rozloží obraz bare metal pro desku LSL (qemu virt): ET_EXEC od RAM
 0x80000000, nejdřív `.text.start`, `.text`, `.rodata` a `.data` na hranicích

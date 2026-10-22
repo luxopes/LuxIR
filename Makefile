@@ -134,15 +134,21 @@ check-as: c native
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch x86_64-coff --probes tests/as/insn64.s tests/as/coff_x86_64.s
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64-coff --lir -t arm64_win tests/run/*.lir
 	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64-coff --probes tests/as/insn_a64.s tests/as/coff_a64.s
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch x86_64-macho --lir -t amd64_apple tests/run/*.lir
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch x86_64-macho --probes tests/as/insn64.s tests/as/macho-x86.s
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64-macho --lir -t arm64_apple tests/run/*.lir
+	$(PYTHON) tests/as_diff.py --backend src/luxir --backend build/luxir --arch arm64-macho --probes tests/as/macho-a64.s
 
 # Vestavěný linker (luxir -l): programy LuxIR slinkované s testovacím
 # runtime (x86-64 bez PIE i PIE, i386, arm64 a rv64 v qemu), spuštěné
 # a smlouva obrazu; obraz bare metal (-b) proti GNU ld s linker skriptem;
-# Windows PE32+ (x86-64 ve wine, arm64 jen smlouva obrazu).
+# Windows PE32+ (x86-64 ve wine, arm64 jen smlouva obrazu); macOS Mach-O
+# (relokace, dyld info, stuby a podpis ověřené proti mapě rozvržení).
 check-ld: c native
 	$(PYTHON) tests/ld_check.py --backend src/luxir --backend build/luxir --arch x86_64 --arch i386 --arch arm64 --arch rv64 --arch arm
 	$(PYTHON) tests/ld_bare.py --backend src/luxir --backend build/luxir
 	$(PYTHON) tests/pe_check.py --backend src/luxir --backend build/luxir
+	$(PYTHON) tests/macho_check.py --backend src/luxir --backend build/luxir
 
 # Vestavěný assembler WebAssembly (luxir -a -t wasm32) proti wat2wasm:
 # ruční modul se všemi konstrukcemi, sondy všech instrukcí, chybné vstupy.

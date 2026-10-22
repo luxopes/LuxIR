@@ -11,6 +11,7 @@ int pic;
 int bare;
 int wasmthreads;
 char *tmpasm;
+char *ldmap;
 
 /* Vnitřní chyba (die): dočasný assembler režimu -x nesmí zůstat. */
 void
@@ -307,7 +308,7 @@ main(int ac, char *av[])
 		puts(LUXIR_VERSION_TEXT);
 		exit(0);
 	}
-	while ((c = getopt(ac, av, "hpgxalbVd:o:t:L:e:")) != -1)
+	while ((c = getopt(ac, av, "hpgxalbVd:o:t:L:e:M:")) != -1)
 		switch (c) {
 		case 'p':
 			pic = 1;
@@ -351,6 +352,9 @@ main(int ac, char *av[])
 			break;
 		case 'e':
 			entry = optarg;
+			break;
+		case 'M':
+			ldmap = optarg;
 			break;
 		case 'L':
 			rtdir = optarg;
@@ -420,6 +424,9 @@ main(int ac, char *av[])
 			exit(linkpe(av + optind, ac - optind, out, 0x8664, entry));
 		if (strcmp(T.name, "arm64_win") == 0)
 			exit(linkpe(av + optind, ac - optind, out, 0xaa64, entry));
+		/* macOS: Mach-O z objektů a libSystem.tbd */
+		if (strcmp(T.name, "amd64_apple") == 0 || strcmp(T.name, "arm64_apple") == 0)
+			exit(linkmacho(av + optind, ac - optind, out, T.name[0] == 'a' && T.name[1] == 'r', entry));
 		if (strncmp(T.name, "amd64", 5) == 0) {
 			is64 = 1;
 			mach = 62;
@@ -487,7 +494,7 @@ main(int ac, char *av[])
 			arch = &AX86_64;
 		else if (strcmp(T.name, "i386") == 0)
 			arch = &AI386;
-		else if (strcmp(T.name, "arm64") == 0 || strcmp(T.name, "arm64_win") == 0)
+		else if (strncmp(T.name, "arm64", 5) == 0)
 			arch = &AARM64;
 		else if (strcmp(T.name, "rv64") == 0)
 			arch = &ARV64;
@@ -497,8 +504,9 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in assembler for %s\n", T.name);
 			exit(1);
 		}
-		/* Windows: objekt COFF */
+		/* Windows: objekt COFF, macOS: Mach-O */
 		acoff = strcmp(T.name, "amd64_win") == 0 || strcmp(T.name, "arm64_win") == 0;
+		amacho = strcmp(T.name, "amd64_apple") == 0 || strcmp(T.name, "arm64_apple") == 0;
 		exit(assemble(av + optind, ac - optind, out, arch));
 	}
 
@@ -597,7 +605,7 @@ main(int ac, char *av[])
 			arch = &AI386;
 			is64 = 0;
 			mach = 3;
-		} else if (strcmp(T.name, "arm64") == 0 || strcmp(T.name, "arm64_win") == 0) {
+		} else if (strncmp(T.name, "arm64", 5) == 0) {
 			arch = &AARM64;
 			is64 = 1;
 			mach = 183;
@@ -613,13 +621,16 @@ main(int ac, char *av[])
 			fprintf(stderr, "luxir: no built-in assembler and linker for %s\n", T.name);
 			exit(1);
 		}
-		/* Windows: objekt COFF a program PE32+ */
+		/* Windows: objekt COFF a program PE32+, macOS: Mach-O */
 		acoff = strcmp(T.name, "amd64_win") == 0 || strcmp(T.name, "arm64_win") == 0;
+		amacho = strcmp(T.name, "amd64_apple") == 0 || strcmp(T.name, "arm64_apple") == 0;
 		rc = assemble(&tmpasm, 1, objpath, arch);
 		luxir_unlink(asmpath);
 		tmpasm = 0;
 		if (rc == 0 && acoff)
 			rc = linkpe(objs, nobj, out, mach == 62 ? 0x8664 : 0xaa64, entry);
+		else if (rc == 0 && amacho)
+			rc = linkmacho(objs, nobj, out, mach == 183, entry);
 		else if (rc == 0)
 			rc = link(objs, nobj, out, is64, mach, pic, bare, entry);
 		luxir_unlink(objpath);

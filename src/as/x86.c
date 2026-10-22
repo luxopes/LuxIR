@@ -293,6 +293,10 @@ addfix(int pos, int size, int kind, int sext, AExpr *e)
 static void
 narrow(AExpr *e, int size)
 {
+	/* LLVM (Mach-O) 32bitovou hodnotu u 16bitové operace nepřevádí
+	 * na zápornou: 0xffffffff dostane imm16, ne imm8 */
+	if (amacho)
+		return;
 	if (size <= 2 && e->sym < 0 && e->add >= 0x80000000 && e->add <= 0xffffffff)
 		e->add -= (int64_t)1 << 32;
 }
@@ -822,7 +826,11 @@ xchg(Opnd *o, int no, char *suf)
 		put(0x90 + (other & 7));
 		return;
 	}
-	if (o[0].kind == OReg)
+	/* dva registry: GNU as dává první operand do pole reg, LLVM druhý
+	 * (Mach-O podle LLVM) */
+	if (amacho && o[0].kind == OReg && o[1].kind == OReg)
+		modrm(w, o[1].reg, &o[0], s16, legacy, 0, size == 1 ? 0x86 : 0x87, -1, -1);
+	else if (o[0].kind == OReg)
 		modrm(w, o[0].reg, &o[1], s16, legacy, 0, size == 1 ? 0x86 : 0x87, -1, -1);
 	else if (o[1].kind == OReg)
 		modrm(w, o[1].reg, &o[0], s16, legacy, 0, size == 1 ? 0x86 : 0x87, -1, -1);

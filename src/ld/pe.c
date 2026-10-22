@@ -313,7 +313,15 @@ pereadobj(char *path, uchar *d, uint64_t len)
 		rptr = perd(h + 24, 4);
 		s->nrel = perd(h + 32, 2);
 		s->ch = perd(h + 36, 4);
+		/* IMAGE_SCN_LNK_NRELOC_OVFL: počet (včetně sebe) v první relokaci */
+		if ((s->ch & 0x01000000) && s->nrel == 0xffff && rptr + 10 <= len) {
+			s->nrel = perd(d + rptr, 4) - 1;
+			rptr += 10;
+		}
 		s->align = (s->ch >> 20) & 15 ? 1u << (((s->ch >> 20) & 15) - 1) : 16;
+		/* arm64: kód aspoň na 4 bajty (LLVM píše .text$… se zarovnáním 1) */
+		if (pemach == 0xaa64 && (s->ch & 0x20) && s->align < 4)
+			s->align = 4;
 		s->out = -1;
 		if (s->ch & 0x80)
 			s->data = 0;
