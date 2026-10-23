@@ -8,7 +8,7 @@ se porovná s .out. Kontroluje se i smlouva obrazu: ET_DYN s PT_INTERP
 
 Použití: dyn_check.py --backend LUXIR [--backend …]
 """
-import argparse, platform, struct, subprocess, sys, tempfile
+import argparse, platform, shutil, struct, subprocess, sys, tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -97,8 +97,20 @@ def main():
                     print('  got     ', r.stdout[:300])
                     print('  expected', expected[:300])
                     failed += 1
-                else:
-                    print(f'ok      {name}')
+                    continue
+                # strip (BFD skládá soubor ze sekcí): interpret a tabulky ld.so
+                # mají vlastní sekce, takže program běží i po strip/objcopy
+                stripped = tmp / 'p-stripped'
+                if shutil.which('strip'):
+                    shutil.copy(exe, stripped)
+                    r = run(['strip', stripped], text=True)
+                    if r.returncode == 0:
+                        r = run([stripped], timeout=60)
+                    if r.returncode or r.stdout != expected:
+                        print(f'FAIL    {name}: after strip: status {r.returncode} {getattr(r, "stderr", b"")[:200]}')
+                        failed += 1
+                        continue
+                print(f'ok      {name}')
     print(f'dyn_check: {failed} failed')
     return 1 if failed else 0
 

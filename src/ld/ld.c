@@ -1475,6 +1475,19 @@ shdr(uchar *p, uint32_t name, uint32_t type, uint64_t flags, uint64_t addr, uint
 	wr(p + 16 + 5 * w, 0, w);
 }
 
+/* hlavička sekce s odkazem (sh_link), sh_info a velikostí položky */
+static void
+shdrx(uchar *p, uint32_t name, uint32_t type, uint64_t flags, uint64_t addr, uint64_t off, uint64_t size, uint64_t align, uint32_t link, uint32_t info, uint64_t entsize)
+{
+	int w;
+
+	w = elf64 ? 8 : 4;
+	shdr(p, name, type, flags, addr, off, size, align);
+	wr(p + 8 + 4 * w, link, 4);
+	wr(p + 12 + 4 * w, info, 4);
+	wr(p + 16 + 5 * w, entsize, w);
+}
+
 /* dynamický program: obsah PLT, GOT, tabulek ld.so a .dynamic */
 static void
 writedynamic(uchar *buf)
@@ -1551,6 +1564,10 @@ writeexe(char *out)
 	ISym *y;
 	static char shstr[] = "\0.text\0.rodata\0.data\0.bss\0.shstrtab";
 	static char bareshstr[] = "\0.text\0.rodata\0.data\0.bss\0.trapstacks\0.stack\0.shstrtab";
+	/* dynamický program: interpret a tabulky ld.so mají vlastní sekce, aby
+	 * je strip/objcopy (BFD skládá soubor ze sekcí) zachoval; data v nich
+	 * leží uvnitř segmentů .rodata a .data, hlavičky sekcí se nepřekrývají */
+	static char dynshstr[] = "\0.text\0.rodata\0.data\0.bss\0.shstrtab\0.interp\0.got\0.dynsym\0.dynstr\0.hash\0.rela.dyn\0.dynamic";
 	uint32_t names[NOut] = {1, 7, 15, 21};
 	char *strs;
 	uint64_t nstrs;
@@ -1559,9 +1576,9 @@ writeexe(char *out)
 	/* bare metal: bez segmentu hlaviček, sekce bez vstupu za .bss;
 	 * dynamický program: PHDR, INTERP a DYNAMIC navíc */
 	phnum = bare ? 4 : dynamic ? 8 : 5;
-	nsh = bare ? NOut + 4 : NOut + 2;
-	strs = bare ? bareshstr : shstr;
-	nstrs = bare ? sizeof bareshstr : sizeof shstr;
+	nsh = bare ? NOut + 4 : dynamic ? NOut + 9 : NOut + 2;
+	strs = bare ? bareshstr : dynamic ? dynshstr : shstr;
+	nstrs = bare ? sizeof bareshstr : dynamic ? sizeof dynshstr : sizeof shstr;
 	phent = elf64 ? 56 : 32;
 	shent = elf64 ? 64 : 40;
 	ehsz = elf64 ? 64 : 52;
@@ -1637,6 +1654,34 @@ writeexe(char *out)
 	memcpy(buf + end, strs, nstrs);
 	p = buf + shoff;
 	shdr(p, 0, 0, 0, 0, 0, 0, 0);
+	if (dynamic) {
+		/* pořadí podle adres: .text .rodata .interp .data .got .dynsym
+		 * .dynstr .hash .rela.dyn .dynamic .bss (.dynsym = 6, .dynstr = 7) */
+		uint64_t rooff = osecs[ORodata].off - osecs[ORodata].addr;
+		uint64_t daoff = osecs[OData].off - osecs[OData].addr;
+		p += shent;
+		shdr(p, 1, 1, osecs[OText].flags, osecs[OText].addr, osecs[OText].off, osecs[OText].size, osecs[OText].align);
+		p += shent;
+		shdr(p, 7, 1, osecs[ORodata].flags, osecs[ORodata].addr, osecs[ORodata].off, interpaddr - osecs[ORodata].addr, osecs[ORodata].align);
+		p += shent;
+		shdr(p, 36, 1, 2, interpaddr, rooff + interpaddr, strlen(interp) + 1, 1);
+		p += shent;
+		shdr(p, 15, 1, osecs[OData].flags, osecs[OData].addr, osecs[OData].off, gotaddr - osecs[OData].addr, osecs[OData].align);
+		p += shent;
+		shdr(p, 44, 1, 3, gotaddr, daoff + gotaddr, 8 * (uint64_t)nimps, 8);
+		p += shent;
+		shdrx(p, 49, 11, 2, dynsymaddr, daoff + dynsymaddr, 24 * ((uint64_t)nimps + 1), 8, 7, 1, 24);
+		p += shent;
+		shdr(p, 57, 3, 2, dynstraddr, daoff + dynstraddr, dynstrsz, 1);
+		p += shent;
+		shdrx(p, 65, 5, 2, hashaddr, daoff + hashaddr, 4 * (2 + 1 + ((uint64_t)nimps + 1)), 8, 6, 0, 4);
+		p += shent;
+		shdrx(p, 71, 4, 2, reladdr, daoff + reladdr, 24 * (uint64_t)nimps, 8, 6, 0, 24);
+		p += shent;
+		shdrx(p, 81, 6, 3, dynaddr, daoff + dynaddr, dynsz, 8, 7, 0, 16);
+		p += shent;
+		shdr(p, 21, 8, osecs[OBss].flags, osecs[OBss].addr, osecs[OBss].off, osecs[OBss].size, osecs[OBss].align);
+	} else
 	for (i=0; i<NOut; i++) {
 		p += shent;
 		shdr(p, names[i], osecs[i].nobits ? 8 : 1, osecs[i].flags, osecs[i].addr, osecs[i].off, osecs[i].size, osecs[i].align);
