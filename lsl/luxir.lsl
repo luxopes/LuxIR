@@ -117285,6 +117285,47 @@ function q_f_ld_ld_shdr(q_a0, q_a1, q_a2, q_a3, q_a4, q_a5, q_a6, q_a7):
 end
 
 # QBE 1.3: ld/ld.c:1480
+function q_f_ld_ld_shdrx(q_a0, q_a1, q_a2, q_a3, q_a4, q_a5, q_a6, q_a7, q_a8, q_a9, q_a10):
+    q_result = 0
+    q_param0 = __lsl_qbe_raw_int(q_a0)
+    q_param1 = __lsl_qbe_raw_int(q_a1)
+    q_param2 = __lsl_qbe_raw_int(q_a2)
+    q_param3 = __lsl_qbe_raw_int(q_a3)
+    q_param4 = __lsl_qbe_raw_int(q_a4)
+    q_param5 = __lsl_qbe_raw_int(q_a5)
+    q_param6 = __lsl_qbe_raw_int(q_a6)
+    q_param7 = __lsl_qbe_raw_int(q_a7)
+    q_param8 = __lsl_qbe_raw_int(q_a8)
+    q_param9 = __lsl_qbe_raw_int(q_a9)
+    q_param10 = __lsl_qbe_raw_int(q_a10)
+    q_s1_w = 0
+    call __lsl_qbe_label(2)
+    q_v1 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 3, 4)
+    call __lsl_qbe_label(3)
+    q_v1 = 8
+    call __lsl_qbe_jump(5)
+    call __lsl_qbe_label(4)
+    q_v1 = 4
+    call __lsl_qbe_label(5)
+    q_v3 = q_v1
+    q_s1_w = q_v3
+    q_v20 = q_f_ld_ld_shdr(q_param0, q_param1, q_param2, q_param3, q_param4, q_param5, q_param6, q_param7)
+    q_v22 = q_s1_w
+    q_v23 = ((q_param0 + (8 * 1)) + (__lsl_qbe_s32((4 * q_v22)) * 1))
+    q_v27 = q_f_ld_ld_wr(q_v23, q_param8, 4)
+    q_v29 = q_s1_w
+    q_v30 = ((q_param0 + (12 * 1)) + (__lsl_qbe_s32((4 * q_v29)) * 1))
+    q_v34 = q_f_ld_ld_wr(q_v30, q_param9, 4)
+    q_v36 = q_s1_w
+    q_v37 = ((q_param0 + (16 * 1)) + (__lsl_qbe_s32((5 * q_v36)) * 1))
+    q_v40 = q_s1_w
+    q_v42 = q_f_ld_ld_wr(q_v37, q_param10, q_v40)
+    call __lsl_qbe_label(1)
+    return q_result
+end
+
+# QBE 1.3: ld/ld.c:1493
 function q_f_ld_ld_writedynamic(q_a0):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -117537,7 +117578,7 @@ function q_f_ld_ld_writedynamic(q_a0):
     return q_result
 end
 
-# QBE 1.3: ld/ld.c:1544
+# QBE 1.3: ld/ld.c:1557
 function q_f_ld_ld_writeexe(q_a0):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -117557,16 +117598,18 @@ function q_f_ld_ld_writeexe(q_a0):
     q_s14_gi = 0
     q_s15_g = 0
     q_s16_y = 0
-    q_s19_names = __lsl_qbe_alloc(16)
-    q_s20_strs = 0
-    q_s21_nstrs = 0
-    q_s22_nsh = 0
+    q_s20_names = __lsl_qbe_alloc(16)
+    q_s21_strs = 0
+    q_s22_nstrs = 0
+    q_s23_nsh = 0
+    q_s24_rooff = 0
+    q_s25_daoff = 0
     call __lsl_qbe_label(2)
-    call __lsl_qbe_zero(q_s19_names, 16)
-    call __lsl_qbe_store32((q_s19_names + 0), 1)
-    call __lsl_qbe_store32((q_s19_names + 4), 7)
-    call __lsl_qbe_store32((q_s19_names + 8), 15)
-    call __lsl_qbe_store32((q_s19_names + 12), 21)
+    call __lsl_qbe_zero(q_s20_names, 16)
+    call __lsl_qbe_store32((q_s20_names + 0), 1)
+    call __lsl_qbe_store32((q_s20_names + 4), 7)
+    call __lsl_qbe_store32((q_s20_names + 8), 15)
+    call __lsl_qbe_store32((q_s20_names + 12), 21)
     q_v1 = 0
     call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 3, 4)
     call __lsl_qbe_label(3)
@@ -117591,547 +117634,726 @@ function q_f_ld_ld_writeexe(q_a0):
     q_v6 = __lsl_qbe_s32((4 + 4))
     call __lsl_qbe_jump(11)
     call __lsl_qbe_label(10)
-    q_v6 = __lsl_qbe_s32((4 + 2))
-    call __lsl_qbe_label(11)
-    q_v8 = q_v6
-    q_s22_nsh = q_v8
-    q_v9 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 12, 13)
+    q_v8 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 12, 13)
     call __lsl_qbe_label(12)
-    q_v9 = q_f_ld_ld_writeexe_q_s18_bareshstr
+    q_v8 = __lsl_qbe_s32((4 + 9))
     call __lsl_qbe_jump(14)
     call __lsl_qbe_label(13)
-    q_v9 = q_f_ld_ld_writeexe_q_s17_shstr
+    q_v8 = __lsl_qbe_s32((4 + 2))
     call __lsl_qbe_label(14)
-    q_v11 = q_v9
-    q_s20_strs = q_v11
-    q_v12 = 0
+    q_v6 = q_v8
+    call __lsl_qbe_label(11)
+    q_v10 = q_v6
+    q_s23_nsh = q_v10
+    q_v11 = 0
     call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 15, 16)
     call __lsl_qbe_label(15)
-    q_v12 = 55
+    q_v11 = q_f_ld_ld_writeexe_q_s18_bareshstr
     call __lsl_qbe_jump(17)
     call __lsl_qbe_label(16)
-    q_v12 = 36
-    call __lsl_qbe_label(17)
-    q_v14 = q_v12
-    q_s21_nstrs = q_v14
-    q_v15 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 18, 19)
+    q_v13 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 18, 19)
     call __lsl_qbe_label(18)
-    q_v15 = 56
+    q_v13 = q_f_ld_ld_writeexe_q_s19_dynshstr
     call __lsl_qbe_jump(20)
     call __lsl_qbe_label(19)
-    q_v15 = 32
+    q_v13 = q_f_ld_ld_writeexe_q_s17_shstr
     call __lsl_qbe_label(20)
-    q_v17 = q_v15
-    q_s10_phent = q_v17
-    q_v18 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 21, 22)
+    q_v11 = q_v13
+    call __lsl_qbe_label(17)
+    q_v15 = q_v11
+    q_s21_strs = q_v15
+    q_v16 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 21, 22)
     call __lsl_qbe_label(21)
-    q_v18 = 64
+    q_v16 = 55
     call __lsl_qbe_jump(23)
     call __lsl_qbe_label(22)
-    q_v18 = 40
-    call __lsl_qbe_label(23)
-    q_v20 = q_v18
-    q_s11_shent = q_v20
-    q_v21 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 24, 25)
+    q_v18 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 24, 25)
     call __lsl_qbe_label(24)
-    q_v21 = 64
+    q_v18 = 90
     call __lsl_qbe_jump(26)
     call __lsl_qbe_label(25)
-    q_v21 = 52
+    q_v18 = 36
     call __lsl_qbe_label(26)
-    q_v23 = q_v21
-    q_s12_ehsz = q_v23
-    q_v24 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v25 = __lsl_qbe_load64((q_v24 + 32))
-    q_v26 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v27 = __lsl_qbe_load64((q_v26 + 40))
-    q_v28 = (q_v25 + q_v27)
-    q_s8_end = q_v28
-    q_v29 = q_s8_end
-    q_v30 = q_s21_nstrs
-    q_v31 = (q_v29 + q_v30)
-    q_v33 = q_f_ld_ld_alignup(q_v31, 8)
-    q_v34 = __lsl_qbe_raw_int(q_v33)
-    q_s5_shoff = q_v34
-    q_v35 = q_s5_shoff
-    q_v36 = q_s22_nsh
-    q_v37 = q_s11_shent
-    q_v38 = (q_v35 + __lsl_qbe_s32((q_v36 * q_v37)))
-    q_s4_total = q_v38
-    q_v39 = q_s4_total
-    q_v41 = q_f_emalloc(q_v39)
-    q_v42 = __lsl_qbe_raw_int(q_v41)
-    q_s1_buf = q_v42
-    q_v43 = q_s1_buf
-    q_v46 = q_s4_total
-    q_v48 = mem.memset(q_v43, 0, q_v46)
-    q_v49 = q_s1_buf
-    q_v51 = q_f_ld_ld_relocate(q_v49)
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 27, 28)
+    q_v16 = q_v18
+    call __lsl_qbe_label(23)
+    q_v20 = q_v16
+    q_s22_nstrs = q_v20
+    q_v21 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 27, 28)
     call __lsl_qbe_label(27)
-    q_v53 = q_s1_buf
-    q_v55 = q_f_ld_ld_writedynamic(q_v53)
+    q_v21 = 56
     call __lsl_qbe_jump(29)
     call __lsl_qbe_label(28)
+    q_v21 = 32
     call __lsl_qbe_label(29)
-    q_v56 = __lsl_qbe_load64(q_g_ld_ld_entryname)
-    q_v58 = q_f_ld_ld_findg(q_v56)
-    q_v59 = __lsl_qbe_raw_int(q_v58)
-    q_s14_gi = q_v59
-    q_v60 = __lsl_qbe_load64(q_g_ld_ld_gsyms)
-    q_v61 = q_s14_gi
-    q_v62 = (q_v60 + (q_v61 * 64))
-    q_s15_g = q_v62
-    q_v64 = q_s15_g
-    q_v65 = __lsl_qbe_load64((q_v64 + 8))
-    q_v66 = __lsl_qbe_load64((q_v65 + 40))
-    q_v67 = q_s15_g
-    q_v68 = __lsl_qbe_s32(__lsl_qbe_load32((q_v67 + 16)))
-    q_v69 = (q_v66 + (q_v68 * 40))
-    q_s16_y = q_v69
-    q_v71 = q_s15_g
-    q_v72 = __lsl_qbe_load64((q_v71 + 8))
-    q_v73 = __lsl_qbe_load64((q_v72 + 24))
-    q_v74 = q_s16_y
-    q_v75 = __lsl_qbe_s32(__lsl_qbe_load32((q_v74 + 32)))
-    q_v76 = (q_v73 + (q_v75 * 88))
-    q_v77 = __lsl_qbe_load64((q_v76 + 72))
-    q_v78 = q_s16_y
-    q_v79 = __lsl_qbe_load64((q_v78 + 8))
-    q_v80 = (q_v77 + q_v79)
-    q_s6_entry = q_v80
-    q_v81 = q_s1_buf
-    q_v85 = __lsl_qbe_copy(q_v81, q_string_1382, 4)
-    q_v86 = q_s1_buf
-    q_v87 = (q_v86 + (4 * 1))
-    q_v88 = 0
+    q_v23 = q_v21
+    q_s10_phent = q_v23
+    q_v24 = 0
     call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 30, 31)
     call __lsl_qbe_label(30)
-    q_v88 = 2
+    q_v24 = 64
     call __lsl_qbe_jump(32)
     call __lsl_qbe_label(31)
-    q_v88 = 1
+    q_v24 = 40
     call __lsl_qbe_label(32)
-    q_v90 = __lsl_qbe_u8(q_v88)
-    call __lsl_qbe_store8(q_v87, q_v90)
-    q_v91 = q_s1_buf
-    q_v92 = (q_v91 + (5 * 1))
-    call __lsl_qbe_store8(q_v92, 1)
-    q_v94 = q_s1_buf
-    q_v95 = (q_v94 + (6 * 1))
-    call __lsl_qbe_store8(q_v95, 1)
-    q_v97 = q_s1_buf
-    q_v98 = (q_v97 + (16 * 1))
-    q_v99 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_pie)), 33, 34)
+    q_v26 = q_v24
+    q_s11_shent = q_v26
+    q_v27 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 33, 34)
     call __lsl_qbe_label(33)
-    q_v99 = 3
+    q_v27 = 64
     call __lsl_qbe_jump(35)
     call __lsl_qbe_label(34)
-    q_v99 = 2
+    q_v27 = 52
     call __lsl_qbe_label(35)
-    q_v101 = q_v99
-    q_v103 = q_f_ld_ld_wr(q_v98, q_v101, 2)
-    q_v104 = q_s1_buf
-    q_v105 = (q_v104 + (18 * 1))
-    q_v106 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
-    q_v109 = q_f_ld_ld_wr(q_v105, q_v106, 2)
-    q_v110 = q_s1_buf
-    q_v111 = (q_v110 + (20 * 1))
-    q_v114 = q_f_ld_ld_wr(q_v111, 1, 4)
-    q_v115 = q_s1_buf
-    q_v116 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 36, 37)
+    q_v29 = q_v27
+    q_s12_ehsz = q_v29
+    q_v30 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v31 = __lsl_qbe_load64((q_v30 + 32))
+    q_v32 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v33 = __lsl_qbe_load64((q_v32 + 40))
+    q_v34 = (q_v31 + q_v33)
+    q_s8_end = q_v34
+    q_v35 = q_s8_end
+    q_v36 = q_s22_nstrs
+    q_v37 = (q_v35 + q_v36)
+    q_v39 = q_f_ld_ld_alignup(q_v37, 8)
+    q_v40 = __lsl_qbe_raw_int(q_v39)
+    q_s5_shoff = q_v40
+    q_v41 = q_s5_shoff
+    q_v42 = q_s23_nsh
+    q_v43 = q_s11_shent
+    q_v44 = (q_v41 + __lsl_qbe_s32((q_v42 * q_v43)))
+    q_s4_total = q_v44
+    q_v45 = q_s4_total
+    q_v47 = q_f_emalloc(q_v45)
+    q_v48 = __lsl_qbe_raw_int(q_v47)
+    q_s1_buf = q_v48
+    q_v49 = q_s1_buf
+    q_v52 = q_s4_total
+    q_v54 = mem.memset(q_v49, 0, q_v52)
+    q_v55 = q_s1_buf
+    q_v57 = q_f_ld_ld_relocate(q_v55)
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 36, 37)
     call __lsl_qbe_label(36)
-    q_v116 = 48
+    q_v59 = q_s1_buf
+    q_v61 = q_f_ld_ld_writedynamic(q_v59)
     call __lsl_qbe_jump(38)
     call __lsl_qbe_label(37)
-    q_v116 = 36
     call __lsl_qbe_label(38)
-    q_v118 = (q_v115 + (q_v116 * 1))
-    q_v119 = 0
-    q_v120 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
-    call __lsl_qbe_branch(Int(q_v120 == 243), 39, 40)
+    q_v62 = __lsl_qbe_load64(q_g_ld_ld_entryname)
+    q_v64 = q_f_ld_ld_findg(q_v62)
+    q_v65 = __lsl_qbe_raw_int(q_v64)
+    q_s14_gi = q_v65
+    q_v66 = __lsl_qbe_load64(q_g_ld_ld_gsyms)
+    q_v67 = q_s14_gi
+    q_v68 = (q_v66 + (q_v67 * 64))
+    q_s15_g = q_v68
+    q_v70 = q_s15_g
+    q_v71 = __lsl_qbe_load64((q_v70 + 8))
+    q_v72 = __lsl_qbe_load64((q_v71 + 40))
+    q_v73 = q_s15_g
+    q_v74 = __lsl_qbe_s32(__lsl_qbe_load32((q_v73 + 16)))
+    q_v75 = (q_v72 + (q_v74 * 40))
+    q_s16_y = q_v75
+    q_v77 = q_s15_g
+    q_v78 = __lsl_qbe_load64((q_v77 + 8))
+    q_v79 = __lsl_qbe_load64((q_v78 + 24))
+    q_v80 = q_s16_y
+    q_v81 = __lsl_qbe_s32(__lsl_qbe_load32((q_v80 + 32)))
+    q_v82 = (q_v79 + (q_v81 * 88))
+    q_v83 = __lsl_qbe_load64((q_v82 + 72))
+    q_v84 = q_s16_y
+    q_v85 = __lsl_qbe_load64((q_v84 + 8))
+    q_v86 = (q_v83 + q_v85)
+    q_s6_entry = q_v86
+    q_v87 = q_s1_buf
+    q_v91 = __lsl_qbe_copy(q_v87, q_string_1382, 4)
+    q_v92 = q_s1_buf
+    q_v93 = (q_v92 + (4 * 1))
+    q_v94 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 39, 40)
     call __lsl_qbe_label(39)
-    q_v119 = 4
+    q_v94 = 2
     call __lsl_qbe_jump(41)
     call __lsl_qbe_label(40)
-    q_v121 = 0
-    q_v122 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
-    call __lsl_qbe_branch(Int(q_v122 == 40), 42, 43)
+    q_v94 = 1
+    call __lsl_qbe_label(41)
+    q_v96 = __lsl_qbe_u8(q_v94)
+    call __lsl_qbe_store8(q_v93, q_v96)
+    q_v97 = q_s1_buf
+    q_v98 = (q_v97 + (5 * 1))
+    call __lsl_qbe_store8(q_v98, 1)
+    q_v100 = q_s1_buf
+    q_v101 = (q_v100 + (6 * 1))
+    call __lsl_qbe_store8(q_v101, 1)
+    q_v103 = q_s1_buf
+    q_v104 = (q_v103 + (16 * 1))
+    q_v105 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_pie)), 42, 43)
     call __lsl_qbe_label(42)
-    q_v121 = 83887104
+    q_v105 = 3
     call __lsl_qbe_jump(44)
     call __lsl_qbe_label(43)
-    q_v121 = 0
+    q_v105 = 2
     call __lsl_qbe_label(44)
-    q_v119 = q_v121
-    call __lsl_qbe_label(41)
-    q_v123 = q_v119
-    q_v125 = q_f_ld_ld_wr(q_v118, q_v123, 4)
+    q_v107 = q_v105
+    q_v109 = q_f_ld_ld_wr(q_v104, q_v107, 2)
+    q_v110 = q_s1_buf
+    q_v111 = (q_v110 + (18 * 1))
+    q_v112 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
+    q_v115 = q_f_ld_ld_wr(q_v111, q_v112, 2)
+    q_v116 = q_s1_buf
+    q_v117 = (q_v116 + (20 * 1))
+    q_v120 = q_f_ld_ld_wr(q_v117, 1, 4)
+    q_v121 = q_s1_buf
+    q_v122 = 0
     call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 45, 46)
     call __lsl_qbe_label(45)
-    q_v127 = q_s1_buf
-    q_v128 = (q_v127 + (24 * 1))
-    q_v129 = q_s6_entry
-    q_v132 = q_f_ld_ld_wr(q_v128, q_v129, 8)
-    q_v133 = q_s1_buf
-    q_v134 = (q_v133 + (32 * 1))
-    q_v137 = q_f_ld_ld_wr(q_v134, 64, 8)
-    q_v138 = q_s1_buf
-    q_v139 = (q_v138 + (40 * 1))
-    q_v140 = q_s5_shoff
-    q_v143 = q_f_ld_ld_wr(q_v139, q_v140, 8)
-    q_v144 = q_s1_buf
-    q_v145 = (q_v144 + (52 * 1))
-    q_v148 = q_f_ld_ld_wr(q_v145, 64, 2)
-    q_v149 = q_s1_buf
-    q_v150 = (q_v149 + (54 * 1))
-    q_v151 = q_s10_phent
-    q_v154 = q_f_ld_ld_wr(q_v150, q_v151, 2)
-    q_v155 = q_s1_buf
-    q_v156 = (q_v155 + (56 * 1))
-    q_v157 = q_s9_phnum
-    q_v160 = q_f_ld_ld_wr(q_v156, q_v157, 2)
-    q_v161 = q_s1_buf
-    q_v162 = (q_v161 + (58 * 1))
-    q_v163 = q_s11_shent
-    q_v166 = q_f_ld_ld_wr(q_v162, q_v163, 2)
-    q_v167 = q_s1_buf
-    q_v168 = (q_v167 + (60 * 1))
-    q_v169 = q_s22_nsh
-    q_v172 = q_f_ld_ld_wr(q_v168, q_v169, 2)
-    q_v173 = q_s1_buf
-    q_v174 = (q_v173 + (62 * 1))
-    q_v175 = q_s22_nsh
-    q_v176 = __lsl_qbe_s32((q_v175 - 1))
-    q_v178 = q_f_ld_ld_wr(q_v174, q_v176, 2)
+    q_v122 = 48
     call __lsl_qbe_jump(47)
     call __lsl_qbe_label(46)
-    q_v179 = q_s1_buf
-    q_v180 = (q_v179 + (24 * 1))
-    q_v181 = q_s6_entry
-    q_v184 = q_f_ld_ld_wr(q_v180, q_v181, 4)
-    q_v185 = q_s1_buf
-    q_v186 = (q_v185 + (28 * 1))
-    q_v189 = q_f_ld_ld_wr(q_v186, 52, 4)
-    q_v190 = q_s1_buf
-    q_v191 = (q_v190 + (32 * 1))
-    q_v192 = q_s5_shoff
-    q_v195 = q_f_ld_ld_wr(q_v191, q_v192, 4)
-    q_v196 = q_s1_buf
-    q_v197 = (q_v196 + (40 * 1))
-    q_v200 = q_f_ld_ld_wr(q_v197, 52, 2)
-    q_v201 = q_s1_buf
-    q_v202 = (q_v201 + (42 * 1))
-    q_v203 = q_s10_phent
-    q_v206 = q_f_ld_ld_wr(q_v202, q_v203, 2)
-    q_v207 = q_s1_buf
-    q_v208 = (q_v207 + (44 * 1))
-    q_v209 = q_s9_phnum
-    q_v212 = q_f_ld_ld_wr(q_v208, q_v209, 2)
-    q_v213 = q_s1_buf
-    q_v214 = (q_v213 + (46 * 1))
-    q_v215 = q_s11_shent
-    q_v218 = q_f_ld_ld_wr(q_v214, q_v215, 2)
-    q_v219 = q_s1_buf
-    q_v220 = (q_v219 + (48 * 1))
-    q_v221 = q_s22_nsh
-    q_v224 = q_f_ld_ld_wr(q_v220, q_v221, 2)
-    q_v225 = q_s1_buf
-    q_v226 = (q_v225 + (50 * 1))
-    q_v227 = q_s22_nsh
-    q_v228 = __lsl_qbe_s32((q_v227 - 1))
-    q_v230 = q_f_ld_ld_wr(q_v226, q_v228, 2)
+    q_v122 = 36
     call __lsl_qbe_label(47)
-    q_v231 = q_s1_buf
-    q_v232 = q_s12_ehsz
-    q_v233 = (q_v231 + (q_v232 * 1))
-    q_s2_p = q_v233
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 48, 49)
+    q_v124 = (q_v121 + (q_v122 * 1))
+    q_v125 = 0
+    q_v126 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
+    call __lsl_qbe_branch(Int(q_v126 == 243), 48, 49)
     call __lsl_qbe_label(48)
-    q_v235 = q_s2_p
-    q_v239 = q_s12_ehsz
-    q_v241 = __lsl_qbe_load64(q_g_ld_ld_base)
-    q_v242 = q_s12_ehsz
-    q_v243 = (q_v241 + q_v242)
-    q_v244 = q_s9_phnum
-    q_v245 = q_s10_phent
-    q_v246 = __lsl_qbe_s32((q_v244 * q_v245))
-    q_v247 = q_s9_phnum
-    q_v248 = q_s10_phent
-    q_v249 = __lsl_qbe_s32((q_v247 * q_v248))
-    q_v251 = q_f_ld_ld_phdr(q_v235, 6, 4, q_v239, q_v243, q_v246, q_v249, 8)
-    q_v252 = q_s10_phent
-    q_v253 = (q_s2_p + (q_v252 * 1))
-    q_s2_p = q_v253
-    q_v254 = q_s2_p
-    q_v258 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v259 = __lsl_qbe_load64((q_v258 + 32))
-    q_v260 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
-    q_v261 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v262 = __lsl_qbe_load64((q_v261 + 24))
-    q_v263 = (q_v259 + (q_v260 - q_v262))
-    q_v264 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
-    q_v266 = __lsl_qbe_load64(q_g_ld_ld_interp)
-    q_v268 = mem.strlen(q_v266)
-    q_v269 = (__lsl_qbe_raw_int(q_v268) + 1)
-    q_v270 = __lsl_qbe_load64(q_g_ld_ld_interp)
-    q_v272 = mem.strlen(q_v270)
-    q_v273 = (__lsl_qbe_raw_int(q_v272) + 1)
-    q_v275 = q_f_ld_ld_phdr(q_v254, 3, 4, q_v263, q_v264, q_v269, q_v273, 1)
-    q_v276 = q_s10_phent
-    q_v277 = (q_s2_p + (q_v276 * 1))
-    q_s2_p = q_v277
+    q_v125 = 4
     call __lsl_qbe_jump(50)
     call __lsl_qbe_label(49)
-    call __lsl_qbe_label(50)
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 52, 51)
+    q_v127 = 0
+    q_v128 = __lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_machine))
+    call __lsl_qbe_branch(Int(q_v128 == 40), 51, 52)
     call __lsl_qbe_label(51)
-    q_v279 = q_s2_p
-    q_v284 = __lsl_qbe_load64(q_g_ld_ld_base)
-    q_v286 = q_s12_ehsz
-    q_v287 = q_s9_phnum
-    q_v288 = q_s10_phent
-    q_v289 = __lsl_qbe_s32((q_v286 + __lsl_qbe_s32((q_v287 * q_v288))))
-    q_v290 = q_s12_ehsz
-    q_v291 = q_s9_phnum
-    q_v292 = q_s10_phent
-    q_v293 = __lsl_qbe_s32((q_v290 + __lsl_qbe_s32((q_v291 * q_v292))))
-    q_v294 = __lsl_qbe_load64(q_g_ld_ld_page)
-    q_v296 = q_f_ld_ld_phdr(q_v279, 1, 4, 0, q_v284, q_v289, q_v293, q_v294)
-    q_v297 = q_s10_phent
-    q_v298 = (q_s2_p + (q_v297 * 1))
-    q_s2_p = q_v298
+    q_v127 = 83887104
     call __lsl_qbe_jump(53)
     call __lsl_qbe_label(52)
+    q_v127 = 0
     call __lsl_qbe_label(53)
-    q_v299 = q_s2_p
-    q_v303 = (q_g_ld_ld_osecs + (0 * 56))
-    q_v304 = __lsl_qbe_load64((q_v303 + 32))
-    q_v306 = (q_g_ld_ld_osecs + (0 * 56))
-    q_v307 = __lsl_qbe_load64((q_v306 + 24))
-    q_v309 = (q_g_ld_ld_osecs + (0 * 56))
-    q_v310 = __lsl_qbe_load64((q_v309 + 40))
-    q_v312 = (q_g_ld_ld_osecs + (0 * 56))
-    q_v313 = __lsl_qbe_load64((q_v312 + 40))
-    q_v315 = __lsl_qbe_load64(q_g_ld_ld_page)
-    q_v317 = q_f_ld_ld_phdr(q_v299, 1, 5, q_v304, q_v307, q_v310, q_v313, q_v315)
-    q_v318 = q_s10_phent
-    q_v319 = (q_s2_p + (q_v318 * 1))
-    q_s2_p = q_v319
-    q_v320 = q_s2_p
-    q_v324 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v325 = __lsl_qbe_load64((q_v324 + 32))
-    q_v327 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v328 = __lsl_qbe_load64((q_v327 + 24))
-    q_v330 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v331 = __lsl_qbe_load64((q_v330 + 40))
-    q_v333 = (q_g_ld_ld_osecs + (1 * 56))
-    q_v334 = __lsl_qbe_load64((q_v333 + 40))
-    q_v336 = __lsl_qbe_load64(q_g_ld_ld_page)
-    q_v338 = q_f_ld_ld_phdr(q_v320, 1, 4, q_v325, q_v328, q_v331, q_v334, q_v336)
-    q_v339 = q_s10_phent
-    q_v340 = (q_s2_p + (q_v339 * 1))
-    q_s2_p = q_v340
-    q_v341 = q_s2_p
-    q_v342 = q_v341
-    q_v345 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v346 = __lsl_qbe_load64((q_v345 + 32))
-    q_v347 = q_v346
-    q_v348 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v349 = __lsl_qbe_load64((q_v348 + 24))
-    q_v350 = q_v349
-    q_v351 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v352 = __lsl_qbe_load64((q_v351 + 40))
-    q_v353 = q_v352
-    q_v354 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 54, 55)
+    q_v125 = q_v127
+    call __lsl_qbe_label(50)
+    q_v129 = q_v125
+    q_v131 = q_f_ld_ld_wr(q_v124, q_v129, 4)
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_elf64)), 54, 55)
     call __lsl_qbe_label(54)
-    q_v356 = (q_g_ld_ld_barevals + (7 * 8))
-    q_v357 = __lsl_qbe_load64(q_v356)
-    q_v354 = q_v357
+    q_v133 = q_s1_buf
+    q_v134 = (q_v133 + (24 * 1))
+    q_v135 = q_s6_entry
+    q_v138 = q_f_ld_ld_wr(q_v134, q_v135, 8)
+    q_v139 = q_s1_buf
+    q_v140 = (q_v139 + (32 * 1))
+    q_v143 = q_f_ld_ld_wr(q_v140, 64, 8)
+    q_v144 = q_s1_buf
+    q_v145 = (q_v144 + (40 * 1))
+    q_v146 = q_s5_shoff
+    q_v149 = q_f_ld_ld_wr(q_v145, q_v146, 8)
+    q_v150 = q_s1_buf
+    q_v151 = (q_v150 + (52 * 1))
+    q_v154 = q_f_ld_ld_wr(q_v151, 64, 2)
+    q_v155 = q_s1_buf
+    q_v156 = (q_v155 + (54 * 1))
+    q_v157 = q_s10_phent
+    q_v160 = q_f_ld_ld_wr(q_v156, q_v157, 2)
+    q_v161 = q_s1_buf
+    q_v162 = (q_v161 + (56 * 1))
+    q_v163 = q_s9_phnum
+    q_v166 = q_f_ld_ld_wr(q_v162, q_v163, 2)
+    q_v167 = q_s1_buf
+    q_v168 = (q_v167 + (58 * 1))
+    q_v169 = q_s11_shent
+    q_v172 = q_f_ld_ld_wr(q_v168, q_v169, 2)
+    q_v173 = q_s1_buf
+    q_v174 = (q_v173 + (60 * 1))
+    q_v175 = q_s23_nsh
+    q_v178 = q_f_ld_ld_wr(q_v174, q_v175, 2)
+    q_v179 = q_s1_buf
+    q_v180 = (q_v179 + (62 * 1))
+    q_v181 = q_s23_nsh
+    q_v182 = __lsl_qbe_s32((q_v181 - 1))
+    q_v184 = q_f_ld_ld_wr(q_v180, q_v182, 2)
     call __lsl_qbe_jump(56)
     call __lsl_qbe_label(55)
-    q_v358 = (q_g_ld_ld_osecs + (3 * 56))
-    q_v359 = __lsl_qbe_load64((q_v358 + 24))
-    q_v360 = (q_g_ld_ld_osecs + (3 * 56))
-    q_v361 = __lsl_qbe_load64((q_v360 + 40))
-    q_v354 = (q_v359 + q_v361)
+    q_v185 = q_s1_buf
+    q_v186 = (q_v185 + (24 * 1))
+    q_v187 = q_s6_entry
+    q_v190 = q_f_ld_ld_wr(q_v186, q_v187, 4)
+    q_v191 = q_s1_buf
+    q_v192 = (q_v191 + (28 * 1))
+    q_v195 = q_f_ld_ld_wr(q_v192, 52, 4)
+    q_v196 = q_s1_buf
+    q_v197 = (q_v196 + (32 * 1))
+    q_v198 = q_s5_shoff
+    q_v201 = q_f_ld_ld_wr(q_v197, q_v198, 4)
+    q_v202 = q_s1_buf
+    q_v203 = (q_v202 + (40 * 1))
+    q_v206 = q_f_ld_ld_wr(q_v203, 52, 2)
+    q_v207 = q_s1_buf
+    q_v208 = (q_v207 + (42 * 1))
+    q_v209 = q_s10_phent
+    q_v212 = q_f_ld_ld_wr(q_v208, q_v209, 2)
+    q_v213 = q_s1_buf
+    q_v214 = (q_v213 + (44 * 1))
+    q_v215 = q_s9_phnum
+    q_v218 = q_f_ld_ld_wr(q_v214, q_v215, 2)
+    q_v219 = q_s1_buf
+    q_v220 = (q_v219 + (46 * 1))
+    q_v221 = q_s11_shent
+    q_v224 = q_f_ld_ld_wr(q_v220, q_v221, 2)
+    q_v225 = q_s1_buf
+    q_v226 = (q_v225 + (48 * 1))
+    q_v227 = q_s23_nsh
+    q_v230 = q_f_ld_ld_wr(q_v226, q_v227, 2)
+    q_v231 = q_s1_buf
+    q_v232 = (q_v231 + (50 * 1))
+    q_v233 = q_s23_nsh
+    q_v234 = __lsl_qbe_s32((q_v233 - 1))
+    q_v236 = q_f_ld_ld_wr(q_v232, q_v234, 2)
     call __lsl_qbe_label(56)
-    q_v362 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v363 = __lsl_qbe_load64((q_v362 + 24))
-    q_v364 = (q_v354 - q_v363)
-    q_v365 = __lsl_qbe_load64(q_g_ld_ld_page)
-    q_v367 = q_f_ld_ld_phdr(q_v342, 1, 6, q_v347, q_v350, q_v353, q_v364, q_v365)
-    q_v368 = q_s10_phent
-    q_v369 = (q_s2_p + (q_v368 * 1))
-    q_s2_p = q_v369
+    q_v237 = q_s1_buf
+    q_v238 = q_s12_ehsz
+    q_v239 = (q_v237 + (q_v238 * 1))
+    q_s2_p = q_v239
     call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 57, 58)
     call __lsl_qbe_label(57)
-    q_v371 = q_s2_p
-    q_v375 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v376 = __lsl_qbe_load64((q_v375 + 32))
-    q_v377 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
-    q_v378 = (q_g_ld_ld_osecs + (2 * 56))
-    q_v379 = __lsl_qbe_load64((q_v378 + 24))
-    q_v380 = (q_v376 + (q_v377 - q_v379))
-    q_v381 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
-    q_v383 = __lsl_qbe_load64(q_g_ld_ld_dynsz)
-    q_v385 = __lsl_qbe_load64(q_g_ld_ld_dynsz)
-    q_v388 = q_f_ld_ld_phdr(q_v371, 2, 6, q_v380, q_v381, q_v383, q_v385, 8)
-    q_v389 = q_s10_phent
-    q_v390 = (q_s2_p + (q_v389 * 1))
-    q_s2_p = q_v390
+    q_v241 = q_s2_p
+    q_v245 = q_s12_ehsz
+    q_v247 = __lsl_qbe_load64(q_g_ld_ld_base)
+    q_v248 = q_s12_ehsz
+    q_v249 = (q_v247 + q_v248)
+    q_v250 = q_s9_phnum
+    q_v251 = q_s10_phent
+    q_v252 = __lsl_qbe_s32((q_v250 * q_v251))
+    q_v253 = q_s9_phnum
+    q_v254 = q_s10_phent
+    q_v255 = __lsl_qbe_s32((q_v253 * q_v254))
+    q_v257 = q_f_ld_ld_phdr(q_v241, 6, 4, q_v245, q_v249, q_v252, q_v255, 8)
+    q_v258 = q_s10_phent
+    q_v259 = (q_s2_p + (q_v258 * 1))
+    q_s2_p = q_v259
+    q_v260 = q_s2_p
+    q_v264 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v265 = __lsl_qbe_load64((q_v264 + 32))
+    q_v266 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
+    q_v267 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v268 = __lsl_qbe_load64((q_v267 + 24))
+    q_v269 = (q_v265 + (q_v266 - q_v268))
+    q_v270 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
+    q_v272 = __lsl_qbe_load64(q_g_ld_ld_interp)
+    q_v274 = mem.strlen(q_v272)
+    q_v275 = (__lsl_qbe_raw_int(q_v274) + 1)
+    q_v276 = __lsl_qbe_load64(q_g_ld_ld_interp)
+    q_v278 = mem.strlen(q_v276)
+    q_v279 = (__lsl_qbe_raw_int(q_v278) + 1)
+    q_v281 = q_f_ld_ld_phdr(q_v260, 3, 4, q_v269, q_v270, q_v275, q_v279, 1)
+    q_v282 = q_s10_phent
+    q_v283 = (q_s2_p + (q_v282 * 1))
+    q_s2_p = q_v283
     call __lsl_qbe_jump(59)
     call __lsl_qbe_label(58)
     call __lsl_qbe_label(59)
-    q_v391 = q_s2_p
-    q_v400 = q_f_ld_ld_phdr(q_v391, 1685382481, 6, 0, 0, 0, 0, 16)
-    q_v401 = q_s1_buf
-    q_v402 = q_s8_end
-    q_v403 = (q_v401 + (q_v402 * 1))
-    q_v404 = q_s20_strs
-    q_v406 = q_s21_nstrs
-    q_v408 = mem.memcpy(q_v403, q_v404, q_v406)
-    q_v409 = q_s1_buf
-    q_v410 = q_s5_shoff
-    q_v411 = (q_v409 + (q_v410 * 1))
-    q_s2_p = q_v411
-    q_v412 = q_s2_p
-    q_v421 = q_f_ld_ld_shdr(q_v412, 0, 0, 0, 0, 0, 0, 0)
-    q_s13_i = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 61, 60)
     call __lsl_qbe_label(60)
-    q_v423 = q_s13_i
-    call __lsl_qbe_branch(Int(q_v423 < 4), 61, 63)
+    q_v285 = q_s2_p
+    q_v290 = __lsl_qbe_load64(q_g_ld_ld_base)
+    q_v292 = q_s12_ehsz
+    q_v293 = q_s9_phnum
+    q_v294 = q_s10_phent
+    q_v295 = __lsl_qbe_s32((q_v292 + __lsl_qbe_s32((q_v293 * q_v294))))
+    q_v296 = q_s12_ehsz
+    q_v297 = q_s9_phnum
+    q_v298 = q_s10_phent
+    q_v299 = __lsl_qbe_s32((q_v296 + __lsl_qbe_s32((q_v297 * q_v298))))
+    q_v300 = __lsl_qbe_load64(q_g_ld_ld_page)
+    q_v302 = q_f_ld_ld_phdr(q_v285, 1, 4, 0, q_v290, q_v295, q_v299, q_v300)
+    q_v303 = q_s10_phent
+    q_v304 = (q_s2_p + (q_v303 * 1))
+    q_s2_p = q_v304
+    call __lsl_qbe_jump(62)
     call __lsl_qbe_label(61)
-    q_v424 = q_s11_shent
-    q_v425 = (q_s2_p + (q_v424 * 1))
-    q_s2_p = q_v425
-    q_v426 = q_s2_p
-    q_v427 = q_v426
-    q_v428 = q_s13_i
-    q_v429 = (q_s19_names + (q_v428 * 4))
-    q_v430 = __lsl_qbe_u32(__lsl_qbe_load32(q_v429))
-    q_v431 = q_v430
-    q_v432 = 0
-    q_v433 = q_s13_i
-    q_v434 = (q_g_ld_ld_osecs + (q_v433 * 56))
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32((q_v434 + 16))), 64, 65)
-    call __lsl_qbe_label(64)
-    q_v432 = 8
-    call __lsl_qbe_jump(66)
-    call __lsl_qbe_label(65)
-    q_v432 = 1
-    call __lsl_qbe_label(66)
-    q_v436 = __lsl_qbe_u32(q_v432)
-    q_v437 = q_s13_i
-    q_v438 = (q_g_ld_ld_osecs + (q_v437 * 56))
-    q_v439 = __lsl_qbe_load64((q_v438 + 8))
-    q_v441 = q_s13_i
-    q_v442 = (q_g_ld_ld_osecs + (q_v441 * 56))
-    q_v443 = __lsl_qbe_load64((q_v442 + 24))
-    q_v445 = q_s13_i
-    q_v446 = (q_g_ld_ld_osecs + (q_v445 * 56))
-    q_v447 = __lsl_qbe_load64((q_v446 + 32))
-    q_v449 = q_s13_i
-    q_v450 = (q_g_ld_ld_osecs + (q_v449 * 56))
-    q_v451 = __lsl_qbe_load64((q_v450 + 40))
-    q_v453 = q_s13_i
-    q_v454 = (q_g_ld_ld_osecs + (q_v453 * 56))
-    q_v455 = __lsl_qbe_load64((q_v454 + 48))
-    q_v457 = q_f_ld_ld_shdr(q_v427, q_v431, q_v436, q_v439, q_v443, q_v447, q_v451, q_v455)
     call __lsl_qbe_label(62)
-    q_v458 = q_s13_i
-    q_v459 = __lsl_qbe_s32((q_v458 + 1))
-    q_s13_i = q_v459
-    call __lsl_qbe_jump(60)
+    q_v305 = q_s2_p
+    q_v309 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v310 = __lsl_qbe_load64((q_v309 + 32))
+    q_v312 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v313 = __lsl_qbe_load64((q_v312 + 24))
+    q_v315 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v316 = __lsl_qbe_load64((q_v315 + 40))
+    q_v318 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v319 = __lsl_qbe_load64((q_v318 + 40))
+    q_v321 = __lsl_qbe_load64(q_g_ld_ld_page)
+    q_v323 = q_f_ld_ld_phdr(q_v305, 1, 5, q_v310, q_v313, q_v316, q_v319, q_v321)
+    q_v324 = q_s10_phent
+    q_v325 = (q_s2_p + (q_v324 * 1))
+    q_s2_p = q_v325
+    q_v326 = q_s2_p
+    q_v330 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v331 = __lsl_qbe_load64((q_v330 + 32))
+    q_v333 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v334 = __lsl_qbe_load64((q_v333 + 24))
+    q_v336 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v337 = __lsl_qbe_load64((q_v336 + 40))
+    q_v339 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v340 = __lsl_qbe_load64((q_v339 + 40))
+    q_v342 = __lsl_qbe_load64(q_g_ld_ld_page)
+    q_v344 = q_f_ld_ld_phdr(q_v326, 1, 4, q_v331, q_v334, q_v337, q_v340, q_v342)
+    q_v345 = q_s10_phent
+    q_v346 = (q_s2_p + (q_v345 * 1))
+    q_s2_p = q_v346
+    q_v347 = q_s2_p
+    q_v348 = q_v347
+    q_v351 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v352 = __lsl_qbe_load64((q_v351 + 32))
+    q_v353 = q_v352
+    q_v354 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v355 = __lsl_qbe_load64((q_v354 + 24))
+    q_v356 = q_v355
+    q_v357 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v358 = __lsl_qbe_load64((q_v357 + 40))
+    q_v359 = q_v358
+    q_v360 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 63, 64)
     call __lsl_qbe_label(63)
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 67, 68)
+    q_v362 = (q_g_ld_ld_barevals + (7 * 8))
+    q_v363 = __lsl_qbe_load64(q_v362)
+    q_v360 = q_v363
+    call __lsl_qbe_jump(65)
+    call __lsl_qbe_label(64)
+    q_v364 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v365 = __lsl_qbe_load64((q_v364 + 24))
+    q_v366 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v367 = __lsl_qbe_load64((q_v366 + 40))
+    q_v360 = (q_v365 + q_v367)
+    call __lsl_qbe_label(65)
+    q_v368 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v369 = __lsl_qbe_load64((q_v368 + 24))
+    q_v370 = (q_v360 - q_v369)
+    q_v371 = __lsl_qbe_load64(q_g_ld_ld_page)
+    q_v373 = q_f_ld_ld_phdr(q_v348, 1, 6, q_v353, q_v356, q_v359, q_v370, q_v371)
+    q_v374 = q_s10_phent
+    q_v375 = (q_s2_p + (q_v374 * 1))
+    q_s2_p = q_v375
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 66, 67)
+    call __lsl_qbe_label(66)
+    q_v377 = q_s2_p
+    q_v381 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v382 = __lsl_qbe_load64((q_v381 + 32))
+    q_v383 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
+    q_v384 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v385 = __lsl_qbe_load64((q_v384 + 24))
+    q_v386 = (q_v382 + (q_v383 - q_v385))
+    q_v387 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
+    q_v389 = __lsl_qbe_load64(q_g_ld_ld_dynsz)
+    q_v391 = __lsl_qbe_load64(q_g_ld_ld_dynsz)
+    q_v394 = q_f_ld_ld_phdr(q_v377, 2, 6, q_v386, q_v387, q_v389, q_v391, 8)
+    q_v395 = q_s10_phent
+    q_v396 = (q_s2_p + (q_v395 * 1))
+    q_s2_p = q_v396
+    call __lsl_qbe_jump(68)
     call __lsl_qbe_label(67)
-    q_v461 = q_s11_shent
-    q_v462 = (q_s2_p + (q_v461 * 1))
-    q_s2_p = q_v462
-    q_v463 = q_s2_p
-    q_v468 = (q_g_ld_ld_baresecs + (0 * 56))
-    q_v469 = __lsl_qbe_load64((q_v468 + 24))
-    q_v471 = (q_g_ld_ld_baresecs + (0 * 56))
-    q_v472 = __lsl_qbe_load64((q_v471 + 32))
-    q_v474 = (q_g_ld_ld_baresecs + (0 * 56))
-    q_v475 = __lsl_qbe_load64((q_v474 + 40))
-    q_v478 = q_f_ld_ld_shdr(q_v463, 26, 8, 3, q_v469, q_v472, q_v475, 4096)
-    q_v479 = q_s11_shent
-    q_v480 = (q_s2_p + (q_v479 * 1))
-    q_s2_p = q_v480
-    q_v481 = q_s2_p
-    q_v486 = (q_g_ld_ld_baresecs + (1 * 56))
-    q_v487 = __lsl_qbe_load64((q_v486 + 24))
-    q_v489 = (q_g_ld_ld_baresecs + (1 * 56))
-    q_v490 = __lsl_qbe_load64((q_v489 + 32))
-    q_v492 = (q_g_ld_ld_baresecs + (1 * 56))
-    q_v493 = __lsl_qbe_load64((q_v492 + 40))
-    q_v496 = q_f_ld_ld_shdr(q_v481, 38, 8, 3, q_v487, q_v490, q_v493, 4096)
-    call __lsl_qbe_jump(69)
     call __lsl_qbe_label(68)
+    q_v397 = q_s2_p
+    q_v406 = q_f_ld_ld_phdr(q_v397, 1685382481, 6, 0, 0, 0, 0, 16)
+    q_v407 = q_s1_buf
+    q_v408 = q_s8_end
+    q_v409 = (q_v407 + (q_v408 * 1))
+    q_v410 = q_s21_strs
+    q_v412 = q_s22_nstrs
+    q_v414 = mem.memcpy(q_v409, q_v410, q_v412)
+    q_v415 = q_s1_buf
+    q_v416 = q_s5_shoff
+    q_v417 = (q_v415 + (q_v416 * 1))
+    q_s2_p = q_v417
+    q_v418 = q_s2_p
+    q_v427 = q_f_ld_ld_shdr(q_v418, 0, 0, 0, 0, 0, 0, 0)
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_dynamic)), 69, 70)
     call __lsl_qbe_label(69)
-    q_v497 = q_s11_shent
-    q_v498 = (q_s2_p + (q_v497 * 1))
-    q_s2_p = q_v498
-    q_v499 = q_s2_p
-    q_v500 = q_v499
-    q_v501 = 0
-    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 70, 71)
+    q_v429 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v430 = __lsl_qbe_load64((q_v429 + 32))
+    q_v431 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v432 = __lsl_qbe_load64((q_v431 + 24))
+    q_s24_rooff = (q_v430 - q_v432)
+    q_v433 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v434 = __lsl_qbe_load64((q_v433 + 32))
+    q_v435 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v436 = __lsl_qbe_load64((q_v435 + 24))
+    q_s25_daoff = (q_v434 - q_v436)
+    q_v437 = q_s11_shent
+    q_v438 = (q_s2_p + (q_v437 * 1))
+    q_s2_p = q_v438
+    q_v439 = q_s2_p
+    q_v443 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v444 = __lsl_qbe_load64((q_v443 + 8))
+    q_v446 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v447 = __lsl_qbe_load64((q_v446 + 24))
+    q_v449 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v450 = __lsl_qbe_load64((q_v449 + 32))
+    q_v452 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v453 = __lsl_qbe_load64((q_v452 + 40))
+    q_v455 = (q_g_ld_ld_osecs + (0 * 56))
+    q_v456 = __lsl_qbe_load64((q_v455 + 48))
+    q_v458 = q_f_ld_ld_shdr(q_v439, 1, 1, q_v444, q_v447, q_v450, q_v453, q_v456)
+    q_v459 = q_s11_shent
+    q_v460 = (q_s2_p + (q_v459 * 1))
+    q_s2_p = q_v460
+    q_v461 = q_s2_p
+    q_v465 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v466 = __lsl_qbe_load64((q_v465 + 8))
+    q_v468 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v469 = __lsl_qbe_load64((q_v468 + 24))
+    q_v471 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v472 = __lsl_qbe_load64((q_v471 + 32))
+    q_v474 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
+    q_v475 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v476 = __lsl_qbe_load64((q_v475 + 24))
+    q_v477 = (q_v474 - q_v476)
+    q_v478 = (q_g_ld_ld_osecs + (1 * 56))
+    q_v479 = __lsl_qbe_load64((q_v478 + 48))
+    q_v481 = q_f_ld_ld_shdr(q_v461, 7, 1, q_v466, q_v469, q_v472, q_v477, q_v479)
+    q_v482 = q_s11_shent
+    q_v483 = (q_s2_p + (q_v482 * 1))
+    q_s2_p = q_v483
+    q_v484 = q_s2_p
+    q_v489 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
+    q_v491 = q_s24_rooff
+    q_v492 = __lsl_qbe_load64(q_g_ld_ld_interpaddr)
+    q_v493 = (q_v491 + q_v492)
+    q_v494 = __lsl_qbe_load64(q_g_ld_ld_interp)
+    q_v496 = mem.strlen(q_v494)
+    q_v497 = (__lsl_qbe_raw_int(q_v496) + 1)
+    q_v499 = q_f_ld_ld_shdr(q_v484, 36, 1, 2, q_v489, q_v493, q_v497, 1)
+    q_v500 = q_s11_shent
+    q_v501 = (q_s2_p + (q_v500 * 1))
+    q_s2_p = q_v501
+    q_v502 = q_s2_p
+    q_v506 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v507 = __lsl_qbe_load64((q_v506 + 8))
+    q_v509 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v510 = __lsl_qbe_load64((q_v509 + 24))
+    q_v512 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v513 = __lsl_qbe_load64((q_v512 + 32))
+    q_v515 = __lsl_qbe_load64(q_g_ld_ld_gotaddr)
+    q_v516 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v517 = __lsl_qbe_load64((q_v516 + 24))
+    q_v518 = (q_v515 - q_v517)
+    q_v519 = (q_g_ld_ld_osecs + (2 * 56))
+    q_v520 = __lsl_qbe_load64((q_v519 + 48))
+    q_v522 = q_f_ld_ld_shdr(q_v502, 15, 1, q_v507, q_v510, q_v513, q_v518, q_v520)
+    q_v523 = q_s11_shent
+    q_v524 = (q_s2_p + (q_v523 * 1))
+    q_s2_p = q_v524
+    q_v525 = q_s2_p
+    q_v530 = __lsl_qbe_load64(q_g_ld_ld_gotaddr)
+    q_v532 = q_s25_daoff
+    q_v533 = __lsl_qbe_load64(q_g_ld_ld_gotaddr)
+    q_v534 = (q_v532 + q_v533)
+    q_v535 = __lsl_qbe_u32(__lsl_qbe_load32(q_g_ld_ld_nimps))
+    q_v536 = (8 * q_v535)
+    q_v538 = q_f_ld_ld_shdr(q_v525, 44, 1, 3, q_v530, q_v534, q_v536, 8)
+    q_v539 = q_s11_shent
+    q_v540 = (q_s2_p + (q_v539 * 1))
+    q_s2_p = q_v540
+    q_v541 = q_s2_p
+    q_v546 = __lsl_qbe_load64(q_g_ld_ld_dynsymaddr)
+    q_v548 = q_s25_daoff
+    q_v549 = __lsl_qbe_load64(q_g_ld_ld_dynsymaddr)
+    q_v550 = (q_v548 + q_v549)
+    q_v551 = __lsl_qbe_u32(__lsl_qbe_load32(q_g_ld_ld_nimps))
+    q_v552 = (24 * (q_v551 + 1))
+    q_v557 = q_f_ld_ld_shdrx(q_v541, 49, 11, 2, q_v546, q_v550, q_v552, 8, 7, 1, 24)
+    q_v558 = q_s11_shent
+    q_v559 = (q_s2_p + (q_v558 * 1))
+    q_s2_p = q_v559
+    q_v560 = q_s2_p
+    q_v565 = __lsl_qbe_load64(q_g_ld_ld_dynstraddr)
+    q_v567 = q_s25_daoff
+    q_v568 = __lsl_qbe_load64(q_g_ld_ld_dynstraddr)
+    q_v569 = (q_v567 + q_v568)
+    q_v570 = __lsl_qbe_load64(q_g_ld_ld_dynstrsz)
+    q_v573 = q_f_ld_ld_shdr(q_v560, 57, 3, 2, q_v565, q_v569, q_v570, 1)
+    q_v574 = q_s11_shent
+    q_v575 = (q_s2_p + (q_v574 * 1))
+    q_s2_p = q_v575
+    q_v576 = q_s2_p
+    q_v581 = __lsl_qbe_load64(q_g_ld_ld_hashaddr)
+    q_v583 = q_s25_daoff
+    q_v584 = __lsl_qbe_load64(q_g_ld_ld_hashaddr)
+    q_v585 = (q_v583 + q_v584)
+    q_v586 = __lsl_qbe_u32(__lsl_qbe_load32(q_g_ld_ld_nimps))
+    q_v587 = (4 * (__lsl_qbe_s32((2 + 1)) + (q_v586 + 1)))
+    q_v592 = q_f_ld_ld_shdrx(q_v576, 65, 5, 2, q_v581, q_v585, q_v587, 8, 6, 0, 4)
+    q_v593 = q_s11_shent
+    q_v594 = (q_s2_p + (q_v593 * 1))
+    q_s2_p = q_v594
+    q_v595 = q_s2_p
+    q_v600 = __lsl_qbe_load64(q_g_ld_ld_reladdr)
+    q_v602 = q_s25_daoff
+    q_v603 = __lsl_qbe_load64(q_g_ld_ld_reladdr)
+    q_v604 = (q_v602 + q_v603)
+    q_v605 = __lsl_qbe_u32(__lsl_qbe_load32(q_g_ld_ld_nimps))
+    q_v606 = (24 * q_v605)
+    q_v611 = q_f_ld_ld_shdrx(q_v595, 71, 4, 2, q_v600, q_v604, q_v606, 8, 6, 0, 24)
+    q_v612 = q_s11_shent
+    q_v613 = (q_s2_p + (q_v612 * 1))
+    q_s2_p = q_v613
+    q_v614 = q_s2_p
+    q_v619 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
+    q_v621 = q_s25_daoff
+    q_v622 = __lsl_qbe_load64(q_g_ld_ld_dynaddr)
+    q_v623 = (q_v621 + q_v622)
+    q_v624 = __lsl_qbe_load64(q_g_ld_ld_dynsz)
+    q_v630 = q_f_ld_ld_shdrx(q_v614, 81, 6, 3, q_v619, q_v623, q_v624, 8, 7, 0, 16)
+    q_v631 = q_s11_shent
+    q_v632 = (q_s2_p + (q_v631 * 1))
+    q_s2_p = q_v632
+    q_v633 = q_s2_p
+    q_v637 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v638 = __lsl_qbe_load64((q_v637 + 8))
+    q_v640 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v641 = __lsl_qbe_load64((q_v640 + 24))
+    q_v643 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v644 = __lsl_qbe_load64((q_v643 + 32))
+    q_v646 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v647 = __lsl_qbe_load64((q_v646 + 40))
+    q_v649 = (q_g_ld_ld_osecs + (3 * 56))
+    q_v650 = __lsl_qbe_load64((q_v649 + 48))
+    q_v652 = q_f_ld_ld_shdr(q_v633, 21, 8, q_v638, q_v641, q_v644, q_v647, q_v650)
+    call __lsl_qbe_jump(71)
     call __lsl_qbe_label(70)
-    q_v501 = 45
-    call __lsl_qbe_jump(72)
-    call __lsl_qbe_label(71)
-    q_v501 = 26
+    q_s13_i = 0
     call __lsl_qbe_label(72)
-    q_v503 = __lsl_qbe_u32(q_v501)
-    q_v507 = q_s8_end
-    q_v509 = q_s21_nstrs
-    q_v512 = q_f_ld_ld_shdr(q_v500, q_v503, 3, 0, 0, q_v507, q_v509, 1)
-    q_v516 = stdio.fopen(q_param0, q_string_996)
-    q_v517 = __lsl_qbe_raw_int(q_v516)
-    q_s3_f = q_v517
-    call __lsl_qbe_branch(q_s3_f, 74, 73)
+    q_v654 = q_s13_i
+    call __lsl_qbe_branch(Int(q_v654 < 4), 73, 75)
     call __lsl_qbe_label(73)
-    q_v522 = q_f_ld_ld_lerr(q_string_1383, [q_param0])
-    call __lsl_qbe_jump(75)
-    call __lsl_qbe_label(74)
-    call __lsl_qbe_label(75)
-    q_s7_n = 0
+    q_v655 = q_s11_shent
+    q_v656 = (q_s2_p + (q_v655 * 1))
+    q_s2_p = q_v656
+    q_v657 = q_s2_p
+    q_v658 = q_v657
+    q_v659 = q_s13_i
+    q_v660 = (q_s20_names + (q_v659 * 4))
+    q_v661 = __lsl_qbe_u32(__lsl_qbe_load32(q_v660))
+    q_v662 = q_v661
+    q_v663 = 0
+    q_v664 = q_s13_i
+    q_v665 = (q_g_ld_ld_osecs + (q_v664 * 56))
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32((q_v665 + 16))), 76, 77)
     call __lsl_qbe_label(76)
-    q_v524 = q_s7_n
-    q_v525 = q_s4_total
-    call __lsl_qbe_branch(__lsl_qbe_ult(q_v524, q_v525), 77, 79)
+    q_v663 = 8
+    call __lsl_qbe_jump(78)
     call __lsl_qbe_label(77)
-    q_v526 = q_s1_buf
-    q_v527 = q_s7_n
-    q_v528 = (q_v526 + (q_v527 * 1))
-    q_v529 = __lsl_qbe_u8(__lsl_qbe_load8(q_v528))
-    q_v531 = q_s3_f
-    q_v533 = stdio.fputc(q_v529, q_v531)
+    q_v663 = 1
     call __lsl_qbe_label(78)
-    q_v534 = q_s7_n
-    q_v535 = (q_v534 + 1)
-    q_s7_n = q_v535
-    call __lsl_qbe_jump(76)
+    q_v667 = __lsl_qbe_u32(q_v663)
+    q_v668 = q_s13_i
+    q_v669 = (q_g_ld_ld_osecs + (q_v668 * 56))
+    q_v670 = __lsl_qbe_load64((q_v669 + 8))
+    q_v672 = q_s13_i
+    q_v673 = (q_g_ld_ld_osecs + (q_v672 * 56))
+    q_v674 = __lsl_qbe_load64((q_v673 + 24))
+    q_v676 = q_s13_i
+    q_v677 = (q_g_ld_ld_osecs + (q_v676 * 56))
+    q_v678 = __lsl_qbe_load64((q_v677 + 32))
+    q_v680 = q_s13_i
+    q_v681 = (q_g_ld_ld_osecs + (q_v680 * 56))
+    q_v682 = __lsl_qbe_load64((q_v681 + 40))
+    q_v684 = q_s13_i
+    q_v685 = (q_g_ld_ld_osecs + (q_v684 * 56))
+    q_v686 = __lsl_qbe_load64((q_v685 + 48))
+    q_v688 = q_f_ld_ld_shdr(q_v658, q_v662, q_v667, q_v670, q_v674, q_v678, q_v682, q_v686)
+    call __lsl_qbe_label(74)
+    q_v689 = q_s13_i
+    q_v690 = __lsl_qbe_s32((q_v689 + 1))
+    q_s13_i = q_v690
+    call __lsl_qbe_jump(72)
+    call __lsl_qbe_label(75)
+    call __lsl_qbe_label(71)
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 79, 80)
     call __lsl_qbe_label(79)
-    q_v536 = q_s3_f
-    q_v538 = stdio.fclose(q_v536)
-    q_v539 = q_s1_buf
-    q_v541 = mem.free(q_v539)
-    q_v544 = libc.c_luxir_chmod_exe(q_param0)
+    q_v692 = q_s11_shent
+    q_v693 = (q_s2_p + (q_v692 * 1))
+    q_s2_p = q_v693
+    q_v694 = q_s2_p
+    q_v699 = (q_g_ld_ld_baresecs + (0 * 56))
+    q_v700 = __lsl_qbe_load64((q_v699 + 24))
+    q_v702 = (q_g_ld_ld_baresecs + (0 * 56))
+    q_v703 = __lsl_qbe_load64((q_v702 + 32))
+    q_v705 = (q_g_ld_ld_baresecs + (0 * 56))
+    q_v706 = __lsl_qbe_load64((q_v705 + 40))
+    q_v709 = q_f_ld_ld_shdr(q_v694, 26, 8, 3, q_v700, q_v703, q_v706, 4096)
+    q_v710 = q_s11_shent
+    q_v711 = (q_s2_p + (q_v710 * 1))
+    q_s2_p = q_v711
+    q_v712 = q_s2_p
+    q_v717 = (q_g_ld_ld_baresecs + (1 * 56))
+    q_v718 = __lsl_qbe_load64((q_v717 + 24))
+    q_v720 = (q_g_ld_ld_baresecs + (1 * 56))
+    q_v721 = __lsl_qbe_load64((q_v720 + 32))
+    q_v723 = (q_g_ld_ld_baresecs + (1 * 56))
+    q_v724 = __lsl_qbe_load64((q_v723 + 40))
+    q_v727 = q_f_ld_ld_shdr(q_v712, 38, 8, 3, q_v718, q_v721, q_v724, 4096)
+    call __lsl_qbe_jump(81)
+    call __lsl_qbe_label(80)
+    call __lsl_qbe_label(81)
+    q_v728 = q_s11_shent
+    q_v729 = (q_s2_p + (q_v728 * 1))
+    q_s2_p = q_v729
+    q_v730 = q_s2_p
+    q_v731 = q_v730
+    q_v732 = 0
+    call __lsl_qbe_branch(__lsl_qbe_s32(__lsl_qbe_load32(q_g_ld_ld_bare)), 82, 83)
+    call __lsl_qbe_label(82)
+    q_v732 = 45
+    call __lsl_qbe_jump(84)
+    call __lsl_qbe_label(83)
+    q_v732 = 26
+    call __lsl_qbe_label(84)
+    q_v734 = __lsl_qbe_u32(q_v732)
+    q_v738 = q_s8_end
+    q_v740 = q_s22_nstrs
+    q_v743 = q_f_ld_ld_shdr(q_v731, q_v734, 3, 0, 0, q_v738, q_v740, 1)
+    q_v747 = stdio.fopen(q_param0, q_string_996)
+    q_v748 = __lsl_qbe_raw_int(q_v747)
+    q_s3_f = q_v748
+    call __lsl_qbe_branch(q_s3_f, 86, 85)
+    call __lsl_qbe_label(85)
+    q_v753 = q_f_ld_ld_lerr(q_string_1383, [q_param0])
+    call __lsl_qbe_jump(87)
+    call __lsl_qbe_label(86)
+    call __lsl_qbe_label(87)
+    q_s7_n = 0
+    call __lsl_qbe_label(88)
+    q_v755 = q_s7_n
+    q_v756 = q_s4_total
+    call __lsl_qbe_branch(__lsl_qbe_ult(q_v755, q_v756), 89, 91)
+    call __lsl_qbe_label(89)
+    q_v757 = q_s1_buf
+    q_v758 = q_s7_n
+    q_v759 = (q_v757 + (q_v758 * 1))
+    q_v760 = __lsl_qbe_u8(__lsl_qbe_load8(q_v759))
+    q_v762 = q_s3_f
+    q_v764 = stdio.fputc(q_v760, q_v762)
+    call __lsl_qbe_label(90)
+    q_v765 = q_s7_n
+    q_v766 = (q_v765 + 1)
+    q_s7_n = q_v766
+    call __lsl_qbe_jump(88)
+    call __lsl_qbe_label(91)
+    q_v767 = q_s3_f
+    q_v769 = stdio.fclose(q_v767)
+    q_v770 = q_s1_buf
+    q_v772 = mem.free(q_v770)
+    q_v775 = libc.c_luxir_chmod_exe(q_param0)
     call __lsl_qbe_label(1)
     return q_result
 end
 
-# QBE 1.3: ld/ld.c:1663
+# QBE 1.3: ld/ld.c:1708
 function q_f_link(q_a0, q_a1, q_a2, q_a3, q_a4, q_a5, q_a6, q_a7):
     q_result = 0
     q_param0 = __lsl_qbe_raw_int(q_a0)
@@ -143723,6 +143945,99 @@ function q_init_q_f_ld_ld_writeexe_q_s18_bareshstr():
     call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s18_bareshstr + 54, 0)
 end
 
+function q_init_q_f_ld_ld_writeexe_q_s19_dynshstr():
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 0, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 1, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 2, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 3, 101)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 4, 120)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 5, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 6, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 7, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 8, 114)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 9, 111)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 10, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 11, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 12, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 13, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 14, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 15, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 16, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 17, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 18, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 19, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 20, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 21, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 22, 98)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 23, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 24, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 25, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 26, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 27, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 28, 104)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 29, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 30, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 31, 114)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 32, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 33, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 34, 98)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 35, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 36, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 37, 105)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 38, 110)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 39, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 40, 101)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 41, 114)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 42, 112)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 43, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 44, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 45, 103)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 46, 111)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 47, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 48, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 49, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 50, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 51, 121)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 52, 110)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 53, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 54, 121)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 55, 109)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 56, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 57, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 58, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 59, 121)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 60, 110)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 61, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 62, 116)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 63, 114)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 64, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 65, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 66, 104)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 67, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 68, 115)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 69, 104)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 70, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 71, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 72, 114)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 73, 101)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 74, 108)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 75, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 76, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 77, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 78, 121)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 79, 110)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 80, 0)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 81, 46)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 82, 100)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 83, 121)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 84, 110)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 85, 97)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 86, 109)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 87, 105)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 88, 99)
+    call __lsl_qbe_store8(q_f_ld_ld_writeexe_q_s19_dynshstr + 89, 0)
+end
+
 # Runtime-independent support for the migrated QBE C interfaces.
 function q_assert(raw_condition, expression, file, line):
     condition = __lsl_qbe_raw_int(raw_condition)
@@ -144055,7 +144370,7 @@ q_string_31 = mem.literal("--build-id=none")
 q_string_32 = mem.literal("-s")
 q_string_33 = mem.literal("-o")
 q_string_34 = mem.literal("--version")
-q_string_35 = mem.literal("LuxIR 0.4.1 (IR 1; runtime ABI none, lsl-0)")
+q_string_35 = mem.literal("LuxIR 0.4.3 (IR 1; runtime ABI none, lsl-0)")
 q_string_36 = mem.literal("hpgxalbVd:o:t:L:e:M:")
 q_string_37 = mem.literal("-")
 q_string_38 = mem.literal("w")
@@ -147507,6 +147822,7 @@ q_f_as_arm_regname_q_s1_alias = mem.malloc(320)
 q_f_ld_ld_libsyms_q_s1_dirs = mem.malloc(64)
 q_f_ld_ld_writeexe_q_s17_shstr = mem.malloc(36)
 q_f_ld_ld_writeexe_q_s18_bareshstr = mem.malloc(55)
+q_f_ld_ld_writeexe_q_s19_dynshstr = mem.malloc(90)
 call q_init_q_g_debug()
 call q_init_q_g_main_tlist()
 call q_init_q_g_util_pool()
@@ -147667,6 +147983,7 @@ call q_init_q_f_as_arm_regname_q_s1_alias()
 call q_init_q_f_ld_ld_libsyms_q_s1_dirs()
 call q_init_q_f_ld_ld_writeexe_q_s17_shstr()
 call q_init_q_f_ld_ld_writeexe_q_s18_bareshstr()
+call q_init_q_f_ld_ld_writeexe_q_s19_dynshstr()
 q_argc = arg_count()
 q_argv = mem.malloc(q_argc * 8)
 for q_index in rang(q_argc):
