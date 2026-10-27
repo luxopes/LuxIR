@@ -29,7 +29,11 @@
  * (BIND_NOW, relokace GLOB_DAT); tabulky .dynsym, .dynstr, .hash,
  * .rela.dyn a .dynamic leží v zapisovatelném segmentu za .data. Žádný
  * symbol se nevyváží, absolutní relokace zůstávají chybou. Tak LSL
- * volá systémové knihovny (glibc, GTK) bez libc ve vlastním runtime. */
+ * volá systémové knihovny (glibc, GTK) bez libc ve vlastním runtime.
+ * Import, který knihovna hostitele definuje s verzí (glibc), dostane
+ * výchozí verzi knihovny (.gnu.version, .gnu.version_r) jako u GNU ld:
+ * nevezaný symbol by ld.so navázal na nejstarší verzi (realpath@GLIBC_2.2.5
+ * nepřijímá NULL). */
 
 typedef struct ISec ISec;
 typedef struct ISym ISym;
@@ -115,6 +119,13 @@ static int *impsyms;        /* importy: index v gsyms */
 static uint nimps;
 static uint64_t pltaddr, interpaddr, gotaddr, dynsymaddr, dynstraddr, hashaddr, reladdr, dynaddr;
 static uint64_t dynstrsz, dynsz;
+/* verze importů: impver[k] jméno výchozí verze nebo 0, implib[k] knihovna;
+ * verneed: dvojice (knihovna, verze) s indexem verze od 2 */
+static char **impver;
+static int *implib;
+static int *impvidx;
+static uint nvers, nverlibs;
+static uint64_t versymaddr, verneedaddr, verneedsz;
 static char *dynstr;
 static char *interp = "/lib64/ld-linux-x86-64.so.2";
 enum { PltEntry = 16 };
@@ -427,18 +438,21 @@ readlibs(char *path)
 /* definované symboly knihovny (SHT_DYNSYM, shndx != 0); 0 = knihovna není
  * na hostiteli (křížový překlad: kontrola se přeskočí) */
 static char **
-libsyms(char *soname, uint *count)
+libsyms(char *soname, uint *count, char ***versions)
 {
 	static char *dirs[] = {"/lib64/", "/usr/lib64/", "/usr/lib/x86_64-linux-gnu/", "/lib/x86_64-linux-gnu/", "/usr/lib/", "/lib/", "/usr/local/lib/", 0};
 	char path[1024], **names;
 	uchar *d, *sh, *st;
 	FILE *f;
 	long cap, len, got;
-	uint64_t shoff, off, size, stroff, k, n;
-	uint shnum, shent, link, nn;
+	uint64_t shoff, off, size, stroff, k, n, vsoff, vdoff, vdstr;
+	uint shnum, shent, link, nn, nvd;
 	int i;
+	char **vnames, **vers;
+	uint nvnames;
 
 	*count = 0;
+	*versions = 0;
 	f = 0;
 	for (i=0; dirs[i]; i++) {
 		if (strlen(dirs[i]) + strlen(soname) + 1 > sizeof path)
@@ -476,6 +490,42 @@ libsyms(char *soname, uint *count)
 	shnum = rd(d + 60, 2);
 	names = 0;
 	nn = 0;
+	/* .gnu.version (SHT_GNU_versym) a .gnu.version_d (SHT_GNU_verdef):
+	 * jména verzí podle indexu */
+	vsoff = 0;
+	vdoff = 0;
+	vdstr = 0;
+	nvd = 0;
+	for (k=0; k<shnum; k++) {
+		sh = d + shoff + k * shent;
+		if (rd(sh + 4, 4) == 0x6fffffff)
+			vsoff = rd(sh + 24, 8);
+		if (rd(sh + 4, 4) == 0x6ffffffd) {
+			vdoff = rd(sh + 24, 8);
+			nvd = rd(sh + 44, 4);
+			vdstr = rd(d + shoff + rd(sh + 40, 4) * shent + 24, 8);
+		}
+	}
+	vnames = 0;
+	nvnames = 0;
+	if (vsoff && vdoff) {
+		uchar *v = d + vdoff;
+		for (k=0; k<nvd; k++) {
+			uint idx = rd(v + 4, 2);
+			/* GROW roste po jednom prvku (mocniny dvou) */
+			while (nvnames <= idx) {
+				GROW(vnames, nvnames + 1);
+				vnames[nvnames++] = 0;
+			}
+			/* první Verdaux je jméno verze; index 1 je základ (soname) */
+			if (idx > 1)
+				vnames[idx] = (char *)d + vdstr + rd(v + rd(v + 12, 4), 4);
+			if (rd(v + 16, 4) == 0)
+				break;
+			v += rd(v + 16, 4);
+		}
+	}
+	vers = 0;
 	for (k=0; k<shnum; k++) {
 		sh = d + shoff + k * shent;
 		if (rd(sh + 4, 4) != 11)      /* SHT_DYNSYM */
@@ -487,25 +537,34 @@ libsyms(char *soname, uint *count)
 		st = d + stroff;
 		for (n=0; n<size/24; n++) {
 			uchar *e = d + off + n * 24;
+			uint vs;
 			if (rd(e + 6, 2) == 0)    /* nedefinovaný */
 				continue;
+			vs = vsoff ? rd(d + vsoff + 2 * n, 2) : 1;
+			/* skrytá (starší) verze: zůstává jen pro staré programy */
+			if (vs & 0x8000)
+				continue;
 			GROW(names, nn + 1);
+			GROW(vers, nn + 1);
+			vers[nn] = vs < nvnames ? vnames[vs] : 0;
 			names[nn++] = (char *)st + rd(e, 4);
 		}
 		break;
 	}
 	*count = nn;
+	*versions = vers;
 	return names;   /* d zůstává: jména do něj ukazují */
 }
 
-static int
+/* index+1 jména v names, 0 když chybí */
+static uint
 symin(char **names, uint count, char *name)
 {
 	uint n;
 
 	for (n=0; n<count; n++)
 		if (strcmp(names[n], name) == 0)
-			return 1;
+			return n + 1;
 	return 0;
 }
 
@@ -514,27 +573,77 @@ symin(char **names, uint count, char *name)
 static void
 checkimports(void)
 {
-	char ***syms;
-	uint *counts, n, k;
+	char ***syms, ***vers;
+	uint *counts, n, k, j, at;
 	int known;
 
 	syms = emalloc((ndynlibs + 1) * sizeof syms[0]);
+	vers = emalloc((ndynlibs + 1) * sizeof vers[0]);
 	counts = emalloc((ndynlibs + 1) * sizeof counts[0]);
+	impver = emalloc((nimps + 1) * sizeof impver[0]);
+	implib = emalloc((nimps + 1) * sizeof implib[0]);
+	impvidx = emalloc((nimps + 1) * sizeof impvidx[0]);
+	for (k=0; k<nimps; k++) {
+		impver[k] = 0;
+		implib[k] = -1;
+		impvidx[k] = 1;
+	}
 	known = 0;
 	for (n=0; n<ndynlibs; n++) {
-		syms[n] = libsyms(dynlibs[n], &counts[n]);
+		syms[n] = libsyms(dynlibs[n], &counts[n], &vers[n]);
 		if (syms[n])
 			known = 1;
 	}
 	if (!known)
 		return;
 	for (k=0; k<nimps; k++) {
+		at = 0;
 		for (n=0; n<ndynlibs; n++)
-			if (syms[n] && symin(syms[n], counts[n], gsyms[impsyms[k]].name))
+			if (syms[n] && (at = symin(syms[n], counts[n], gsyms[impsyms[k]].name)))
 				break;
 		if (n == ndynlibs)
 			lerr("undefined symbol %s (not in %s%s)", gsyms[impsyms[k]].name, dynlibs[0], ndynlibs > 1 ? ", ..." : "");
+		implib[k] = n;
+		impver[k] = vers[n][at - 1];
 	}
+	/* indexy verzí: stejná dvojice (knihovna, verze) sdílí index; pořadí
+	 * podle knihoven, pak podle prvního výskytu */
+	nvers = 0;
+	nverlibs = 0;
+	for (n=0; n<ndynlibs; n++) {
+		int used = 0;
+		for (k=0; k<nimps; k++) {
+			if (implib[k] != (int)n || !impver[k])
+				continue;
+			for (j=0; j<k; j++)
+				if (implib[j] == (int)n && impver[j] && strcmp(impver[j], impver[k]) == 0)
+					break;
+			if (j < k) {
+				impvidx[k] = impvidx[j];
+				continue;
+			}
+			impvidx[k] = 2 + nvers++;
+			used = 1;
+		}
+		nverlibs += used;
+	}
+}
+
+/* hash jména verze (vna_hash) jako hash ELF */
+static uint32_t
+elfhash(char *s)
+{
+	uint32_t h, g;
+
+	h = 0;
+	for (; *s; s++) {
+		h = (h << 4) + (uchar)*s;
+		g = h & 0xf0000000;
+		if (g)
+			h ^= g >> 24;
+		h &= ~g;
+	}
+	return h;
 }
 
 /* ---- symboly ---- */
@@ -896,6 +1005,9 @@ layoutdynamic(uint64_t va)
 		len += strlen(gsyms[impsyms[n]].name) + 1;
 	for (n=0; n<ndynlibs; n++)
 		len += strlen(dynlibs[n]) + 1;
+	for (n=0; n<nimps; n++)
+		if (nvers && impver[n])
+			len += strlen(impver[n]) + 1;
 	dynstr = emalloc(len + 1);
 	memset(dynstr, 0, len + 1);
 	len = 1;
@@ -908,6 +1020,12 @@ layoutdynamic(uint64_t va)
 		memcpy(dynstr + len, dynlibs[n], strlen(dynlibs[n]));
 		len += strlen(dynlibs[n]) + 1;
 	}
+	/* jména verzí (opakovaná jsou zbytečná, ale neškodí) */
+	for (n=0; n<nimps; n++)
+		if (nvers && impver[n]) {
+			memcpy(dynstr + len, impver[n], strlen(impver[n]));
+			len += strlen(impver[n]) + 1;
+		}
 	dynstrsz = len;
 	dynstraddr = va;
 	va = alignup(va + len, 8);
@@ -919,8 +1037,17 @@ layoutdynamic(uint64_t va)
 	dynaddr = va;
 	/* NEEDED×n, HASH, STRTAB, SYMTAB, STRSZ, SYMENT, RELA, RELASZ, RELAENT,
 	 * FLAGS, FLAGS_1, DEBUG, NULL */
-	dynsz = 16 * ((uint64_t)ndynlibs + 12);
+	dynsz = 16 * ((uint64_t)ndynlibs + 12 + (nvers ? 3 : 0));
 	va += dynsz;
+	if (nvers) {
+		/* .gnu.version: Elf64_Half na položku .dynsym; .gnu.version_r:
+		 * Verneed (16 B) na knihovnu s verzemi a Vernaux (16 B) na verzi */
+		versymaddr = va;
+		va = alignup(va + 2 * ((uint64_t)nimps + 1), 8);
+		verneedaddr = va;
+		verneedsz = 16 * ((uint64_t)nverlibs + nvers);
+		va += verneedsz;
+	}
 	osecs[OData].size = va - osecs[OData].addr;
 	return va;
 }
@@ -1489,6 +1616,81 @@ shdrx(uchar *p, uint32_t name, uint32_t type, uint64_t flags, uint64_t addr, uin
 }
 
 /* dynamický program: obsah PLT, GOT, tabulek ld.so a .dynamic */
+/* .gnu.version a .gnu.version_r; offsety jmen v .dynstr jako v layoutdynamic */
+static void
+writeversions(uchar *b)
+{
+	uint64_t libname[64], vername, off, at;
+	uint n, k, j, cnt, done, lib;
+	uchar *p, *last;
+
+	off = 1;
+	for (n=0; n<nimps; n++)
+		off += strlen(gsyms[impsyms[n]].name) + 1;
+	for (n=0; n<ndynlibs; n++) {
+		if (n < 64)
+			libname[n] = off;
+		off += strlen(dynlibs[n]) + 1;
+	}
+	vername = off;
+	/* .gnu.version: 0 lokální (nulová položka), 1 globální bez verze */
+	wr(b + versymaddr, 0, 2);
+	for (k=0; k<nimps; k++)
+		wr(b + versymaddr + 2 * (k + 1), impvidx[k], 2);
+	at = verneedaddr;
+	last = 0;
+	done = 0;
+	for (lib=0; lib<ndynlibs; lib++) {
+		cnt = 0;
+		for (k=0; k<nimps; k++)
+			if (implib[k] == (int)lib && impver[k]) {
+				for (j=0; j<k; j++)
+					if (implib[j] == (int)lib && impvidx[j] == impvidx[k])
+						break;
+				if (j == k)
+					cnt++;
+			}
+		if (!cnt)
+			continue;
+		if (lib >= 64)
+			lerr("too many libraries with symbol versions");
+		if (last)
+			wr(last + 12, at - (uint64_t)(last - b), 4);   /* vn_next */
+		p = b + at;
+		last = p;
+		wr(p, 1, 2);                 /* vn_version */
+		wr(p + 2, cnt, 2);           /* vn_cnt */
+		wr(p + 4, libname[lib], 4);  /* vn_file */
+		wr(p + 8, 16, 4);            /* vn_aux */
+		wr(p + 12, 0, 4);            /* vn_next */
+		at += 16;
+		n = 0;
+		off = vername;
+		for (k=0; k<nimps; k++) {
+			if (!impver[k])
+				continue;
+			if (implib[k] == (int)lib) {
+				for (j=0; j<k; j++)
+					if (implib[j] == (int)lib && impvidx[j] == impvidx[k])
+						break;
+				if (j == k) {
+					p = b + at;
+					wr(p, elfhash(impver[k]), 4);   /* vna_hash */
+					wr(p + 4, 0, 2);                /* vna_flags */
+					wr(p + 6, impvidx[k], 2);       /* vna_other */
+					wr(p + 8, off, 4);              /* vna_name */
+					wr(p + 12, ++n < cnt ? 16 : 0, 4);
+					at += 16;
+				}
+			}
+			off += strlen(impver[k]) + 1;
+		}
+		done += cnt;
+	}
+	if (done != nvers)
+		lerr("symbol version table mismatch");
+}
+
 static void
 writedynamic(uchar *buf)
 {
@@ -1536,6 +1738,18 @@ writedynamic(uchar *buf)
 		off += strlen(name) + 1;
 		p += 16;
 	}
+	if (nvers) {
+		uint64_t vtags[3][2] = {
+			{0x6ffffff0, versymaddr},      /* DT_VERSYM */
+			{0x6ffffffe, verneedaddr},     /* DT_VERNEED */
+			{0x6fffffff, nverlibs},        /* DT_VERNEEDNUM */
+		};
+		for (n=0; n<3; n++) {
+			wr(p, vtags[n][0], 8);
+			wr(p + 8, vtags[n][1], 8);
+			p += 16;
+		}
+	}
 	{
 		uint64_t tags[12][2] = {
 			{4, hashaddr}, {5, dynstraddr}, {6, dynsymaddr}, {10, dynstrsz}, {11, 24},
@@ -1551,6 +1765,8 @@ writedynamic(uchar *buf)
 			p += 16;
 		}
 	}
+	if (nvers)
+		writeversions(b);
 }
 
 static void
@@ -1568,6 +1784,8 @@ writeexe(char *out)
 	 * je strip/objcopy (BFD skládá soubor ze sekcí) zachoval; data v nich
 	 * leží uvnitř segmentů .rodata a .data, hlavičky sekcí se nepřekrývají */
 	static char dynshstr[] = "\0.text\0.rodata\0.data\0.bss\0.shstrtab\0.interp\0.got\0.dynsym\0.dynstr\0.hash\0.rela.dyn\0.dynamic";
+	/* totéž s .gnu.version (90) a .gnu.version_r (103) */
+	static char dynvershstr[] = "\0.text\0.rodata\0.data\0.bss\0.shstrtab\0.interp\0.got\0.dynsym\0.dynstr\0.hash\0.rela.dyn\0.dynamic\0.gnu.version\0.gnu.version_r";
 	uint32_t names[NOut] = {1, 7, 15, 21};
 	char *strs;
 	uint64_t nstrs;
@@ -1576,9 +1794,9 @@ writeexe(char *out)
 	/* bare metal: bez segmentu hlaviček, sekce bez vstupu za .bss;
 	 * dynamický program: PHDR, INTERP a DYNAMIC navíc */
 	phnum = bare ? 4 : dynamic ? 8 : 5;
-	nsh = bare ? NOut + 4 : dynamic ? NOut + 9 : NOut + 2;
-	strs = bare ? bareshstr : dynamic ? dynshstr : shstr;
-	nstrs = bare ? sizeof bareshstr : dynamic ? sizeof dynshstr : sizeof shstr;
+	nsh = bare ? NOut + 4 : dynamic ? NOut + 9 + (nvers ? 2 : 0) : NOut + 2;
+	strs = bare ? bareshstr : dynamic ? (nvers ? dynvershstr : dynshstr) : shstr;
+	nstrs = bare ? sizeof bareshstr : dynamic ? (nvers ? sizeof dynvershstr : sizeof dynshstr) : sizeof shstr;
 	phent = elf64 ? 56 : 32;
 	shent = elf64 ? 64 : 40;
 	ehsz = elf64 ? 64 : 52;
@@ -1680,6 +1898,12 @@ writeexe(char *out)
 		p += shent;
 		shdrx(p, 81, 6, 3, dynaddr, daoff + dynaddr, dynsz, 8, 7, 0, 16);
 		p += shent;
+		if (nvers) {
+			shdrx(p, 90, 0x6fffffff, 2, versymaddr, daoff + versymaddr, 2 * ((uint64_t)nimps + 1), 2, 6, 0, 2);
+			p += shent;
+			shdrx(p, 103, 0x6ffffffe, 2, verneedaddr, daoff + verneedaddr, verneedsz, 8, 7, nverlibs, 0);
+			p += shent;
+		}
 		shdr(p, 21, 8, osecs[OBss].flags, osecs[OBss].addr, osecs[OBss].off, osecs[OBss].size, osecs[OBss].align);
 	} else
 	for (i=0; i<NOut; i++) {
